@@ -1,0 +1,21 @@
+<html>
+    <head>
+        <title> torrent.ano </title>
+    </head>
+    <body>
+        <center>
+        <table>
+            <thead>
+                <tr>category</tr>
+            </thead>
+            <tbody>
+                {{ range .Categories }}
+                <tr>
+                    <td><a href="/c/{{ .ID }}">{{ .Name }}</a></td>
+                </tr>
+                {{ end }}
+            </tbody>
+        </table>
+        </center>
+    </body>
+</html>

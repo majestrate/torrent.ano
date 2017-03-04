@@ -1,0 +1,47 @@
+<html>
+    <head>
+        <title> torrent.ano -- {{ .Category.Name }} </title>
+    </head>
+    <body>
+        <center>
+            <h1> {{ .Category.Name }} </h1>
+        <table>
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Name</th>
+                    <th>Size</th>
+                    <th>Uploaded</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{ range .Torrents }}
+                <tr>
+                    <td><a href="{{ .DownloadLink }}"><img src="/static/download.png"></img></a></td>
+                    <td>{{ .Name}}</td>
+                    <td>{{ .Size }}</td>
+                    <td>{{ .UploadedAt }}</td>
+                </tr>{{ end }}
+            </tbody>
+        </table>
+        <hr/>
+        <p> add a torrent </p>
+        <form method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="captcha-id" value="{{ .Captcha }}" />
+            <input type="file" name="torrent-file" />
+            <br/>
+            <label for="name">Name of Torrent</label>
+            <input name="torrent-name" id="name" />
+            <br/>
+            <label for="tags">Tags</label>
+            <input name="torrent-tags" id="tags" />
+            <br/>
+            <img src="/captcha/{{ .Captcha }}.png"></img>
+            <br/>
+            <label for="captcha">captcha solution:</label>
+            <input id="captcha" name="captcha-solution" />
+            <input type="submit" value="upload" />
+        </form>
+        </center>
+    </body>
+</html>

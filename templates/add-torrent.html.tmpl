@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+    <head>
+        <title> torrent.ano </title>
+    </head>
+    <body>
+        <p><a href="search"> search torrents </a></p>
+        <hr/>
+        <p> add a torrent </p>
+        <form method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="captcha-id" value="{{ .Captcha }}" />
+            <input type="file" name="torrent" />
+            <br/>
+            <img src="captcha/{{ .Captcha }}.png"></img>
+            <br/>
+            <label for="captcha">captcha solution:</label>
+            <input id="captcha" name="captcha-solution" />
+            <input type="submit" value="upload" />
+        </form>
+    </body>
+</html>
