@@ -15,4 +15,5 @@ type DB interface {
 	GetCategoryByID(id int) (*model.Category, error)
 	FindTorrentsInCategory(*model.Category) ([]model.Torrent, error)
 	GetAllCategories() ([]model.Category, error)
+	GetFrontPageTorrents() ([]model.Torrent, error)
 }

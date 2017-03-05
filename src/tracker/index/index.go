@@ -230,8 +230,14 @@ func (s *Server) serveFrontPage(w http.ResponseWriter, r *http.Request) {
 		s.Error(w, "failed to fetch categories: "+err.Error())
 		return
 	}
+	torrents, err := s.DB.GetFrontPageTorrents()
+	if err != nil {
+		s.Error(w, "failed to fetch front page torrents: "+err.Error())
+		return
+	}
 	err = s.tmpl.ExecuteTemplate(w, "frontpage.html.tmpl", map[string]interface{}{
 		"Categories": cats,
+		"Torrents":   torrents,
 	})
 	if err != nil {
 		log.Errorf("failed to render front page: %s", err)

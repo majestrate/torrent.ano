@@ -77,16 +77,28 @@ func (st *Postgres) Init() (err error) {
 	return
 }
 
-// do transaction with guard
-func (st *Postgres) doTX(visit func(*sql.Tx) error) (err error) {
-	var tx *sql.Tx
-	tx, err = st.conn.Begin()
+func (st *Postgres) GetFrontPageTorrents() (torrents []model.Torrent, err error) {
+	var rows *sql.Rows
+	rows, err = st.conn.Query(fmt.Sprintf("SELECT name, uploaded_at, total_size, category_id FROM %s ORDER BY uploaded_at DESC LIMIT 10", tableMetaInfo))
 	if err == nil {
-		err = visit(tx)
-		if err == nil {
-			err = tx.Commit()
+		for rows.Next() {
+			var t model.Torrent
+			rows.Scan(&t.Name, &t.Uploaded, &t.Size, &t.Category.ID)
+			torrents = append(torrents, t)
+		}
+		rows.Close()
+	}
+	for _, t := range torrents {
+		cat, _ := st.GetCategoryByID(t.Category.ID)
+		if cat != nil {
+			t.Category.Name = cat.Name
 		}
 	}
+
+	if err == sql.ErrNoRows {
+		err = nil
+	}
+
 	return
 }
 

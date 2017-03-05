@@ -5,10 +5,9 @@
     <body>
         <center>
             <h1> torrent.ano </h1>
+            <hr />
+            <h3> Categories </h3>
         <table>
-            <thead>
-                <tr>category</tr>
-            </thead>
             <tbody>
                 {{ range .Categories }}
                 <tr>
@@ -17,6 +16,26 @@
                 {{ end }}
             </tbody>
         </table>
+        <hr />
+        <h3> Recent Uploads </h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Name</th>
+                    <th>Uploaded</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{ range .Torrents }}
+                <tr>
+                    <td><a href="/c/{{ .Caterogy.ID }}/">{{ .Category.Name }}</a></td>
+                    <td><a href="/t/{{ .InfoHash }}/">{{ .Name}}</td>
+                    <td>{{ .UploadedAt }}</td>
+                </tr>{{ end }}
+            </tbody>
+        </table>
+
         </center>
     </body>
 </html>
