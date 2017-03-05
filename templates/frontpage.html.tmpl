@@ -29,7 +29,7 @@
             <tbody>
                 {{ range .Torrents }}
                 <tr>
-                    <td><a href="/c/{{ .Caterogy.ID }}/">{{ .Category.Name }}</a></td>
+                    <td><a href="/c/{{ .Category.ID }}/">{{ .Category.Name }}</a></td>
                     <td><a href="/t/{{ .InfoHash }}/">{{ .Name}}</td>
                     <td>{{ .UploadedAt }}</td>
                 </tr>{{ end }}
