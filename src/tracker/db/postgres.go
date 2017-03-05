@@ -84,18 +84,12 @@ func (st *Postgres) GetFrontPageTorrents() (torrents []model.Torrent, err error)
 		for rows.Next() {
 			var t model.Torrent
 			rows.Scan(&t.Name, &t.Uploaded, &t.Size, &t.Category.ID)
+			cat, _ := st.GetCategoryByID(t.Category.ID)
+			t.Category.Name = cat.Name
 			torrents = append(torrents, t)
 		}
 		rows.Close()
-	}
-	for _, t := range torrents {
-		cat, _ := st.GetCategoryByID(t.Category.ID)
-		if cat != nil {
-			t.Category.Name = cat.Name
-		}
-	}
-
-	if err == sql.ErrNoRows {
+	} else if err == sql.ErrNoRows {
 		err = nil
 	}
 
