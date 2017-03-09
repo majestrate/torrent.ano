@@ -7,6 +7,7 @@ import (
 	_ "github.com/lib/pq"
 	"tracker/config"
 	"tracker/log"
+	"tracker/metainfo"
 	"tracker/model"
 )
 
@@ -143,6 +144,21 @@ func (st *Postgres) FindTorrentsInCategory(cat *model.Category) (torrents []mode
 	return
 }
 
+func (st *Postgres) GetTorrentFiles(ih [20]byte) (files []model.File, err error) {
+	ihstr := hex.EncodeToString(ih[:])
+	var rows *sql.Rows
+	rows, err = st.conn.Query(fmt.Sprintf("SELECT filename, filesize FROM %s WHERE meta_infohash = $1", tableFiles), ihstr)
+	if err == nil {
+		for rows.Next() {
+			var f model.File
+			rows.Scan(&f.Name, &f.Size)
+			files = append(files, f)
+		}
+		rows.Close()
+	}
+	return
+}
+
 func (st *Postgres) FindTorrentsWithTags(tags []model.Tag) (torrents []model.Torrent, err error) {
 	return
 }
@@ -169,12 +185,21 @@ func (st *Postgres) GetTagByName(name string) (tag *model.Tag, err error) {
 	return
 }
 
-func (st *Postgres) StoreTorrent(t *model.Torrent) (err error) {
+func (st *Postgres) StoreTorrent(t *model.Torrent, i *metainfo.TorrentFile) (err error) {
 	ih := t.InfoHash()
 	// insert torrent meta info
-	_, err = st.conn.Exec(fmt.Sprintf("INSERT INTO %s(infohash, pieces_size, total_size, name, uploaded_at, category_id) VALUES ($1, $2, $3, $4, $5, $6)", tableMetaInfo), ih, t.PieceSize, t.Size, t.Name, t.Uploaded, t.Category.ID)
+	_, err = st.conn.Exec(fmt.Sprintf("INSERT INTO %s (infohash, pieces_size, total_size, name, uploaded_at, category_id) VALUES ($1, $2, $3, $4, $5, $6)", tableMetaInfo), ih, t.PieceSize, t.Size, t.Name, t.Uploaded, t.Category.ID)
 	if err != nil {
 		return
+	}
+
+	// insert files
+	files := i.Info.GetFiles()
+	for _, f := range files {
+		_, err = st.conn.Exec(fmt.Sprintf("INSERT INTO %s (meta_infohash, filesize, filename) VALUES ( $1, $2, $3 )", tableFiles), ih, f.Length, f.Path.FilePath())
+		if err != nil {
+			return
+		}
 	}
 
 	// insert tags

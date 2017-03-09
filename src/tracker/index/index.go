@@ -1,6 +1,7 @@
 package index
 
 import (
+	"encoding/hex"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -16,9 +17,6 @@ import (
 	"tracker/metainfo"
 	"tracker/model"
 )
-
-const frontPage = "frontpage.html.tmpl"
-const categoryPage = "torrent-category.html.tmpl"
 
 type Server struct {
 	cfg  *config.IndexConfig
@@ -135,7 +133,7 @@ func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Ca
 				Name: tname,
 			})
 		}
-		err = store.StoreTorrent(torrent)
+		err = store.StoreTorrent(torrent, t)
 		if err != nil {
 			s.Error(w, "could not store torrent: "+err.Error())
 			return
@@ -244,6 +242,34 @@ func (s *Server) serveFrontPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
+	ihstr := strings.Trim(r.URL.Path[3:], "/")
+	ihbytes, err := hex.DecodeString(ihstr)
+	if err == nil {
+		if len(ihbytes) == 20 {
+			var ih [20]byte
+			copy(ih[:], ihbytes)
+			var t *model.Torrent
+			t, err = s.DB.FindTorrentByInfohash(ih)
+			if t != nil {
+				t.GetFiles = func() []model.File {
+					files, _ := s.DB.GetTorrentFiles(ih)
+					return files
+				}
+				// found torrent
+				err = s.tmpl.ExecuteTemplate(w, "torrent.html.tmpl", map[string]interface{}{
+					"Torrent": t,
+				})
+				if err != nil {
+					log.Errorf("failed to render torrent page: %s", err)
+				}
+				return
+			}
+		}
+	}
+	http.NotFound(w, r)
+}
+
 func New(cfg *config.IndexConfig) (s *Server) {
 	s = &Server{
 		cfg:  cfg,
@@ -256,6 +282,7 @@ func New(cfg *config.IndexConfig) (s *Server) {
 	s.mux.Handle("/captcha/", captcha.Server(cfg.CaptchaWidth, cfg.CaptchaHeight))
 	s.mux.HandleFunc("/c/", s.handleCategoryPage)
 	s.mux.HandleFunc("/dl/", s.serveTorrent)
+	s.mux.HandleFunc("/t/", s.serveTorrentInfo)
 	s.mux.HandleFunc("/", s.serveFrontPage)
 	s.mux.HandleFunc("/search/", s.handleSearch)
 	return

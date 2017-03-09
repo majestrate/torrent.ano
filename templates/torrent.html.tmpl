@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+    <head>
+        <title> torrent.ano - {{ .Torrent.Name }} </title>
+    </head>
+    <body>
+
+        <table>
+            <tbody>
+                <tr>
+                    <td>Name </td>
+                    <td>{{ .Torrent.Name }}</td>
+                </tr>
+                <tr>
+                    <td>Infohash </td>
+                    <td>{{ .Torrent.InfoHash }}</td>
+                </tr>
+                <tr>
+                    <td><a href="{{ .Torrent.DownloadLink }}">Download</a></td>
+                    <td><a href="{{ .Torrent.Magnet }}">Magnet</a></td>
+                </tr>
+            </tbody>
+        </table>
+        <hr />
+        <p> Files </p>
+        <table>
+            <thead>
+                <tr> Name </tr>
+                <tr> Size </tr>
+            </thead>
+            <tbody>
+                {{ range .Torrent.GetFiles }}
+                <tr>
+                    <td> {{ .Name }} </td>
+                    <td> {{ .Size }} B </td>
+                </tr>
+                {{ end }}
+                <tr>
+                </tr>
+                <tr>
+                    <td> Total Size: </td>
+                    <td> {{ .Torrent.Size }} B </td>
+                </tr>
+            </tbody>
+        </table>
+
+    </body>
+</html>

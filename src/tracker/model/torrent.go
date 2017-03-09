@@ -6,6 +6,11 @@ import (
 	"time"
 )
 
+type File struct {
+	Name string
+	Size uint64
+}
+
 type Torrent struct {
 	Name         string
 	Tags         []Tag
@@ -15,6 +20,7 @@ type Torrent struct {
 	Uploaded     int64
 	IH           [20]byte
 	AnnounceURLS []string
+	GetFiles     func() []File
 }
 
 func (t *Torrent) UploadedAt() time.Time {
