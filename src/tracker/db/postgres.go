@@ -79,11 +79,14 @@ func (st *Postgres) Init() (err error) {
 
 func (st *Postgres) GetFrontPageTorrents() (torrents []model.Torrent, err error) {
 	var rows *sql.Rows
-	rows, err = st.conn.Query(fmt.Sprintf("SELECT name, uploaded_at, total_size, category_id FROM %s ORDER BY uploaded_at DESC LIMIT 10", tableMetaInfo))
+	rows, err = st.conn.Query(fmt.Sprintf("SELECT infohash, name, uploaded_at, total_size, category_id FROM %s ORDER BY uploaded_at DESC LIMIT 10", tableMetaInfo))
 	if err == nil {
 		for rows.Next() {
 			var t model.Torrent
-			rows.Scan(&t.Name, &t.Uploaded, &t.Size, &t.Category.ID)
+			var ih string
+			rows.Scan(&ih, &t.Name, &t.Uploaded, &t.Size, &t.Category.ID)
+			infohash, _ := hex.DecodeString(ih)
+			copy(t.IH[:], infohash)
 			cat, _ := st.GetCategoryByID(t.Category.ID)
 			t.Category.Name = cat.Name
 			torrents = append(torrents, t)
