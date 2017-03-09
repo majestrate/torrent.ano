@@ -197,6 +197,7 @@ func (s *Server) handleCategoryPage(w http.ResponseWriter, r *http.Request) {
 			"Torrents": torrents,
 			"Category": cat,
 			"Captcha":  captcha.New(),
+			"Site":     s.cfg.SiteName,
 		})
 		if err != nil {
 			log.Errorf("failed to render category page: %s", err)
@@ -236,6 +237,7 @@ func (s *Server) serveFrontPage(w http.ResponseWriter, r *http.Request) {
 	err = s.tmpl.ExecuteTemplate(w, "frontpage.html.tmpl", map[string]interface{}{
 		"Categories": cats,
 		"Torrents":   torrents,
+		"Site":       s.cfg.SiteName,
 	})
 	if err != nil {
 		log.Errorf("failed to render front page: %s", err)
@@ -257,6 +259,7 @@ func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 				err = s.tmpl.ExecuteTemplate(w, "torrent.html.tmpl", map[string]interface{}{
 					"Torrent": t,
 					"Files":   files,
+					"Site":    s.cfg.SiteName,
 				})
 				if err != nil {
 					log.Errorf("failed to render torrent page: %s", err)

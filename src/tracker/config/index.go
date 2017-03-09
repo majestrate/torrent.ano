@@ -6,6 +6,7 @@ import (
 )
 
 const DefaultTrackerURL = "http://21.3.37.31:6881/announce"
+const DefaultSiteName = "torrent.ano"
 
 type IndexConfig struct {
 	CaptchaWidth  int
@@ -15,6 +16,7 @@ type IndexConfig struct {
 	TemplateDir   string
 	StaticDir     string
 	TorrentsDir   string
+	SiteName      string
 }
 
 func (cfg *IndexConfig) Load(s *parser.Section) (err error) {
@@ -25,5 +27,6 @@ func (cfg *IndexConfig) Load(s *parser.Section) (err error) {
 	cfg.TemplateDir = s.Get("template-dir", "./templates/")
 	cfg.StaticDir = s.Get("static-dir", "./static/")
 	cfg.TorrentsDir = s.Get("torrents-dir", "./torrents/")
+	cfg.SiteName = s.Get("site-name", DefaultSiteName)
 	return nil
 }

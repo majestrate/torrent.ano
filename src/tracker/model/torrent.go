@@ -20,7 +20,6 @@ type Torrent struct {
 	Uploaded     int64
 	IH           [20]byte
 	AnnounceURLS []string
-	GetFiles     func() []File
 }
 
 func (t *Torrent) UploadedAt() time.Time {
