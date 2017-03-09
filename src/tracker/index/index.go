@@ -2,6 +2,7 @@ package index
 
 import (
 	"encoding/hex"
+	"encoding/xml"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -169,6 +170,8 @@ func (s *Server) NotFound(w http.ResponseWriter, p map[string]interface{}) {
 
 func (s *Server) handleCategoryPage(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
+	feed := r.URL.Query().Get("t") == "atom"
+
 	p := map[string]interface{}{
 		"Message": "No Such Category",
 	}
@@ -193,12 +196,25 @@ func (s *Server) handleCategoryPage(w http.ResponseWriter, r *http.Request) {
 			s.Error(w, err.Error())
 			return
 		}
-		err = s.tmpl.ExecuteTemplate(w, "category.html.tmpl", map[string]interface{}{
-			"Torrents": torrents,
-			"Category": cat,
-			"Captcha":  captcha.New(),
-			"Site":     s.cfg.SiteName,
-		})
+		if feed {
+			f := &model.AtomFeed{
+				Torrents: torrents,
+				Title:    cat.Name,
+				ID:       fmt.Sprintf("torrents-category-%d", cat.ID),
+				BaseURL:  r.URL,
+			}
+			w.Header().Set("Content-Type", "application/atom+xml")
+			enc := xml.NewEncoder(w)
+			err = enc.Encode(f)
+		} else {
+			err = s.tmpl.ExecuteTemplate(w, "category.html.tmpl", map[string]interface{}{
+				"Torrents": torrents,
+				"Category": cat,
+				"Captcha":  captcha.New(),
+				"Site":     s.cfg.SiteName,
+			})
+		}
+
 		if err != nil {
 			log.Errorf("failed to render category page: %s", err)
 		}

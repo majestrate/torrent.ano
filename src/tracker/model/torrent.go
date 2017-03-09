@@ -2,6 +2,7 @@ package model
 
 import (
 	"encoding/hex"
+	"encoding/xml"
 	"fmt"
 	"time"
 )
@@ -42,4 +43,29 @@ func (t *Torrent) Magnet() string {
 		}
 	}
 	return fmt.Sprintf("magnet:?xt=urn:btih:%s%s", t.InfoHash(), trs)
+}
+
+type torrentFeed struct {
+	Title      string    `xml:"title"`
+	Link       Link      `xml:"link"`
+	ID         string    `xml:"id"`
+	Updated    time.Time `xml:"updated"`
+	Summary    string    `xml:"summary"`
+	AuthorName string    `xml:"author>name"`
+}
+
+func (t *Torrent) toFeed() *torrentFeed {
+	return &torrentFeed{
+		Title:      t.Name,
+		Link:       Link{t.DownloadLink()},
+		ID:         t.InfoHash(),
+		Updated:    t.UploadedAt(),
+		Summary:    t.Name,
+		AuthorName: "anonymous uploader",
+	}
+}
+
+func (t *Torrent) MarshalXML(e *xml.Encoder, start xml.StartElement) (err error) {
+	err = e.EncodeElement(t.toFeed(), start)
+	return
 }
