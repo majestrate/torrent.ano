@@ -201,7 +201,7 @@ func (s *Server) handleCategoryPage(w http.ResponseWriter, r *http.Request) {
 				Title:   cat.Name,
 				ID:      fmt.Sprintf("torrents-category-%d", cat.ID),
 				BaseURL: r.URL,
-				Domain:  r.Host,
+				Domain:  r.Header.Get("Host"),
 			}
 			for _, torrent := range torrents {
 				torrent.Domain = r.Host
