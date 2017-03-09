@@ -24,11 +24,11 @@
         <hr />
         <p> Files </p>
         <table>
-            <thead>
-                <tr> Name </tr>
-                <tr> Size </tr>
-            </thead>
             <tbody>
+                <tr>
+                    <td> Name </td>
+                    <td> Size </td>
+                </tr>
                 {{ range .Files }}
                 <tr>
                     <td> {{ .Name }} </td>
