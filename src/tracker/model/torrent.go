@@ -37,8 +37,10 @@ func (t *Torrent) DownloadLink() string {
 
 func (t *Torrent) Magnet() string {
 	trs := ""
-	for _, tr := range t.AnnounceURLS {
-		trs += fmt.Sprintf("&tr=%s", tr)
+	if t.AnnounceURLS != nil {
+		for _, tr := range t.AnnounceURLS {
+			trs += fmt.Sprintf("&tr=%s", tr)
+		}
 	}
 	return fmt.Sprintf("magnet:?xt=urn:btih:%s%s", t.InfoHash(), trs)
 }

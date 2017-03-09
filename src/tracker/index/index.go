@@ -252,13 +252,11 @@ func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 			var t *model.Torrent
 			t, err = s.DB.FindTorrentByInfohash(ih)
 			if t != nil {
-				t.GetFiles = func() []model.File {
-					files, _ := s.DB.GetTorrentFiles(ih)
-					return files
-				}
+				files, _ := s.DB.GetTorrentFiles(ih)
 				// found torrent
 				err = s.tmpl.ExecuteTemplate(w, "torrent.html.tmpl", map[string]interface{}{
 					"Torrent": t,
+					"Files":   files,
 				})
 				if err != nil {
 					log.Errorf("failed to render torrent page: %s", err)
