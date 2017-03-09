@@ -212,6 +212,7 @@ func (s *Server) handleCategoryPage(w http.ResponseWriter, r *http.Request) {
 			err = enc.Encode(f)
 		} else {
 			err = s.tmpl.ExecuteTemplate(w, "category.html.tmpl", map[string]interface{}{
+				"Domain":   r.Host,
 				"Torrents": torrents,
 				"Category": cat,
 				"Captcha":  captcha.New(),
