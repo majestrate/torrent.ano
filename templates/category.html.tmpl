@@ -1,6 +1,7 @@
 <html>
     <head>
-        <title> {{ .Site }} -- {{ .Category.Name }} </title>
+      <title> {{ .Site }} -- {{ .Category.Name }} </title>
+      <link href="/c/{{ .Category.ID }}/?t=atom" type="application/atom+xml" rel="alternate" title="{{ .Category.Name}} torrents on {{ .Site }}" />
     </head>
     <body>
         <center>
