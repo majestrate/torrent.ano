@@ -4,45 +4,46 @@
         <title> {{ .Site }} - {{ .Torrent.Name }} </title>
     </head>
     <body>
-
-        <table>
-            <tbody>
-                <tr>
-                    <td>Name </td>
-                    <td>{{ .Torrent.Name }}</td>
-                </tr>
-                <tr>
-                    <td>Infohash </td>
-                    <td>{{ .Torrent.InfoHash }}</td>
-                </tr>
-                <tr>
-                    <td><a href="{{ .Torrent.DownloadLink }}">Download</a></td>
-                    <td><a href="{{ .Torrent.Magnet }}">Magnet</a></td>
-                </tr>
-            </tbody>
-        </table>
-        <hr />
-        <p> Files </p>
-        <table>
-            <tbody>
-                <tr>
-                    <td> Name </td>
-                    <td> Size </td>
-                </tr>
-                {{ range .Files }}
-                <tr>
-                    <td> {{ .Name }} </td>
-                    <td> {{ .Size }} B </td>
-                </tr>
-                {{ end }}
-                <tr>
-                </tr>
-                <tr>
-                    <td> Total Size: </td>
-                    <td> {{ .Torrent.Size }} B </td>
-                </tr>
-            </tbody>
-        </table>
-
+        <center>
+            <h3> <a href="/">Front Page</a> </h3>
+            <table>
+                <tbody>
+                    <tr>
+                        <td>Name </td>
+                        <td>{{ .Torrent.Name }}</td>
+                    </tr>
+                    <tr>
+                        <td>Infohash </td>
+                        <td>{{ .Torrent.InfoHash }}</td>
+                    </tr>
+                    <tr>
+                        <td><a href="{{ .Torrent.DownloadLink }}">Download</a></td>
+                        <td><a href="{{ .Torrent.Magnet }}">Magnet</a></td>
+                    </tr>
+                </tbody>
+            </table>
+            <hr />
+            <p> Files </p>
+            <table>
+                <tbody>
+                    <tr>
+                        <td> Name </td>
+                        <td> Size </td>
+                    </tr>
+                    {{ range .Files }}
+                    <tr>
+                        <td> {{ .Name }} </td>
+                        <td> {{ .Size }} B </td>
+                    </tr>
+                    {{ end }}
+                    <tr>
+                    </tr>
+                    <tr>
+                        <td> Total Size: </td>
+                        <td> {{ .Torrent.Size }} B </td>
+                    </tr>
+                </tbody>
+            </table>
+        </center>
     </body>
 </html>

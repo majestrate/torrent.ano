@@ -19,7 +19,7 @@
                 {{ range .Torrents }}
                 <tr>
                     <td><a href="{{ .DownloadLink }}"><img src="/static/download.png"></img></a></td>
-                    <td>{{ .Name}}</td>
+                    <td><a href="/t/{{ .InfoHash }}/">{{ .Name }}</a></td>
                     <td>{{ .Size }}</td>
                     <td>{{ .UploadedAt }}</td>
                 </tr>{{ end }}
