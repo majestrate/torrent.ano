@@ -198,10 +198,14 @@ func (s *Server) handleCategoryPage(w http.ResponseWriter, r *http.Request) {
 		}
 		if feed {
 			f := &model.AtomFeed{
-				Torrents: torrents,
-				Title:    cat.Name,
-				ID:       fmt.Sprintf("torrents-category-%d", cat.ID),
-				BaseURL:  r.URL,
+				Title:   cat.Name,
+				ID:      fmt.Sprintf("torrents-category-%d", cat.ID),
+				BaseURL: r.URL,
+				Domain:  r.Host,
+			}
+			for _, torrent := range torrents {
+				torrent.Domain = r.Host
+				f.Torrents = append(f.Torrents, torrent)
 			}
 			w.Header().Set("Content-Type", "application/atom+xml")
 			enc := xml.NewEncoder(w)

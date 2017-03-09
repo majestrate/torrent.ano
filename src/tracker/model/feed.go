@@ -7,6 +7,7 @@ import (
 )
 
 type AtomFeed struct {
+	Domain   string
 	BaseURL  *url.URL
 	Torrents []Torrent
 	Title    string
@@ -16,6 +17,18 @@ type AtomFeed struct {
 type Link struct {
 	URL string `xml:"href,attr"`
 }
+
+func NewLink(domain, path string) Link {
+	u := &url.URL{
+		Scheme: "http",
+		Host:   domain,
+		Path:   path,
+	}
+	return Link{
+		URL: u.String(),
+	}
+}
+
 type AtomFeedImpl struct {
 	Title    string    `xml:"title"`
 	SubTitle string    `xml:"subtitle"`
@@ -35,10 +48,12 @@ func (feed *AtomFeed) toFeed() *AtomFeedImpl {
 		}
 	}
 
+	u := feed.BaseURL
+
 	return &AtomFeedImpl{
 		Title:    feed.Title,
 		SubTitle: feed.Title,
-		Link:     Link{feed.BaseURL.String()},
+		Link:     NewLink(feed.Domain, u.RequestURI()),
 		ID:       feed.ID,
 		Torrents: feed.Torrents,
 		Updated:  latest,

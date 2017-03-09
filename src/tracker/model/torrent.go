@@ -13,6 +13,7 @@ type File struct {
 }
 
 type Torrent struct {
+	Domain       string
 	Name         string
 	Tags         []Tag
 	Category     Category
@@ -55,9 +56,10 @@ type torrentFeed struct {
 }
 
 func (t *Torrent) toFeed() *torrentFeed {
+
 	return &torrentFeed{
 		Title:      t.Name,
-		Link:       Link{t.DownloadLink()},
+		Link:       NewLink(t.Domain, t.DownloadLink()),
 		ID:         t.InfoHash(),
 		Updated:    t.UploadedAt(),
 		Summary:    t.Name,
