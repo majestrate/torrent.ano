@@ -6,6 +6,13 @@
         <center>
           <h3> <a href="/">Front Page</a> </h3>
 
+          <form method="GET">
+            <label for="query">Search by Tag Name</label>
+            <input name="q" id="query" />
+            <input type="submit" value="search" />
+          </form>
+          <hr />
+
           {{ if .SelectedTag }}
           <h2> Torrents For {{ .SelectedTag.Name }} </h2>
           <table>
@@ -28,6 +35,10 @@
                 {{ end }}
             </tbody>
           </table>
+          {{ else }}
+          {{ if .Search }}
+          <h3> No Such Tag </h3>
+          {{ end }}
           {{ end }}
           <hr />
           <h3> Popular Tags </h3>

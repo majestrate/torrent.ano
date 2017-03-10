@@ -75,8 +75,14 @@ func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request) {
 		var torrents []model.Torrent
 		var selectedTag *model.Tag
 		feed := r.URL.Query().Get("t") == "atom"
+		name := r.URL.Query().Get("q")
 		tag := r.URL.Query().Get("id")
-		if tag != "" {
+
+		if name != "" {
+			selectedTag, err = s.DB.GetTagByName(name)
+		}
+
+		if selectedTag == nil && tag != "" {
 			id, err := strconv.Atoi(tag)
 			if err != nil {
 				s.Error(w, err.Error())
@@ -88,11 +94,13 @@ func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request) {
 					s.Error(w, err.Error())
 					return
 				}
-				if selectedTag != nil {
-					torrents, err = s.DB.FindTorrentsWithTag(*selectedTag)
-				}
 			}
 		}
+
+		if selectedTag != nil {
+			torrents, err = s.DB.FindTorrentsWithTag(*selectedTag)
+		}
+
 		if feed && selectedTag != nil {
 			f := &model.AtomFeed{
 				Title:   selectedTag.Name,
@@ -113,6 +121,7 @@ func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request) {
 				"Site":        s.cfg.SiteName,
 				"Torrents":    torrents,
 				"SelectedTag": selectedTag,
+				"Search":      tag != "" || name != "",
 			})
 		}
 		if err != nil {

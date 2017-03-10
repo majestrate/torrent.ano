@@ -221,6 +221,16 @@ func (st *Postgres) GetTagByID(id uint64) (tag *model.Tag, err error) {
 }
 
 func (st *Postgres) GetTagByName(name string) (tag *model.Tag, err error) {
+	tag = &model.Tag{
+		Name: name,
+	}
+	err = st.conn.QueryRow(fmt.Sprintf("SELECT id FROM %s WHERE name = $1 LIMIT 1", tableTags), name).Scan(&tag.ID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			err = nil
+		}
+		tag = nil
+	}
 	return
 }
 
