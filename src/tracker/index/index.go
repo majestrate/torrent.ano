@@ -353,6 +353,7 @@ func (s *Server) serveFrontPage(w http.ResponseWriter, r *http.Request) {
 		err = enc.Encode(f)
 	} else {
 		err = s.tmpl.ExecuteTemplate(w, "frontpage.html.tmpl", map[string]interface{}{
+			"Domain":     r.Host,
 			"Categories": cats,
 			"Torrents":   torrents,
 			"Site":       s.cfg.SiteName,
