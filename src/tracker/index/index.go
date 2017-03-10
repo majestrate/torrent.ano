@@ -74,6 +74,7 @@ func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request) {
 		}
 		var torrents []model.Torrent
 		var selectedTag *model.Tag
+		feed := r.URL.Query().Get("t") == "atom"
 		tag := r.URL.Query().Get("id")
 		if tag != "" {
 			id, err := strconv.Atoi(tag)
@@ -92,12 +93,28 @@ func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 		}
-		err = s.tmpl.ExecuteTemplate(w, "search.html.tmpl", map[string]interface{}{
-			"PopularTags": tags,
-			"Site":        s.cfg.SiteName,
-			"Torrents":    torrents,
-			"SelectedTag": selectedTag,
-		})
+		if feed && selectedTag != nil {
+			f := &model.AtomFeed{
+				Title:   selectedTag.Name,
+				ID:      fmt.Sprintf("torrents-tag-%d", selectedTag.ID),
+				BaseURL: r.URL,
+				Domain:  r.Host,
+			}
+			for _, torrent := range torrents {
+				torrent.Domain = r.Host
+				f.Torrents = append(f.Torrents, torrent)
+			}
+			w.Header().Set("Content-Type", "application/atom+xml")
+			enc := xml.NewEncoder(w)
+			err = enc.Encode(f)
+		} else {
+			err = s.tmpl.ExecuteTemplate(w, "search.html.tmpl", map[string]interface{}{
+				"PopularTags": tags,
+				"Site":        s.cfg.SiteName,
+				"Torrents":    torrents,
+				"SelectedTag": selectedTag,
+			})
+		}
 		if err != nil {
 			log.Errorf("failed to render search page: %s", err)
 		}
@@ -238,7 +255,7 @@ func (s *Server) handleCategoryPage(w http.ResponseWriter, r *http.Request) {
 				Title:   cat.Name,
 				ID:      fmt.Sprintf("torrents-category-%d", cat.ID),
 				BaseURL: r.URL,
-				Domain:  r.Header.Get("Host"),
+				Domain:  r.Host,
 			}
 			for _, torrent := range torrents {
 				torrent.Domain = r.Host
