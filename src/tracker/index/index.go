@@ -334,10 +334,14 @@ func (s *Server) serveFrontPage(w http.ResponseWriter, r *http.Request) {
 	feed := r.URL.Query().Get("t") == "atom"
 
 	if feed {
+
+		u := r.URL
+		u.Host = r.Host
+		u.Scheme = "http"
 		f := &model.AtomFeed{
 			Title:   "Recent Uploads",
 			ID:      "torrent-recent-uploads",
-			BaseURL: r.URL,
+			BaseURL: u,
 			Domain:  r.Host,
 		}
 		for _, torrent := range torrents {
