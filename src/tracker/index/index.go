@@ -326,11 +326,30 @@ func (s *Server) serveFrontPage(w http.ResponseWriter, r *http.Request) {
 		s.Error(w, "failed to fetch front page torrents: "+err.Error())
 		return
 	}
-	err = s.tmpl.ExecuteTemplate(w, "frontpage.html.tmpl", map[string]interface{}{
-		"Categories": cats,
-		"Torrents":   torrents,
-		"Site":       s.cfg.SiteName,
-	})
+
+	feed := r.URL.Query().Get("t") == "atom"
+
+	if feed {
+		f := &model.AtomFeed{
+			Title:   "Recent Uploads",
+			ID:      "torrent-recent-uploads",
+			BaseURL: r.URL,
+			Domain:  r.Host,
+		}
+		for _, torrent := range torrents {
+			torrent.Domain = r.Host
+			f.Torrents = append(f.Torrents, torrent)
+		}
+		w.Header().Set("Content-Type", "application/atom+xml")
+		enc := xml.NewEncoder(w)
+		err = enc.Encode(f)
+	} else {
+		err = s.tmpl.ExecuteTemplate(w, "frontpage.html.tmpl", map[string]interface{}{
+			"Categories": cats,
+			"Torrents":   torrents,
+			"Site":       s.cfg.SiteName,
+		})
+	}
 	if err != nil {
 		log.Errorf("failed to render front page: %s", err)
 	}
