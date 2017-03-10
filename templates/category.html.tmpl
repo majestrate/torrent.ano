@@ -1,6 +1,8 @@
+<!doctype html>
 <html>
     <head>
       <title> {{ .Site }} -- {{ .Category.Name }} </title>
+      <link rel="stylesheet" href="/static/style.css" />
       <link href="http://{{ .Domain }}/c/{{ .Category.ID }}/?t=atom" type="application/atom+xml" rel="alternate" title="{{ .Category.Name}} torrents on {{ .Site }}" />
     </head>
     <body>
@@ -23,7 +25,8 @@
                     <td><a href="/t/{{ .InfoHash }}/">{{ .Name }}</a></td>
                     <td>{{ .Size }}</td>
                     <td>{{ .UploadedAt }}</td>
-                </tr>{{ end }}
+                </tr>
+                {{ end }}
             </tbody>
         </table>
         <hr/>
