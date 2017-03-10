@@ -116,12 +116,20 @@ func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request) {
 			enc := xml.NewEncoder(w)
 			err = enc.Encode(f)
 		} else {
+			u := r.URL
+			q := u.Query()
+			q.Add("t", "atom")
+			u.RawQuery = q.Encode()
+			u.Host = r.Host
+			u.Scheme = "http"
 			err = s.tmpl.ExecuteTemplate(w, "search.html.tmpl", map[string]interface{}{
 				"PopularTags": tags,
 				"Site":        s.cfg.SiteName,
 				"Torrents":    torrents,
 				"SelectedTag": selectedTag,
 				"Search":      tag != "" || name != "",
+				"SearchTag":   name,
+				"FeedURL":     u.String(),
 			})
 		}
 		if err != nil {
