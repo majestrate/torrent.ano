@@ -315,7 +315,11 @@ func (s *Server) serveTorrent(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) serveFrontPage(w http.ResponseWriter, r *http.Request) {
-
+	path := r.URL.Path
+	if path != "/" && path != "/index.html" {
+		http.NotFound(w, r)
+		return
+	}
 	cats, err := s.DB.GetAllCategories()
 	if err != nil {
 		s.Error(w, "failed to fetch categories: "+err.Error())
