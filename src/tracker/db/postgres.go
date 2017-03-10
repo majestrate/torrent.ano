@@ -129,7 +129,7 @@ func (st *Postgres) GetAllCategories() (cats []model.Category, err error) {
 
 func (st *Postgres) FindTorrentsInCategory(cat *model.Category) (torrents []model.Torrent, err error) {
 	var rows *sql.Rows
-	rows, err = st.conn.Query(fmt.Sprintf("SELECT name, uploaded_at, pieces_size, total_size, infohash FROM %s WHERE category_id = $1", tableMetaInfo), cat.ID)
+	rows, err = st.conn.Query(fmt.Sprintf("SELECT name, uploaded_at, pieces_size, total_size, infohash FROM %s WHERE category_id = $1 ORDER BY uploaded_at DESC", tableMetaInfo), cat.ID)
 	if err == nil {
 		for rows.Next() {
 			var t model.Torrent
@@ -147,7 +147,7 @@ func (st *Postgres) FindTorrentsInCategory(cat *model.Category) (torrents []mode
 func (st *Postgres) GetTorrentFiles(ih [20]byte) (files []model.File, err error) {
 	ihstr := hex.EncodeToString(ih[:])
 	var rows *sql.Rows
-	rows, err = st.conn.Query(fmt.Sprintf("SELECT filename, filesize FROM %s WHERE meta_infohash = $1", tableFiles), ihstr)
+	rows, err = st.conn.Query(fmt.Sprintf("SELECT filename, filesize FROM %s WHERE meta_infohash = $1 ORDER BY filename", tableFiles), ihstr)
 	if err == nil {
 		for rows.Next() {
 			var f model.File
@@ -159,7 +159,36 @@ func (st *Postgres) GetTorrentFiles(ih [20]byte) (files []model.File, err error)
 	return
 }
 
-func (st *Postgres) FindTorrentsWithTags(tags []model.Tag) (torrents []model.Torrent, err error) {
+func (st *Postgres) ListPopularTags(limit int) (tags []model.Tag, err error) {
+	var rows *sql.Rows
+	rows, err = st.conn.Query(fmt.Sprintf("SELECT u.tag_rank, t.id, t.name FROM %s t INNER JOIN ( SELECT tag_id, COUNT(DISTINCT tag_id) AS tag_rank FROM %s GROUP BY tag_id ORDER BY tag_rank DESC ) u ON t.id = u.tag_id LIMIT $1", tableTags, tableTagMetaInt), limit)
+	if err == nil {
+		for rows.Next() {
+			var tag model.Tag
+			rows.Scan(&tag.Rank, &tag.ID, &tag.Name)
+			tags = append(tags, tag)
+		}
+	} else if err == sql.ErrNoRows {
+		err = nil
+	}
+	return
+}
+
+func (st *Postgres) FindTorrentsWithTag(tag model.Tag) (torrents []model.Torrent, err error) {
+	var rows *sql.Rows
+	rows, err = st.conn.Query(fmt.Sprintf("SELECT i.infohash, i.name, i.uploaded_at, i.pieces_size, i.total_size FROM %s i INNER JOIN ( SELECT tag_infohash FROM %s WHERE tag_id = $1 ) t ON t.tag_infohash = i.infohash", tableMetaInfo, tableTagMetaInt), tag.ID)
+	if err == nil {
+		for rows.Next() {
+			var ih string
+			var torrent model.Torrent
+			rows.Scan(&ih, &torrent.Name, &torrent.Uploaded, &torrent.PieceSize, &torrent.Size)
+			d, _ := hex.DecodeString(ih)
+			copy(torrent.IH[:], d)
+			torrents = append(torrents, torrent)
+		}
+	} else if err == sql.ErrNoRows {
+		err = nil
+	}
 	return
 }
 
@@ -178,6 +207,16 @@ func (st *Postgres) GetCategoryByID(id int) (cat *model.Category, err error) {
 }
 
 func (st *Postgres) GetTagByID(id uint64) (tag *model.Tag, err error) {
+	tag = &model.Tag{
+		ID: id,
+	}
+	err = st.conn.QueryRow(fmt.Sprintf("SELECT name FROM %s WHERE id = $1 LIMIT 1", tableTags), id).Scan(&tag.Name)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			err = nil
+		}
+		tag = nil
+	}
 	return
 }
 

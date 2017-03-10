@@ -1,0 +1,46 @@
+<html>
+    <head>
+      <title> {{ .Site }} -- Tag Search </title>
+    </head>
+    <body>
+        <center>
+          <h3> <a href="/">Front Page</a> </h3>
+
+          {{ if .SelectedTag }}
+          <h2> Torrents For {{ .SelectedTag.Name }} </h2>
+          <table>
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Name</th>
+                    <th>Size</th>
+                    <th>Uploaded</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{ range .Torrents }}
+                <tr>
+                    <td><a href="{{ .DownloadLink }}"><img src="/static/download.png"></img></a></td>
+                    <td><a href="/t/{{ .InfoHash }}/">{{ .Name }}</a></td>
+                    <td>{{ .Size }}</td>
+                    <td>{{ .UploadedAt }}</td>
+                </tr>
+                {{ end }}
+            </tbody>
+          </table>
+          {{ end }}
+          <hr />
+          <h3> Popular Tags </h3>
+          <table>
+            <tbody>
+                {{ range .PopularTags }}
+                <tr>
+                  <td><a href="/s/?id={{ .ID }}">{{ .Name }}</a></td>
+                  <td>{{ .Rank }} Results</td>
+                </tr>
+                {{ end }}
+            </tbody>
+          </table>
+        </center>
+    </body>
+</html>

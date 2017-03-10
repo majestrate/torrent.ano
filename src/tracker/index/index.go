@@ -66,7 +66,44 @@ func (s *Server) makeParams() map[string]interface{} {
 }
 
 func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request) {
-
+	if r.Method == "GET" {
+		tags, err := s.DB.ListPopularTags(30)
+		if err != nil {
+			s.Error(w, err.Error())
+			return
+		}
+		var torrents []model.Torrent
+		var selectedTag *model.Tag
+		tag := r.URL.Query().Get("id")
+		if tag != "" {
+			id, err := strconv.Atoi(tag)
+			if err != nil {
+				s.Error(w, err.Error())
+				return
+			}
+			if id > 0 {
+				selectedTag, err = s.DB.GetTagByID(uint64(id))
+				if err != nil {
+					s.Error(w, err.Error())
+					return
+				}
+				if selectedTag != nil {
+					torrents, err = s.DB.FindTorrentsWithTag(*selectedTag)
+				}
+			}
+		}
+		err = s.tmpl.ExecuteTemplate(w, "search.html.tmpl", map[string]interface{}{
+			"PopularTags": tags,
+			"Site":        s.cfg.SiteName,
+			"Torrents":    torrents,
+			"SelectedTag": selectedTag,
+		})
+		if err != nil {
+			log.Errorf("failed to render search page: %s", err)
+		}
+	} else {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+	}
 }
 
 func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Category, p map[string]interface{}) {
@@ -305,7 +342,7 @@ func New(cfg *config.IndexConfig) (s *Server) {
 	s.mux.HandleFunc("/c/", s.handleCategoryPage)
 	s.mux.HandleFunc("/dl/", s.serveTorrent)
 	s.mux.HandleFunc("/t/", s.serveTorrentInfo)
+	s.mux.HandleFunc("/s/", s.handleSearch)
 	s.mux.HandleFunc("/", s.serveFrontPage)
-	s.mux.HandleFunc("/search/", s.handleSearch)
 	return
 }
