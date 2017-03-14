@@ -1,9 +1,12 @@
 package db
 
 import (
+	"errors"
 	"tracker/metainfo"
 	"tracker/model"
 )
+
+var ErrUserExists = errors.New("user already exists")
 
 // DB defines actions required by a database driver
 type DB interface {
@@ -19,4 +22,7 @@ type DB interface {
 	GetAllCategories() ([]model.Category, error)
 	GetFrontPageTorrents() ([]model.Torrent, error)
 	GetTorrentFiles(ih [20]byte) ([]model.File, error)
+	CheckLogin(user, password string) (bool, error)
+	AddUserLogin(username, password string) error
+	DelUserLogin(username string) error
 }

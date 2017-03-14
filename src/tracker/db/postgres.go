@@ -25,6 +25,7 @@ const tableAnnouncers = "Announcers"
 const tableAnnouncerMetaInfoInt = "MetaInfoAnnouncers"
 const tableFiles = "MetaInfoFiles"
 const tableSwarmEvents = "SwarmEvents"
+const tableAuthedUsers = "AuthedUsers"
 
 func (st *Postgres) ensureTables() (err error) {
 	tables := map[string]string{
@@ -36,6 +37,7 @@ func (st *Postgres) ensureTables() (err error) {
 		tableTagMetaInt:           fmt.Sprintf("( tag_id BIGINT REFERENCES %s(id) ON DELETE CASCADE, tag_infohash VARCHAR(40) REFERENCES %s(infohash) ON DELETE CASCADE, UNIQUE(tag_id, tag_infohash) )", tableTags, tableMetaInfo),
 		tableAnnouncerMetaInfoInt: fmt.Sprintf("( announce_id INTEGER REFERENCES %s(id) ON DELETE RESTRICT, meta_infohash  VARCHAR(40) REFERENCES %s(infohash) ON DELETE RESTRICT, UNIQUE (announce_id, meta_infohash) )", tableAnnouncers, tableMetaInfo),
 		tableSwarmEvents:          fmt.Sprintf("( swarm_infohash VARCHAR(40) REFERENCES %s(infohash) ON DELETE CASCADE, seeders INTEGER NOT NULL, leechers INTEGER NOT NULL, event_at BIGINT NOT NULL )", tableMetaInfo),
+		tableAuthedUsers:          "( username VARCHAR(255) NOT NULL, credential VARCHAR(255), id SERIAL PRIMARY KEY)",
 	}
 
 	tableOrder := []string{
@@ -47,6 +49,7 @@ func (st *Postgres) ensureTables() (err error) {
 		tableFiles,
 		tableAnnouncerMetaInfoInt,
 		tableTagMetaInt,
+		tableAuthedUsers,
 	}
 
 	for _, name := range tableOrder {
@@ -277,6 +280,36 @@ func (st *Postgres) StoreTorrent(t *model.Torrent, i *metainfo.TorrentFile) (err
 			return
 		}
 	}
+	return
+}
+
+func (db *Postgres) CheckLogin(user, passwd string) (authed bool, err error) {
+	var u model.User
+	err = db.conn.QueryRow(fmt.Sprintf("SELECT username, credential FROM %s WHERE username = $1 LIMIT 1", tableAuthedUsers), user).Scan(&u.Username, &u.Login)
+	if err == sql.ErrNoRows {
+		err = nil
+	} else if err == nil {
+		authed = u.Login.Check(passwd)
+	}
+	return
+}
+
+func (db *Postgres) AddUserLogin(user, passwd string) (err error) {
+	var count int
+	err = db.conn.QueryRow(fmt.Sprintf("SELECT COUNT(username) FROM %s WHERE username = $1", tableAuthedUsers), user).Scan(&count)
+	if err == nil {
+		if count > 0 {
+			err = ErrUserExists
+		} else {
+			u := model.NewUser(user, passwd)
+			_, err = db.conn.Exec(fmt.Sprintf("INSERT INTO %s (username, credential) VALUES ($1, $2)", tableAuthedUsers), u.Username, u.Login.String())
+		}
+	}
+	return
+}
+
+func (db *Postgres) DelUserLogin(user string) (err error) {
+	_, err = db.conn.Exec(fmt.Sprintf("DELETE FROM %s WHERE username = $1", tableAuthedUsers), user)
 	return
 }
 

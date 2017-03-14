@@ -11,12 +11,14 @@ type configLoadable interface {
 type Config struct {
 	DB    DBConfig
 	Index IndexConfig
+	Log   LogConfig
 }
 
 func (cfg *Config) Load(fname string) error {
 	sections := map[string]configLoadable{
 		"db":    &cfg.DB,
 		"index": &cfg.Index,
+		"log":   &cfg.Log,
 	}
 
 	conf, err := parser.Read(fname)

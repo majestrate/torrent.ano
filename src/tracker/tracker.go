@@ -1,4 +1,4 @@
-package main
+package tracker
 
 import (
 	"net/http"
@@ -9,17 +9,18 @@ import (
 	"tracker/log"
 )
 
-func main() {
+func Run() {
 	fname := "default.ini"
 	if len(os.Args) > 1 {
 		fname = os.Args[1]
 	}
-	log.SetLevel("debug")
+
 	cfg := new(config.Config)
 	err := cfg.Load(fname)
 	if err != nil {
 		log.Fatalf("%s", err)
 	}
+	log.SetLevel(cfg.Log.Level)
 	idx := index.New(&cfg.Index)
 	idx.DB, err = db.NewPostgres(&cfg.DB)
 	if err != nil {
