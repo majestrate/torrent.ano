@@ -391,6 +391,21 @@ func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 	http.NotFound(w, r)
 }
 
+func (s *Server) handleAPI(w http.ResponseWriter, r *http.Request) {
+	var err error
+	user, passwd, ok := r.BasicAuth()
+	if ok {
+		ok, err = s.DB.CheckLogin(user, passwd)
+	}
+	if err != nil {
+		// s.apiError(w, err)
+	}
+	if !ok {
+		w.WriteHeader(http.StatusNonAuthoritativeInfo)
+	}
+
+}
+
 func New(cfg *config.IndexConfig) (s *Server) {
 	s = &Server{
 		cfg:  cfg,
@@ -405,6 +420,7 @@ func New(cfg *config.IndexConfig) (s *Server) {
 	s.mux.HandleFunc("/dl/", s.serveTorrent)
 	s.mux.HandleFunc("/t/", s.serveTorrentInfo)
 	s.mux.HandleFunc("/s/", s.handleSearch)
+	s.mux.HandleFunc("/api/", s.handleAPI)
 	s.mux.HandleFunc("/", s.serveFrontPage)
 	return
 }
