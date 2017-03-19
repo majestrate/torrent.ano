@@ -18,7 +18,12 @@
                         <td>{{ .Torrent.InfoHash }}</td>
                     </tr>
                     <tr>
-                        <td><a href="{{ .Torrent.DownloadLink }}">Download</a></td>
+                     <td>
+                       Magnet: <a href="magnet:?xt=urn:btih:{{ .Torrent.InfoHash }}"><img src="/static/magnet.png"></img></a>
+                     </td>
+                     <td>
+                       Torrent: <a href="{{ .DownloadLink }}"><img src="/static/download.png"></img></a>
+                    </td>
                     </tr>
                 </tbody>
             </table>
