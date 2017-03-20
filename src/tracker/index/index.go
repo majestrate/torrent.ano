@@ -273,7 +273,7 @@ func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Ca
 			json.NewEncoder(w).Encode(map[string]interface{}{
 				"Error":    nil,
 				"InfoHash": torrent.InfoHash(),
-				"URL":      u,
+				"URL":      u.String(),
 			})
 		} else {
 			w.Header().Set("Location", fmt.Sprintf("/t/%s/", torrent.InfoHash()))
