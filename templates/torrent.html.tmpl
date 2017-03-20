@@ -22,7 +22,7 @@
                        Magnet: <a href="magnet:?xt=urn:btih:{{ .Torrent.InfoHash }}"><img src="/static/magnet.png"></img></a>
                      </td>
                      <td>
-                       Torrent: <a href="{{ .DownloadLink }}"><img src="/static/download.png"></img></a>
+                       Torrent: <a href="/dl/{{ .Torrent.InfoHash }}.torrent"><img src="/static/download.png"></img></a>
                     </td>
                     </tr>
                 </tbody>
