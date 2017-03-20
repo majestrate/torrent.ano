@@ -2,6 +2,7 @@ package model
 
 import (
 	"encoding/hex"
+	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"time"
@@ -22,6 +23,25 @@ type Torrent struct {
 	Uploaded     int64
 	IH           [20]byte
 	AnnounceURLS []string
+}
+
+func (t *Torrent) MarshalJSON() (data []byte, err error) {
+	id := t.Category.ID
+	m := map[string]interface{}{
+		"Name":        t.Name,
+		"PieceSize":   t.PieceSize,
+		"Size":        t.Size,
+		"Uploaded":    t.Uploaded,
+		"InfoHash":    t.InfoHash(),
+		"DownloadURL": NewLink(t.Domain, t.DownloadLink()).URL,
+		"Magnet":      t.Magnet(),
+		"InfoURL":     NewLink(t.Domain, fmt.Sprintf("/t/%s/?t=json", t.InfoHash())).URL,
+	}
+	if id != 0 {
+		m["Category"] = id
+	}
+	data, err = json.Marshal(m)
+	return
 }
 
 func (t *Torrent) UploadedAt() time.Time {

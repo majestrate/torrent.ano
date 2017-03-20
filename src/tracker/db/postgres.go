@@ -107,7 +107,7 @@ func (st *Postgres) FindTorrentByInfohash(ih [20]byte) (t *model.Torrent, err er
 	i := hex.EncodeToString(ih[:])
 	t = new(model.Torrent)
 	copy(t.IH[:], ih[:])
-	err = st.conn.QueryRow(fmt.Sprintf("SELECT name, uploaded_at, pieces_size, total_size FROM %s WHERE infohash = $1 LIMIT 1", tableMetaInfo), i).Scan(&t.Name, &t.Uploaded, &t.PieceSize, &t.Size)
+	err = st.conn.QueryRow(fmt.Sprintf("SELECT name, uploaded_at, pieces_size, total_size, category_id FROM %s WHERE infohash = $1 LIMIT 1", tableMetaInfo), i).Scan(&t.Name, &t.Uploaded, &t.PieceSize, &t.Size, &t.Category.ID)
 	if err == sql.ErrNoRows {
 		err = nil
 		t = nil

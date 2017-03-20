@@ -2,10 +2,12 @@ package index
 
 import (
 	"encoding/hex"
+	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"html/template"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -29,10 +31,20 @@ type Server struct {
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.mux.ServeHTTP(w, r)
 }
-func (s *Server) Error(w http.ResponseWriter, msg string) {
-	s.tmpl.ExecuteTemplate(w, "error.html.tmpl", map[string]interface{}{
+func (s *Server) Error(w http.ResponseWriter, msg string, j bool) {
+	var err error
+	p := map[string]interface{}{
 		"Error": msg,
-	})
+	}
+	if j {
+		w.Header().Set("Content-Type", "text/json")
+		err = json.NewEncoder(w).Encode(p)
+	} else {
+		err = s.tmpl.ExecuteTemplate(w, "error.html.tmpl", p)
+	}
+	if err != nil {
+		log.Errorf("error rendering error page: %s", msg)
+	}
 }
 
 // filter torrent file to have the members we want
@@ -61,20 +73,25 @@ func (s *Server) filterTorrent(t *metainfo.TorrentFile) *metainfo.TorrentFile {
 	return t
 }
 
-func (s *Server) makeParams() map[string]interface{} {
-	return map[string]interface{}{}
+func (s *Server) shouldJSON(r *http.Request) bool {
+	return r.URL.Query().Get("t") == "json"
+}
+
+func (s *Server) shouldATOM(r *http.Request) bool {
+	return r.URL.Query().Get("t") == "atom"
 }
 
 func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request) {
+	j := s.shouldJSON(r)
+	feed := s.shouldATOM(r)
 	if r.Method == "GET" {
 		tags, err := s.DB.ListPopularTags(30)
 		if err != nil {
-			s.Error(w, err.Error())
+			s.Error(w, err.Error(), j)
 			return
 		}
 		var torrents []model.Torrent
 		var selectedTag *model.Tag
-		feed := r.URL.Query().Get("t") == "atom"
 		name := r.URL.Query().Get("q")
 		tag := r.URL.Query().Get("id")
 
@@ -85,13 +102,13 @@ func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request) {
 		if selectedTag == nil && tag != "" {
 			id, err := strconv.Atoi(tag)
 			if err != nil {
-				s.Error(w, err.Error())
+				s.Error(w, err.Error(), j)
 				return
 			}
 			if id > 0 {
 				selectedTag, err = s.DB.GetTagByID(uint64(id))
 				if err != nil {
-					s.Error(w, err.Error())
+					s.Error(w, err.Error(), j)
 					return
 				}
 			}
@@ -115,6 +132,15 @@ func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "application/atom+xml")
 			enc := xml.NewEncoder(w)
 			err = enc.Encode(f)
+		} else if j {
+			var jtorrents []model.Torrent
+			for _, torrent := range torrents {
+				torrent.Domain = r.Host
+				jtorrents = append(jtorrents, torrent)
+			}
+			err = json.NewEncoder(w).Encode(map[string]interface{}{
+				"Torrents": jtorrents,
+			})
 		} else {
 			u := r.URL
 			q := u.Query()
@@ -140,10 +166,11 @@ func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Category, p map[string]interface{}) {
+func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Category) {
+	j := s.shouldJSON(r)
 	store := s.DB
 	if store == nil {
-		s.Error(w, "internal error: no storage backend")
+		s.Error(w, "internal error: no storage backend", j)
 		return
 	}
 	defer r.Body.Close()
@@ -151,28 +178,40 @@ func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Ca
 	id := r.FormValue("captcha-id")
 	tags := r.FormValue("torrent-tags")
 	name := r.FormValue("torrent-name")
-	if captcha.VerifyString(id, sol) {
+
+	var ok bool
+	var err error
+	if sol == "" && id == "" {
+		ok, err = s.checkAuth(r)
+	}
+
+	if err != nil {
+		s.Error(w, err.Error(), j)
+		return
+	}
+
+	if ok || captcha.VerifyString(id, sol) {
 		t := new(metainfo.TorrentFile)
 		f, h, err := r.FormFile("torrent-file")
 		if name == "" {
 			name = h.Filename
 		}
 		if name == "" {
-			s.Error(w, "torrent name not specified")
+			s.Error(w, "torrent name not specified", j)
 			return
 		}
 		if err != nil {
-			s.Error(w, err.Error())
+			s.Error(w, err.Error(), j)
 			return
 		}
 		err = t.Decode(f)
 		if err != nil {
-			s.Error(w, err.Error())
+			s.Error(w, err.Error(), j)
 			return
 		}
 
 		if t.Info.Private > 0 {
-			s.Error(w, "private torrents not allowed")
+			s.Error(w, "private torrents not allowed", j)
 			return
 		}
 
@@ -180,11 +219,11 @@ func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Ca
 
 		torrent, err := store.FindTorrentByInfohash(t.Infohash())
 		if err != nil {
-			s.Error(w, err.Error())
+			s.Error(w, err.Error(), j)
 			return
 		}
 		if torrent != nil {
-			s.Error(w, "duplicate torrent")
+			s.Error(w, "duplicate torrent", j)
 			return
 		}
 
@@ -207,7 +246,7 @@ func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Ca
 		}
 		err = store.StoreTorrent(torrent, t)
 		if err != nil {
-			s.Error(w, "could not store torrent: "+err.Error())
+			s.Error(w, "could not store torrent: "+err.Error(), j)
 			return
 		}
 		// store torrent seed file
@@ -215,56 +254,77 @@ func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Ca
 		var file *os.File
 		file, err = os.OpenFile(fpath, os.O_CREATE|os.O_WRONLY, 0600)
 		if err != nil {
-			s.Error(w, "could not open file: "+err.Error())
+			s.Error(w, "could not open file: "+err.Error(), j)
 			return
 		}
 		err = t.Encode(file)
 		file.Close()
 		if err != nil {
-			s.Error(w, err.Error())
+			s.Error(w, err.Error(), j)
 			return
 		}
-		p["Torrent"] = name
 		// success
-		w.Header().Set("Location", fmt.Sprintf("/t/%s/", torrent.InfoHash()))
-		w.WriteHeader(http.StatusFound)
-		s.tmpl.ExecuteTemplate(w, "success.html.tmpl", p)
+		if j {
+			u := &url.URL{
+				Scheme: "http",
+				Host:   r.Host,
+				Path:   torrent.DownloadLink(),
+			}
+			json.NewEncoder(w).Encode(map[string]interface{}{
+				"Error":    nil,
+				"InfoHash": torrent.InfoHash(),
+				"URL":      u,
+			})
+		} else {
+			w.Header().Set("Location", fmt.Sprintf("/t/%s/", torrent.InfoHash()))
+			w.WriteHeader(http.StatusFound)
+		}
+
 	} else {
-		s.Error(w, "bad captcha")
+		s.Error(w, "bad captcha", j)
 	}
 }
 
-func (s *Server) NotFound(w http.ResponseWriter, p map[string]interface{}) {
-	w.WriteHeader(http.StatusNotFound)
-	s.tmpl.ExecuteTemplate(w, "not-found.html.tmpl", p)
+func (s *Server) NotFound(w http.ResponseWriter, p map[string]interface{}, j bool) {
+	if j {
+		json.NewEncoder(w).Encode(map[string]string{
+			"Error": "not found",
+		})
+	} else {
+		w.WriteHeader(http.StatusNotFound)
+		s.tmpl.ExecuteTemplate(w, "not-found.html.tmpl", p)
+	}
 }
 
 func (s *Server) handleCategoryPage(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
-	feed := r.URL.Query().Get("t") == "atom"
+	j := s.shouldJSON(r)
+	feed := s.shouldATOM(r)
 
 	p := map[string]interface{}{
 		"Message": "No Such Category",
 	}
 	catid, err := strconv.Atoi(strings.Trim(path[3:], "/"))
 	if err != nil {
-		s.NotFound(w, p)
+
+		s.NotFound(w, p, j)
+
 		return
 	}
 	cat, err := s.DB.GetCategoryByID(catid)
 	if err != nil {
-		s.Error(w, err.Error())
+		s.Error(w, err.Error(), j)
 		return
 	}
 	if cat == nil {
-		s.NotFound(w, p)
+		s.NotFound(w, p, j)
 		return
 	}
 
 	if r.Method == "GET" {
 		torrents, err := s.DB.FindTorrentsInCategory(cat)
 		if err != nil {
-			s.Error(w, err.Error())
+			s.Error(w, err.Error(), j)
 			return
 		}
 		if feed {
@@ -281,6 +341,17 @@ func (s *Server) handleCategoryPage(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "application/atom+xml")
 			enc := xml.NewEncoder(w)
 			err = enc.Encode(f)
+		} else if j {
+			var jtorrents []model.Torrent
+			for _, torrent := range torrents {
+				torrent.Domain = r.Host
+				torrent.Category = *cat
+				jtorrents = append(jtorrents, torrent)
+			}
+			err = json.NewEncoder(w).Encode(map[string]interface{}{
+				"Torrents": jtorrents,
+				"Category": cat,
+			})
 		} else {
 			err = s.tmpl.ExecuteTemplate(w, "category.html.tmpl", map[string]interface{}{
 				"Domain":   r.Host,
@@ -295,7 +366,7 @@ func (s *Server) handleCategoryPage(w http.ResponseWriter, r *http.Request) {
 			log.Errorf("failed to render category page: %s", err)
 		}
 	} else if r.Method == "POST" {
-		s.addTorrent(w, r, *cat, s.makeParams())
+		s.addTorrent(w, r, *cat)
 	} else {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
@@ -315,6 +386,8 @@ func (s *Server) serveTorrent(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) serveFrontPage(w http.ResponseWriter, r *http.Request) {
+	j := s.shouldJSON(r)
+	feed := s.shouldATOM(r)
 	path := r.URL.Path
 	if path != "/" && path != "/index.html" {
 		http.NotFound(w, r)
@@ -322,19 +395,16 @@ func (s *Server) serveFrontPage(w http.ResponseWriter, r *http.Request) {
 	}
 	cats, err := s.DB.GetAllCategories()
 	if err != nil {
-		s.Error(w, "failed to fetch categories: "+err.Error())
+		s.Error(w, "failed to fetch categories: "+err.Error(), j)
 		return
 	}
 	torrents, err := s.DB.GetFrontPageTorrents()
 	if err != nil {
-		s.Error(w, "failed to fetch front page torrents: "+err.Error())
+		s.Error(w, "failed to fetch front page torrents: "+err.Error(), j)
 		return
 	}
 
-	feed := r.URL.Query().Get("t") == "atom"
-
 	if feed {
-
 		u := r.URL
 		u.Host = r.Host
 		u.Scheme = "http"
@@ -351,6 +421,16 @@ func (s *Server) serveFrontPage(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/atom+xml")
 		enc := xml.NewEncoder(w)
 		err = enc.Encode(f)
+	} else if j {
+		var jtorrents []model.Torrent
+		for _, torrent := range torrents {
+			torrent.Domain = r.Host
+			jtorrents = append(jtorrents, torrent)
+		}
+		err = json.NewEncoder(w).Encode(map[string]interface{}{
+			"Categories": cats,
+			"Torrents":   jtorrents,
+		})
 	} else {
 		err = s.tmpl.ExecuteTemplate(w, "frontpage.html.tmpl", map[string]interface{}{
 			"Domain":     r.Host,
@@ -365,6 +445,7 @@ func (s *Server) serveFrontPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
+	j := s.shouldJSON(r)
 	ihstr := strings.Trim(r.URL.Path[3:], "/")
 	ihbytes, err := hex.DecodeString(ihstr)
 	if err == nil {
@@ -374,13 +455,26 @@ func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 			var t *model.Torrent
 			t, err = s.DB.FindTorrentByInfohash(ih)
 			if t != nil {
-				files, _ := s.DB.GetTorrentFiles(ih)
+				files, err := s.DB.GetTorrentFiles(ih)
+				if err != nil {
+					s.Error(w, err.Error(), j)
+					return
+				}
 				// found torrent
-				err = s.tmpl.ExecuteTemplate(w, "torrent.html.tmpl", map[string]interface{}{
-					"Torrent": t,
-					"Files":   files,
-					"Site":    s.cfg.SiteName,
-				})
+				if j {
+					t.Domain = r.Host
+					err = json.NewEncoder(w).Encode(map[string]interface{}{
+						"Torrent": t,
+						"Files":   files,
+					})
+				} else {
+
+					err = s.tmpl.ExecuteTemplate(w, "torrent.html.tmpl", map[string]interface{}{
+						"Torrent": t,
+						"Files":   files,
+						"Site":    s.cfg.SiteName,
+					})
+				}
 				if err != nil {
 					log.Errorf("failed to render torrent page: %s", err)
 				}
@@ -388,21 +482,18 @@ func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	http.NotFound(w, r)
+	s.NotFound(w, map[string]interface{}{
+		"Error": "torrent not found",
+	}, j)
 }
 
-func (s *Server) handleAPI(w http.ResponseWriter, r *http.Request) {
-	var err error
-	user, passwd, ok := r.BasicAuth()
+func (s *Server) checkAuth(r *http.Request) (ok bool, err error) {
+	var user, passwd string
+	user, passwd, ok = r.BasicAuth()
 	if ok {
 		ok, err = s.DB.CheckLogin(user, passwd)
 	}
-	if err != nil {
-		// s.apiError(w, err)
-	}
-	if !ok {
-		w.WriteHeader(http.StatusNonAuthoritativeInfo)
-	}
+	return
 
 }
 
@@ -420,7 +511,6 @@ func New(cfg *config.IndexConfig) (s *Server) {
 	s.mux.HandleFunc("/dl/", s.serveTorrent)
 	s.mux.HandleFunc("/t/", s.serveTorrentInfo)
 	s.mux.HandleFunc("/s/", s.handleSearch)
-	s.mux.HandleFunc("/api/", s.handleAPI)
 	s.mux.HandleFunc("/", s.serveFrontPage)
 	return
 }
