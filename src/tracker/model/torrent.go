@@ -52,6 +52,10 @@ func (t *Torrent) InfoHash() string {
 	return hex.EncodeToString(t.IH[:])
 }
 
+func (t *Torrent) PageLocation() string {
+	return fmt.Sprintf("/t/%s", t.InfoHash())
+}
+
 func (t *Torrent) DownloadLink() string {
 	return fmt.Sprintf("/dl/%s.torrent", t.InfoHash())
 }

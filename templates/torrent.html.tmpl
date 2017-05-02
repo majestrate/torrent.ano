@@ -31,24 +31,33 @@
             <p> Files </p>
             <table>
                 <tbody>
-                    <tr>
-                        <td> Name </td>
-                        <td> Size </td>
-                    </tr>
+                    <tr><td> Name </td><td> Size </td></tr>
                     {{ range .Files }}
-                    <tr>
-                        <td> {{ .Name }} </td>
-                        <td> {{ .Size }} B </td>
-                    </tr>
+                    <tr><td> {{ .Name }} </td><td> {{ .SizeString }} </td></tr>
                     {{ end }}
                     <tr>
                     </tr>
-                    <tr>
-                        <td> Total Size: </td>
-                        <td> {{ .Torrent.Size }} B </td>
-                    </tr>
+                    <tr><td> Total Size: </td><td> {{ .Torrent.SizeString }} </td></tr>
                 </tbody>
             </table>
+            <hr />
+            <form method="POST">
+              <input name="captcha-id" type="hidden" />
+              <textarea name="comment"></textarea>
+              <img src="/captcha/{{ .Captcha }}.png"></img>
+              <label for="captcha">captcha solution:</label>
+              <input id="captcha"></input>
+              <input type="submit" value="comment" />
+            </form>
+            <p> Comments </p>
+            {{ range .Comments }}
+            <div class="comment" id="comment_{{ .ID }}">
+              <div class="date"> Posted On {{ .Posted }} </div>
+              <div class="message">
+                {{ .Text }}
+              </div>
+            </div>
+            {{ end }}
         </center>
     </body>
 </html>

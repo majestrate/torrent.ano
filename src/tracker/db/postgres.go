@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	_ "github.com/lib/pq"
+	"time"
 	"tracker/config"
 	"tracker/log"
 	"tracker/metainfo"
@@ -26,6 +27,7 @@ const tableAnnouncerMetaInfoInt = "MetaInfoAnnouncers"
 const tableFiles = "MetaInfoFiles"
 const tableSwarmEvents = "SwarmEvents"
 const tableAuthedUsers = "AuthedUsers"
+const tableComments = "TorrentComments"
 
 func (st *Postgres) ensureTables() (err error) {
 	tables := map[string]string{
@@ -38,6 +40,7 @@ func (st *Postgres) ensureTables() (err error) {
 		tableAnnouncerMetaInfoInt: fmt.Sprintf("( announce_id INTEGER REFERENCES %s(id) ON DELETE RESTRICT, meta_infohash  VARCHAR(40) REFERENCES %s(infohash) ON DELETE RESTRICT, UNIQUE (announce_id, meta_infohash) )", tableAnnouncers, tableMetaInfo),
 		tableSwarmEvents:          fmt.Sprintf("( swarm_infohash VARCHAR(40) REFERENCES %s(infohash) ON DELETE CASCADE, seeders INTEGER NOT NULL, leechers INTEGER NOT NULL, event_at BIGINT NOT NULL )", tableMetaInfo),
 		tableAuthedUsers:          "( username VARCHAR(255) NOT NULL, credential VARCHAR(255), id SERIAL PRIMARY KEY)",
+		tableComments:             fmt.Sprintf("( comment_infohash VARCHAR(40) REFERENCES %s(infohash) ON DELETE CASCADE, message TEXT NOT NULL, posted BIGINT NOT NULL, id SERIAL PRIMARY KEY )", tableMetaInfo),
 	}
 
 	tableOrder := []string{
@@ -310,6 +313,29 @@ func (db *Postgres) AddUserLogin(user, passwd string) (err error) {
 
 func (db *Postgres) DelUserLogin(user string) (err error) {
 	_, err = db.conn.Exec(fmt.Sprintf("DELETE FROM %s WHERE username = $1", tableAuthedUsers), user)
+	return
+}
+
+func (db *Postgres) InsertComment(text string, ih [20]byte) (err error) {
+	infohash := hex.EncodeToString(ih[:])
+	now := time.Now().Unix()
+	_, err = db.conn.Exec(fmt.Sprintf("INSERT INTO %s(comment_infohash, message, posted) VALUES($1, $2, $3)", tableComments), infohash, text, now)
+	return
+}
+
+func (db *Postgres) GetCommentsForTorrent(t *model.Torrent) (comments []model.Comment, err error) {
+	var rows *sql.Rows
+	rows, err = db.conn.Query(fmt.Sprintf("SELECT message, posted, id FROM %s WHERE comment_infohash = $1", tableComments), t.InfoHash())
+	if err == sql.ErrNoRows {
+		err = nil
+	} else if err == nil {
+		for rows.Next() {
+			var c model.Comment
+			rows.Scan(&c.Text, &c.Posted, &c.ID)
+			comments = append(comments, c)
+		}
+		rows.Close()
+	}
 	return
 }
 

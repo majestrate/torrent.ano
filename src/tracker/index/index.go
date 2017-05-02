@@ -19,6 +19,7 @@ import (
 	"tracker/log"
 	"tracker/metainfo"
 	"tracker/model"
+	"tracker/util"
 )
 
 type Server struct {
@@ -178,6 +179,7 @@ func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Ca
 	id := r.FormValue("captcha-id")
 	tags := r.FormValue("torrent-tags")
 	name := r.FormValue("torrent-name")
+	description := strings.TrimFunc(r.FormValue("torrent-description"), util.IsSpace)
 
 	var ok bool
 	var err error
@@ -191,6 +193,12 @@ func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Ca
 	}
 
 	if ok || captcha.VerifyString(id, sol) {
+
+		if len(description) == 0 {
+			s.Error(w, "no description", j)
+			return
+		}
+
 		t := new(metainfo.TorrentFile)
 		f, h, err := r.FormFile("torrent-file")
 		if name == "" {
@@ -263,6 +271,10 @@ func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Ca
 			s.Error(w, err.Error(), j)
 			return
 		}
+
+		// TODO: don't ignore
+		s.DB.InsertComment(description, torrent.IH)
+
 		// success
 		if j {
 			u := &url.URL{
@@ -276,8 +288,7 @@ func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Ca
 				"URL":      u.String(),
 			})
 		} else {
-			w.Header().Set("Location", fmt.Sprintf("/t/%s/", torrent.InfoHash()))
-			w.WriteHeader(http.StatusFound)
+			http.Redirect(w, r, torrent.PageLocation(), http.StatusFound)
 		}
 
 	} else {
@@ -475,31 +486,60 @@ func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 			copy(ih[:], ihbytes)
 			var t *model.Torrent
 			t, err = s.DB.FindTorrentByInfohash(ih)
-			if t != nil {
-				files, err := s.DB.GetTorrentFiles(ih)
-				if err != nil {
-					s.Error(w, err.Error(), j)
+			if r.Method == "GET" {
+				if t != nil {
+					// get torrent files
+					files, err := s.DB.GetTorrentFiles(ih)
+					if err != nil {
+						s.Error(w, err.Error(), j)
+						return
+					}
+					// get comments
+					comments, err := s.DB.GetCommentsForTorrent(t)
+					if err != nil {
+						s.Error(w, err.Error(), j)
+						return
+					}
+					// get captcha
+					cid := captcha.New()
+					t.Domain = r.Host
+					p := map[string]interface{}{
+						"Torrent":  t,
+						"Files":    files,
+						"Site":     s.cfg.SiteName,
+						"Captcha":  cid,
+						"Comments": comments,
+					}
+					if j {
+						err = json.NewEncoder(w).Encode(p)
+					} else {
+						err = s.tmpl.ExecuteTemplate(w, "torrent.html.tmpl", p)
+					}
+					if err != nil {
+						log.Errorf("failed to render torrent page: %s", err)
+					}
 					return
 				}
-				// found torrent
-				if j {
-					t.Domain = r.Host
-					err = json.NewEncoder(w).Encode(map[string]interface{}{
-						"Torrent": t,
-						"Files":   files,
-					})
+			} else if r.Method == "POST" {
+				sol := r.FormValue("captcha")
+				id := r.FormValue("captcha-id")
+				if captcha.VerifyString(id, sol) {
+					comment := strings.TrimFunc(r.FormValue("comment"), util.IsSpace)
+					if len(comment) > 0 {
+						err = s.DB.InsertComment(comment, t.IH)
+						if err == nil {
+							http.Redirect(w, r, t.PageLocation(), http.StatusFound)
+						} else {
+							s.Error(w, err.Error(), j)
+						}
+					} else {
+						s.Error(w, "empty comment", j)
+					}
 				} else {
-
-					err = s.tmpl.ExecuteTemplate(w, "torrent.html.tmpl", map[string]interface{}{
-						"Torrent": t,
-						"Files":   files,
-						"Site":    s.cfg.SiteName,
-					})
+					s.Error(w, "invalid captcha", j)
 				}
-				if err != nil {
-					log.Errorf("failed to render torrent page: %s", err)
-				}
-				return
+			} else {
+				w.WriteHeader(http.StatusMethodNotAllowed)
 			}
 		}
 	}

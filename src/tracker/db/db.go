@@ -25,4 +25,6 @@ type DB interface {
 	CheckLogin(user, password string) (bool, error)
 	AddUserLogin(username, password string) error
 	DelUserLogin(username string) error
+	InsertComment(text string, ih [20]byte) error
+	GetCommentsForTorrent(*model.Torrent) ([]model.Comment, error)
 }
