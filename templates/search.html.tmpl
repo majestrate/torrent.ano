@@ -50,9 +50,7 @@
           {{ else }}
           {{ if .Search }}
           <h3> No Such Tag </h3>
-          {{ end }}
-          {{ end }}
-          <hr />
+          {{ else }}
           <h3> Popular Tags </h3>
           <table>
             <tbody>
@@ -64,6 +62,8 @@
                 {{ end }}
             </tbody>
           </table>
+          {{ end }}
+          {{ end }}
         </center>
     </body>
 </html>
