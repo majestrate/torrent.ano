@@ -53,6 +53,7 @@ func (st *Postgres) ensureTables() (err error) {
 		tableAnnouncerMetaInfoInt,
 		tableTagMetaInt,
 		tableAuthedUsers,
+		tableComments,
 	}
 
 	for _, name := range tableOrder {
