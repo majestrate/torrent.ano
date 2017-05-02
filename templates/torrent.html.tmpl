@@ -44,9 +44,12 @@
             <form method="POST">
               <input name="captcha-id" type="hidden" />
               <textarea name="comment"></textarea>
+              <br />
               <img src="/captcha/{{ .Captcha }}.png"></img>
+              <br />
               <label for="captcha">captcha solution:</label>
               <input id="captcha"></input>
+              <br />
               <input type="submit" value="comment" />
             </form>
             <p> Comments </p>
