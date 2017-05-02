@@ -182,7 +182,9 @@ func (st *Postgres) ListPopularTags(limit int) (tags []model.Tag, err error) {
 		for rows.Next() {
 			var tag model.Tag
 			rows.Scan(&tag.Rank, &tag.ID, &tag.Name)
-			tags = append(tags, tag)
+			if len(tag.Name) > 0 {
+				tags = append(tags, tag)
+			}
 		}
 	} else if err == sql.ErrNoRows {
 		err = nil
