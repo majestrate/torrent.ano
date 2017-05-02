@@ -28,6 +28,14 @@
                 </tbody>
             </table>
             <hr />
+            <p> Tags </p>
+            <div class="tags">
+              {{ range .Tags }}
+              <span class="tag">
+               [ <a href="{{ .SearchLink }}">{{ .Name }}</a> ( {{ .Rank }} ) ]
+              </span>
+              {{ end }}
+            </div>
             <p> Files </p>
             <table>
                 <tbody>

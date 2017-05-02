@@ -500,10 +500,18 @@ func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 						s.Error(w, err.Error(), j)
 						return
 					}
+					// get tags
+					tags, err := s.DB.GetTorrentTags(t)
+					if err != nil {
+						s.Error(w, err.Error(), j)
+						return
+					}
+
 					// get captcha
 					cid := captcha.New()
 					t.Domain = r.Host
 					p := map[string]interface{}{
+						"Tags":     tags,
 						"Torrent":  t,
 						"Files":    files,
 						"Site":     s.cfg.SiteName,

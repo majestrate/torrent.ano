@@ -27,4 +27,7 @@ type DB interface {
 	DelUserLogin(username string) error
 	InsertComment(text string, ih [20]byte) error
 	GetCommentsForTorrent(*model.Torrent) ([]model.Comment, error)
+	GetTorrentTags(*model.Torrent) ([]model.Tag, error)
+	AddTorrentTags(tags []model.Tag, t *model.Torrent) error
+	DelTorrentTags(tags []model.Tag, t *model.Torrent) error
 }

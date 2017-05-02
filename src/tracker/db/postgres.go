@@ -63,6 +63,15 @@ func (st *Postgres) ensureTables() (err error) {
 			break
 		}
 	}
+	postQueries := []string{
+		`CREATE OR REPLACE FUNCTION tagrank(tid integer) RETURNS BIGINT AS 'SELECT COUNT(DISTINCT metainfotags.tag_infohash) AS rank FROM metainfotags WHERE tag_id = tid;' LANGUAGE SQL IMMUTABLE RETURNS NULL ON NULL INPUT`,
+	}
+	for _, f := range postQueries {
+		_, err = st.conn.Exec(f)
+		if err != nil {
+			log.Errorf("failed to execute post query: %s", err.Error())
+		}
+	}
 	return
 }
 
@@ -168,7 +177,7 @@ func (st *Postgres) GetTorrentFiles(ih [20]byte) (files []model.File, err error)
 
 func (st *Postgres) ListPopularTags(limit int) (tags []model.Tag, err error) {
 	var rows *sql.Rows
-	rows, err = st.conn.Query(fmt.Sprintf("SELECT u.tag_rank, t.id, t.name FROM %s t INNER JOIN ( SELECT tag_id, COUNT(DISTINCT tag_id) AS tag_rank FROM %s GROUP BY tag_id ORDER BY tag_rank DESC ) u ON t.id = u.tag_id LIMIT $1", tableTags, tableTagMetaInt), limit)
+	rows, err = st.conn.Query(fmt.Sprintf("SELECT tagrank(id) as rank, id, name FROM %s ORDER BY rank DESC LIMIT $1", tableTags), limit)
 	if err == nil {
 		for rows.Next() {
 			var tag model.Tag
@@ -217,7 +226,7 @@ func (st *Postgres) GetTagByID(id uint64) (tag *model.Tag, err error) {
 	tag = &model.Tag{
 		ID: id,
 	}
-	err = st.conn.QueryRow(fmt.Sprintf("SELECT name FROM %s WHERE id = $1 LIMIT 1", tableTags), id).Scan(&tag.Name)
+	err = st.conn.QueryRow(fmt.Sprintf("SELECT name, tagrank(id) FROM %s WHERE id = $1 LIMIT 1", tableTags), id).Scan(&tag.Name, &tag.Rank)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			err = nil
@@ -231,7 +240,7 @@ func (st *Postgres) GetTagByName(name string) (tag *model.Tag, err error) {
 	tag = &model.Tag{
 		Name: name,
 	}
-	err = st.conn.QueryRow(fmt.Sprintf("SELECT id FROM %s WHERE name = $1 LIMIT 1", tableTags), name).Scan(&tag.ID)
+	err = st.conn.QueryRow(fmt.Sprintf("SELECT id, tagrank(id) FROM %s WHERE name = $1 LIMIT 1", tableTags), name).Scan(&tag.ID, &tag.Rank)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			err = nil
@@ -339,6 +348,51 @@ func (db *Postgres) GetCommentsForTorrent(t *model.Torrent) (comments []model.Co
 		}
 		rows.Close()
 	}
+	return
+}
+
+func (db *Postgres) GetTorrentTags(t *model.Torrent) (tags []model.Tag, err error) {
+	var rows *sql.Rows
+	rows, err = db.conn.Query(fmt.Sprintf("SELECT id, name, tagrank(id) as rank FROM %s WHERE id IN ( SELECT tag_id from %s WHERE tag_infohash = $1) ORDER BY rank DESC", tableTags, tableTagMetaInt), t.InfoHash())
+	if err == sql.ErrNoRows {
+		err = nil
+	} else if err == nil {
+		for rows.Next() {
+			var tag model.Tag
+			rows.Scan(&tag.ID, &tag.Name, &tag.Rank)
+			tags = append(tags, tag)
+		}
+		rows.Close()
+	}
+	return
+}
+
+func (db *Postgres) AddTorrentTags(tags []model.Tag, t *model.Torrent) (err error) {
+	ih := t.InfoHash()
+	var tagValues string
+	for idx, tag := range tags {
+		if idx == 0 {
+			tagValues += fmt.Sprintf("( ('%s', %d ) ", ih, tag.ID)
+		} else {
+			tagValues += fmt.Sprintf(", ('%s', %d ) ", ih, tag.ID)
+		}
+	}
+	tagValues += ")"
+	_, err = db.conn.Exec(fmt.Sprintf("INSERT INTO %s(tag_infohash, tag_id) VALUES %s", tableTagMetaInt, tagValues))
+	return
+}
+
+func (db *Postgres) DelTorrentTags(tags []model.Tag, t *model.Torrent) (err error) {
+	var tagValues string
+	ih := t.InfoHash()
+	for idx, tag := range tags {
+		if idx == 0 {
+			tagValues += fmt.Sprintf("( tag_infohash = '%s' AND tag_id = %d ) ", ih, tag.ID)
+		} else {
+			tagValues += fmt.Sprintf("OR ( tag_infohash = '%s' AND tag_id = %d ) ", ih, tag.ID)
+		}
+	}
+	_, err = db.conn.Exec(fmt.Sprintf("DELETE FROM %s WHERE %s", tableTagMetaInt, tagValues))
 	return
 }
 

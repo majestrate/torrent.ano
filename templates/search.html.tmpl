@@ -58,7 +58,7 @@
             <tbody>
                 {{ range .PopularTags }}
                 <tr>
-                  <td><a href="/s/?id={{ .ID }}">{{ .Name }}</a></td>
+                  <td><a href="{{ .SearchLink }}">{{ .Name }}</a></td>
                   <td>{{ .Rank }} Results</td>
                 </tr>
                 {{ end }}
