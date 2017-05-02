@@ -6,11 +6,16 @@ import (
 	"encoding/xml"
 	"fmt"
 	"time"
+	"tracker/util"
 )
 
 type File struct {
 	Name string
 	Size uint64
+}
+
+func (f *File) SizeString() string {
+	return util.SizeString(f.Size)
 }
 
 type Torrent struct {
@@ -42,6 +47,10 @@ func (t *Torrent) MarshalJSON() (data []byte, err error) {
 	}
 	data, err = json.Marshal(m)
 	return
+}
+
+func (t *Torrent) SizeString() string {
+	return util.SizeString(t.Size)
 }
 
 func (t *Torrent) UploadedAt() time.Time {
