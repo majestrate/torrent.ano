@@ -541,6 +541,7 @@ func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 			} else {
 				w.WriteHeader(http.StatusMethodNotAllowed)
 			}
+			return
 		}
 	}
 	s.NotFound(w, map[string]interface{}{
