@@ -194,7 +194,7 @@ func (st *Postgres) ListPopularTags(limit int) (tags []model.Tag, err error) {
 
 func (st *Postgres) FindTorrentsWithTag(tag model.Tag) (torrents []model.Torrent, err error) {
 	var rows *sql.Rows
-	rows, err = st.conn.Query(fmt.Sprintf("SELECT i.infohash, i.name, i.uploaded_at, i.pieces_size, i.total_size FROM %s i INNER JOIN ( SELECT tag_infohash FROM %s WHERE tag_id = $1 ) t ON t.tag_infohash = i.infohash ORDER BY i.uploaded_at", tableMetaInfo, tableTagMetaInt), tag.ID)
+	rows, err = st.conn.Query(fmt.Sprintf("SELECT i.infohash, i.name, i.uploaded_at, i.pieces_size, i.total_size FROM %s i INNER JOIN ( SELECT tag_infohash FROM %s WHERE tag_id = $1 ) t ON t.tag_infohash = i.infohash ORDER BY i.uploaded_at DESC", tableMetaInfo, tableTagMetaInt), tag.ID)
 	if err == nil {
 		for rows.Next() {
 			var ih string
