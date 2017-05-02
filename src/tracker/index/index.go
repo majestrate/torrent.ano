@@ -366,27 +366,21 @@ func (s *Server) handleCategoryPage(w http.ResponseWriter, r *http.Request) {
 				"Category": cat,
 			})
 		} else {
-			if len(torrents) > 0 {
-				var nextPage, prevPage int
-				if page > 0 {
-					prevPage = page - 1
-				}
-				nextPage = page + 1
-
-				err = s.tmpl.ExecuteTemplate(w, "category.html.tmpl", map[string]interface{}{
-					"Domain":   r.Host,
-					"Torrents": torrents,
-					"Category": cat,
-					"Captcha":  captcha.New(),
-					"Site":     s.cfg.SiteName,
-					"NextPage": nextPage,
-					"PrevPage": prevPage,
-				})
-			} else {
-				s.NotFound(w, map[string]interface{}{
-					"Error": "no torrents found",
-				}, false)
+			var nextPage, prevPage int
+			if page > 0 {
+				prevPage = page - 1
 			}
+			nextPage = page + 1
+
+			err = s.tmpl.ExecuteTemplate(w, "category.html.tmpl", map[string]interface{}{
+				"Domain":   r.Host,
+				"Torrents": torrents,
+				"Category": cat,
+				"Captcha":  captcha.New(),
+				"Site":     s.cfg.SiteName,
+				"NextPage": nextPage,
+				"PrevPage": prevPage,
+			})
 		}
 
 		if err != nil {
