@@ -130,9 +130,9 @@ func (st *Postgres) GetAllCategories() (cats []model.Category, err error) {
 
 }
 
-func (st *Postgres) FindTorrentsInCategory(cat *model.Category) (torrents []model.Torrent, err error) {
+func (st *Postgres) FindTorrentsInCategory(cat *model.Category, perpage, offset int) (torrents []model.Torrent, err error) {
 	var rows *sql.Rows
-	rows, err = st.conn.Query(fmt.Sprintf("SELECT name, uploaded_at, pieces_size, total_size, infohash FROM %s WHERE category_id = $1 ORDER BY uploaded_at DESC", tableMetaInfo), cat.ID)
+	rows, err = st.conn.Query(fmt.Sprintf("SELECT name, uploaded_at, pieces_size, total_size, infohash FROM %s WHERE category_id = $1 ORDER BY uploaded_at DESC LIMIT $2 OFFSET $3", tableMetaInfo), cat.ID, perpage, offset)
 	if err == nil {
 		for rows.Next() {
 			var t model.Torrent

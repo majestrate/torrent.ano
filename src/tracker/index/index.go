@@ -322,7 +322,20 @@ func (s *Server) handleCategoryPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == "GET" {
-		torrents, err := s.DB.FindTorrentsInCategory(cat)
+
+		pagestr := r.URL.Query().Get("p")
+
+		if pagestr == "" {
+			pagestr = "0"
+		}
+		page, err := strconv.Atoi(pagestr)
+		if err != nil {
+			s.Error(w, err.Error(), j)
+		}
+
+		perpage := 50
+
+		torrents, err := s.DB.FindTorrentsInCategory(cat, perpage, perpage*page)
 		if err != nil {
 			s.Error(w, err.Error(), j)
 			return
@@ -353,13 +366,27 @@ func (s *Server) handleCategoryPage(w http.ResponseWriter, r *http.Request) {
 				"Category": cat,
 			})
 		} else {
-			err = s.tmpl.ExecuteTemplate(w, "category.html.tmpl", map[string]interface{}{
-				"Domain":   r.Host,
-				"Torrents": torrents,
-				"Category": cat,
-				"Captcha":  captcha.New(),
-				"Site":     s.cfg.SiteName,
-			})
+			if len(torrents) > 0 {
+				var nextPage, prevPage int
+				if page > 0 {
+					prevPage = page - 1
+				}
+				nextPage = page + 1
+
+				err = s.tmpl.ExecuteTemplate(w, "category.html.tmpl", map[string]interface{}{
+					"Domain":   r.Host,
+					"Torrents": torrents,
+					"Category": cat,
+					"Captcha":  captcha.New(),
+					"Site":     s.cfg.SiteName,
+					"NextPage": nextPage,
+					"PrevPage": prevPage,
+				})
+			} else {
+				s.NotFound(w, map[string]interface{}{
+					"Error": "no torrents found",
+				}, false)
+			}
 		}
 
 		if err != nil {

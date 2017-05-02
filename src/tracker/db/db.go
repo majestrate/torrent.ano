@@ -18,7 +18,7 @@ type DB interface {
 	GetTagByName(name string) (*model.Tag, error)
 	GetTagByID(id uint64) (*model.Tag, error)
 	GetCategoryByID(id int) (*model.Category, error)
-	FindTorrentsInCategory(*model.Category) ([]model.Torrent, error)
+	FindTorrentsInCategory(*model.Category, int, int) ([]model.Torrent, error)
 	GetAllCategories() ([]model.Category, error)
 	GetFrontPageTorrents() ([]model.Torrent, error)
 	GetTorrentFiles(ih [20]byte) ([]model.File, error)
