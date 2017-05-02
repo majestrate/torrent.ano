@@ -332,7 +332,9 @@ func (db *Postgres) GetCommentsForTorrent(t *model.Torrent) (comments []model.Co
 	} else if err == nil {
 		for rows.Next() {
 			var c model.Comment
-			rows.Scan(&c.Text, &c.Posted, &c.ID)
+			var posted int64
+			rows.Scan(&c.Text, &posted, &c.ID)
+			c.Posted = time.Unix(posted, 0)
 			comments = append(comments, c)
 		}
 		rows.Close()
