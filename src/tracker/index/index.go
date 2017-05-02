@@ -521,7 +521,7 @@ func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 			} else if r.Method == "POST" {
-				sol := r.FormValue("captcha")
+				sol := r.FormValue("captcha-solution")
 				id := r.FormValue("captcha-id")
 				if captcha.VerifyString(id, sol) {
 					comment := strings.TrimFunc(r.FormValue("comment"), util.IsSpace)
