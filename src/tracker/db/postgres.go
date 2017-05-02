@@ -326,7 +326,7 @@ func (db *Postgres) InsertComment(text string, ih [20]byte) (err error) {
 
 func (db *Postgres) GetCommentsForTorrent(t *model.Torrent) (comments []model.Comment, err error) {
 	var rows *sql.Rows
-	rows, err = db.conn.Query(fmt.Sprintf("SELECT message, posted, id FROM %s WHERE comment_infohash = $1", tableComments), t.InfoHash())
+	rows, err = db.conn.Query(fmt.Sprintf("SELECT message, posted, id FROM %s WHERE comment_infohash = $1 ORDER BY posted ASC", tableComments), t.InfoHash())
 	if err == sql.ErrNoRows {
 		err = nil
 	} else if err == nil {
