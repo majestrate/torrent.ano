@@ -42,7 +42,7 @@
             </table>
             <hr />
             <form method="POST">
-              <input name="captcha-id" type="hidden" />
+              <input name="captcha-id" type="hidden" value="{{ .Captcha }}"/>
               <textarea name="comment"></textarea>
               <br />
               <img src="/captcha/{{ .Captcha }}.png"></img>
