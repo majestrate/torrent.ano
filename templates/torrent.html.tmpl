@@ -18,6 +18,10 @@
                         <td>{{ .Torrent.InfoHash }}</td>
                     </tr>
                     <tr>
+                        <td> Uploaded </td>
+                        <td> {{ FormatDate .Torrent.UploadedAt }} </td>
+                    </tr>
+                    <tr>
                      <td>
                        Magnet: <a href="magnet:?xt=urn:btih:{{ .Torrent.InfoHash }}"><img src="/static/magnet.png"></img></a>
                      </td>

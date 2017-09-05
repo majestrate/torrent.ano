@@ -568,10 +568,16 @@ func (s *Server) checkAuth(r *http.Request) (ok bool, err error) {
 }
 
 func New(cfg *config.IndexConfig) (s *Server) {
+
+	funcs := template.FuncMap{
+		"FormatDate": func(t time.Time) string {
+			return t.Format(time.ANSIC)
+		},
+	}
 	s = &Server{
 		cfg:  cfg,
 		mux:  http.NewServeMux(),
-		tmpl: template.Must(template.ParseGlob(filepath.Join(cfg.TemplateDir, "**"))),
+		tmpl: template.Must(template.New("").Funcs(funcs).ParseGlob(filepath.Join(cfg.TemplateDir, "**"))),
 	}
 
 	// set up routes
