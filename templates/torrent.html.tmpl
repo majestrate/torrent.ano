@@ -67,7 +67,7 @@
             <p> Comments </p>
             {{ range .Comments }}
             <div class="comment" id="comment_{{ .ID }}">
-              <div class="date"> Posted On {{ .Posted }} </div>
+              <div class="date"> Posted On {{ FormatDate .Posted }} </div>
               <div class="message">
                 {{ .Text }}
               </div>
