@@ -9,9 +9,8 @@
         <center>
           <h1> {{ .Category.Name }} </h1>
           <h3> <a href="/">Front Page</a> </h3>
-          <h3> <a href="/c/{{ .Category.ID }}/?p={{ .NextPage }}"> Next </a> </h3>
-          <h3> <a href="/c/{{ .Category.ID }}/?p={{ .PrevPage }}"> Prev </a> </h3>
-
+          {{ if .HasNextPage }}<h3> <a href="/c/{{ .Category.ID }}/?p={{ .NextPage }}"> Next </a> </h3>{{ end }}
+          {{ if .HasPrevPage }}<h3> <a href="/c/{{ .Category.ID }}/?p={{ .PrevPage }}"> Prev </a> </h3>{{ end }}
         <table>
             <thead>
                 <tr>

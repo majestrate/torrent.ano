@@ -398,6 +398,21 @@ func (db *Postgres) DelTorrentTags(tags []model.Tag, t *model.Torrent) (err erro
 	return
 }
 
+func (db *Postgres) DelTorrent(ih string) (err error) {
+	_, err = db.conn.Exec(fmt.Sprintf("DELETE FROM %s WHERE infohash = $1", tableMetaInfo), ih)
+	return
+}
+
+func (db *Postgres) AddCategory(name string) (err error) {
+	_, err = db.conn.Exec(fmt.Sprintf("INSERT INTO %s(name) VALUES ($1)", tableCategories), name)
+	return
+}
+
+func (db *Postgres) DelCategory(name string) (err error) {
+	_, err = db.conn.Exec(fmt.Sprintf("DELETE FROM %s WHERE name = $1", tableCategories), name)
+	return
+}
+
 func NewPostgres(cfg *config.DBConfig) (db *Postgres, err error) {
 	var conn *sql.DB
 	conn, err = sql.Open("postgres", cfg.URL)

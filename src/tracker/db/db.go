@@ -30,4 +30,7 @@ type DB interface {
 	GetTorrentTags(*model.Torrent) ([]model.Tag, error)
 	AddTorrentTags(tags []model.Tag, t *model.Torrent) error
 	DelTorrentTags(tags []model.Tag, t *model.Torrent) error
+	AddCategory(name string) error
+	DelCategory(name string) error
+	DelTorrent(ih string) error
 }

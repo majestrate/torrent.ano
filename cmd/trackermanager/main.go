@@ -11,9 +11,12 @@ import (
 
 const AddUser = "add-user"
 const DelUser = "del-user"
+const AddCategory = "add-category"
+const DelCategory = "del-category"
+const DelTorrent = "del-torrent"
 
 func printUsage() {
-	fmt.Fprintf(os.Stdout, "usage: %s config.ini [%s username password|%s username] ...\n", os.Args[0], AddUser, DelUser)
+	fmt.Fprintf(os.Stdout, "usage: %s config.ini [%s username password|%s username|%s name|%s name|%s infohash] ...\n", os.Args[0], AddUser, DelUser, AddCategory, DelCategory, DelTorrent)
 }
 
 func main() {
@@ -52,7 +55,17 @@ func main() {
 		if err != nil {
 			log.Errorf("didnt remove user %s: %s", username, err)
 		}
+	} else if action == AddCategory {
+		err = DB.AddCategory(os.Args[3])
+	} else if action == DelCategory {
+		err = DB.DelCategory(os.Args[3])
+	} else if action == DelTorrent {
+		err = DB.DelTorrent(os.Args[3])
 	} else {
 		printUsage()
+		return
+	}
+	if err != nil {
+		log.Errorf("error: %s", err.Error())
 	}
 }

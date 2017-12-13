@@ -79,7 +79,7 @@ func (s *Server) shouldJSON(r *http.Request) bool {
 }
 
 func (s *Server) shouldATOM(r *http.Request) bool {
-	return r.URL.Query().Get("t") == "atom"
+	return r.URL.Query().Get("t") == "atom" || strings.HasSuffix(r.URL.Path, ".atom.xml")
 }
 
 func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request) {
@@ -297,12 +297,12 @@ func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Ca
 }
 
 func (s *Server) NotFound(w http.ResponseWriter, p map[string]interface{}, j bool) {
+	w.WriteHeader(http.StatusNotFound)
 	if j {
 		json.NewEncoder(w).Encode(map[string]string{
 			"Error": "not found",
 		})
 	} else {
-		w.WriteHeader(http.StatusNotFound)
 		s.tmpl.ExecuteTemplate(w, "not-found.html.tmpl", p)
 	}
 }
@@ -351,7 +351,14 @@ func (s *Server) handleCategoryPage(w http.ResponseWriter, r *http.Request) {
 			s.Error(w, err.Error(), j)
 			return
 		}
+		isEmpty := len(torrents) == 0
 		if feed {
+			w.Header().Set("Content-Type", "application/atom+xml")
+			if isEmpty {
+				w.WriteHeader(http.StatusNotFound)
+				return
+			}
+
 			f := &model.AtomFeed{
 				Title:   cat.Name,
 				ID:      fmt.Sprintf("torrents-category-%d", cat.ID),
@@ -362,7 +369,6 @@ func (s *Server) handleCategoryPage(w http.ResponseWriter, r *http.Request) {
 				torrent.Domain = r.Host
 				f.Torrents = append(f.Torrents, torrent)
 			}
-			w.Header().Set("Content-Type", "application/atom+xml")
 			enc := xml.NewEncoder(w)
 			err = enc.Encode(f)
 		} else if j {
@@ -384,13 +390,15 @@ func (s *Server) handleCategoryPage(w http.ResponseWriter, r *http.Request) {
 			nextPage = page + 1
 
 			err = s.tmpl.ExecuteTemplate(w, "category.html.tmpl", map[string]interface{}{
-				"Domain":   r.Host,
-				"Torrents": torrents,
-				"Category": cat,
-				"Captcha":  captcha.New(),
-				"Site":     s.cfg.SiteName,
-				"NextPage": nextPage,
-				"PrevPage": prevPage,
+				"Domain":      r.Host,
+				"Torrents":    torrents,
+				"Category":    cat,
+				"Captcha":     captcha.New(),
+				"Site":        s.cfg.SiteName,
+				"NextPage":    nextPage,
+				"PrevPage":    prevPage,
+				"HasNextPage": !isEmpty,
+				"HasPrevPage": page > 0,
 			})
 		}
 
