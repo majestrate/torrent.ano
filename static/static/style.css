@@ -17,10 +17,22 @@ textarea.comment {
 
 }
 
+div.comment {
+    background: #eee;
+    padding-bottom: 0.5em;
+    margin: 1em;
+    border-radius: 5px;
+    width: 75%;
+}
+
 div.message {
     font-family: monospace;
     white-space: pre-wrap;
     width: 75%;
     margin-top: 0.25em;
     margin-bottom: 1em;
+    background: #ddd;
+    margin: 0.5em 0.5em;
+    padding: 1em;
+    border-radius: 5px;
 }
