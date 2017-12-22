@@ -23,5 +23,6 @@ textarea.comment {
 
 div.message {
     font-family: monospace;
-    white-space: pre;
+    white-space: pre-wrap;
+    width: 75%;
 }
