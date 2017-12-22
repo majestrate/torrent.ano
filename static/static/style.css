@@ -20,3 +20,8 @@ div.comment {
 textarea.comment {
 
 }
+
+div.message {
+    font-family: monospace;
+    white-space: pre;
+}
