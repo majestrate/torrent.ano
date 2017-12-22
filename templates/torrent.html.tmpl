@@ -54,14 +54,9 @@
             </table>
             <hr />
             <p> Comments </p>
-            {{ range .Comments }}
-            <div class="comment" id="comment_{{ .ID }}">
-              <div class="date"> Posted On {{ FormatDate .Posted }} </div>
-              <div class="message">
-                {{ .Text }}
-              </div>
-            </div>
-            {{ end }}
+            {{ range .Comments }}<div class="comment" id="comment_{{ .ID }}"><div class="date"> Posted On {{ FormatDate .Posted }} </div>
+              <div class="message">{{ .Text }}</div>
+            </div>{{ end }}
             <hr />
             <form method="POST">
               <input name="captcha-id" type="hidden" value="{{ .Captcha }}"/>
