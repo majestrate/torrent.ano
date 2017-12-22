@@ -21,4 +21,6 @@ div.message {
     font-family: monospace;
     white-space: pre-wrap;
     width: 75%;
+    margin-top: 0.25em;
+    margin-bottom: 1em;
 }
