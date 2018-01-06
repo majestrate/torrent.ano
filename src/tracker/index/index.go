@@ -566,9 +566,26 @@ func (s *Server) requireAuth(handler http.HandlerFunc, w http.ResponseWriter, r 
 	} else if wantCaptcha {
 		s.Error(w, "invalid captcha", j)
 	} else if err == nil {
-		s.Error(w, "invalid login", j)
+		w.Header().Set("WWW-Authenticate", "Basic")
+		w.WriteHeader(http.StatusUnauthorized)
 	} else {
 		s.Error(w, err.Error(), j)
+	}
+}
+
+func (s *Server) handleAuth(w http.ResponseWriter, r *http.Request) {
+	user, passwd, ok := r.BasicAuth()
+	var err error
+	if ok {
+		ok, err = s.DB.CheckLogin(user, passwd)
+	}
+	if ok {
+		http.Redirect(w, r, "/", http.StatusFound)
+	} else if err == nil {
+		w.Header().Set("WWW-Authenticate", "Basic")
+		w.WriteHeader(http.StatusUnauthorized)
+	} else {
+		s.Error(w, err.Error(), s.shouldJSON(r))
 	}
 }
 
@@ -586,6 +603,7 @@ func New(cfg *config.IndexConfig) (s *Server) {
 	}
 
 	// set up routes
+	s.mux.HandleFunc("/login/", s.handleAuth)
 	s.mux.Handle("/static/", http.FileServer(http.Dir(cfg.StaticDir)))
 	s.mux.Handle("/captcha/", captcha.Server(cfg.CaptchaWidth, cfg.CaptchaHeight))
 	s.mux.HandleFunc("/c/", s.handleCategoryPage)
