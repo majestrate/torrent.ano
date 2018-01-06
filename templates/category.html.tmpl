@@ -28,7 +28,7 @@
                     <a href="{{ .DownloadLink }}"><img src="/static/download.png"></img></a>
                   </td>
                     <td><a href="/t/{{ .InfoHash }}/">{{ .Name }}</a></td>
-                    <td>{{ .Size }}</td>
+                    <td>{{ .SizeString }}</td>
                     <td>{{ FormatDate .UploadedAt }}</td>
                 </tr>
                 {{ end }}
