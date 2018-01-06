@@ -22,25 +22,47 @@ textarea.comment {
 
 }
 
-div.comment {
+.comment {
     background: #eee;
     padding-bottom: 0.5em;
     margin: 1em;
     border-radius: 5px;
+    font-family: monospace;
+    white-space: pre-wrap;
+    flex-direction: column;
+    padding: 1em;
+}
+
+.comments , .poster {
+    margin-left: 15%;
     width: 75%;
 }
 
-.comment {
-    flex-direction: column;
-    font-family: monospace;
-    white-space: pre-wrap;
-    width: 75%;
+.comments > .comment {
+    display: inline-block;
+}
+
+textarea.comment {
+    flex-direction: row;
     background: #ddd;
     padding: 1em;
     border-radius: 5px;
 }
 
-.files, .info {
+.links {
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.poster , .addtorrent {
+    justify-content: center;
+}
+
+.info {
+    flex-grow: 1;
+}
+
+.files, .info, .torrents{
     width: 75%;
     flex-direction: column;
 }
@@ -48,6 +70,10 @@ div.comment {
 .files {
     background-color: #eee;
     padding: 1em;
+}
+
+.torrent {
+    flex-direction: row;
 }
 
 .file, .header, .info {
@@ -79,3 +105,26 @@ div.comment {
 .date {
     font-weight: bolder;
 }
+
+.torrents > .torrent > .info , .torrents > .header > .info {
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+.poster > .comment {
+    flex-direction: row;
+}
+
+.captcha {
+    flex-direction: column;
+}
+
+#captcha {
+    height: 20px;
+}
+
