@@ -3,6 +3,11 @@ body {
     line-height: 1.2;
     font-size: 14px;
     padding: 0 0.5em;
+    flex-direction: column;
+}
+
+div {
+    display: flex;
 }
 
 hr, body {
@@ -25,11 +30,52 @@ div.comment {
     width: 75%;
 }
 
-div.message {
+.comment {
+    flex-direction: column;
     font-family: monospace;
     white-space: pre-wrap;
     width: 75%;
     background: #ddd;
     padding: 1em;
     border-radius: 5px;
+}
+
+.files, .info {
+    width: 75%;
+    flex-direction: column;
+}
+
+.files {
+    background-color: #eee;
+    padding: 1em;
+}
+
+.file, .header, .info {
+    justify-content: space-between;
+    flex-direction: row;
+}
+
+.size {
+    flex-basis: right;
+}
+
+.file > .name {
+    width: 90%;
+    overflow-wrap: break-word;
+}
+
+.file:nth-child(2n) {
+    background-color: #ddd;
+}
+
+.file:nth-child(2n+1) {
+    background-color: #eee;
+}
+
+.comments {
+    flex-direction: column;
+}
+
+.date {
+    font-weight: bolder;
 }
