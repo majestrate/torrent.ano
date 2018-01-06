@@ -175,25 +175,11 @@ func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Ca
 		return
 	}
 	defer r.Body.Close()
-	sol := r.FormValue("captcha-solution")
-	id := r.FormValue("captcha-id")
 	tags := r.FormValue("torrent-tags")
 	name := r.FormValue("torrent-name")
 	description := strings.TrimFunc(r.FormValue("torrent-description"), util.IsSpace)
 
-	var ok bool
-	var err error
-	if sol == "" && id == "" {
-		ok, err = s.checkAuth(r)
-	}
-
-	if err != nil {
-		s.Error(w, err.Error(), j)
-		return
-	}
-
-	if ok || captcha.VerifyString(id, sol) {
-
+	s.requireAuth(func(w http.ResponseWriter, r *http.Request) {
 		if len(description) == 0 {
 			s.Error(w, "no description", j)
 			return
@@ -290,10 +276,7 @@ func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Ca
 		} else {
 			http.Redirect(w, r, torrent.PageLocation(), http.StatusFound)
 		}
-
-	} else {
-		s.Error(w, "bad captcha", j)
-	}
+	}, w, r)
 }
 
 func (s *Server) NotFound(w http.ResponseWriter, p map[string]interface{}, j bool) {
@@ -537,9 +520,7 @@ func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 			} else if r.Method == "POST" {
-				sol := r.FormValue("captcha-solution")
-				id := r.FormValue("captcha-id")
-				if captcha.VerifyString(id, sol) {
+				s.requireAuth(func(w http.ResponseWriter, r *http.Request) {
 					comment := strings.TrimFunc(r.FormValue("comment"), util.IsSpace)
 					if len(comment) > 0 {
 						err = s.DB.InsertComment(comment, t.IH)
@@ -551,9 +532,7 @@ func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 					} else {
 						s.Error(w, "empty comment", j)
 					}
-				} else {
-					s.Error(w, "invalid captcha", j)
-				}
+				}, w, r)
 			} else {
 				w.WriteHeader(http.StatusMethodNotAllowed)
 			}
@@ -565,14 +544,32 @@ func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 	}, j)
 }
 
-func (s *Server) checkAuth(r *http.Request) (ok bool, err error) {
+func (s *Server) checkAuth(r *http.Request) (ok, requireCaptcha bool, err error) {
 	var user, passwd string
 	user, passwd, ok = r.BasicAuth()
 	if ok {
 		ok, err = s.DB.CheckLogin(user, passwd)
+	} else {
+		sol := r.FormValue("captcha-solution")
+		id := r.FormValue("captcha-id")
+		ok = captcha.VerifyString(id, sol)
+		requireCaptcha = !ok
 	}
 	return
+}
 
+func (s *Server) requireAuth(handler http.HandlerFunc, w http.ResponseWriter, r *http.Request) {
+	j := s.shouldJSON(r)
+	ok, wantCaptcha, err := s.checkAuth(r)
+	if ok {
+		handler(w, r)
+	} else if wantCaptcha {
+		s.Error(w, "invalid captcha", j)
+	} else if err == nil {
+		s.Error(w, "invalid login", j)
+	} else {
+		s.Error(w, err.Error(), j)
+	}
 }
 
 func New(cfg *config.IndexConfig) (s *Server) {
