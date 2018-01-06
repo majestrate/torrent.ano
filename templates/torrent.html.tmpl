@@ -64,15 +64,15 @@
       <div class="poster">
         <form method="POST">
           <input name="captcha-id" type="hidden" value="{{ .Captcha }}"/>
-          <div class="captcha">
-            <img src="/captcha/{{ .Captcha }}.png"></img>
-            <label for="captcha">captcha solution:</label>
-            <input id="captcha" name="captcha-solution"></input>
-          </div>
-          <div class="comment">
-            <textarea name="comment"></textarea>
-            <input type="submit" value="comment" />
-          </div>
+          <br />
+          <img src="/captcha/{{ .Captcha }}.png"></img>
+          <br />
+          <label for="captcha">captcha solution:</label>
+          <input id="captcha" name="captcha-solution"></input>
+          <br />
+          <textarea class="comment" name="comment"></textarea>
+          <br />
+          <input type="submit" value="comment" />
         </form>
       </div>
     </body>

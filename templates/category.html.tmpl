@@ -6,52 +6,56 @@
       <link href="http://{{ .Domain }}/c/{{ .Category.ID }}/?t=atom" type="application/atom+xml" rel="alternate" title="{{ .Category.Name}} torrents on {{ .Site }}" />
     </head>
     <body>
-      <h1> {{ .Category.Name }} </h1>
-      <h3> <a href="/">Front Page</a> </h3>
-      {{ if .HasNextPage }}<h3> <a href="/c/{{ .Category.ID }}/?p={{ .NextPage }}"> Next </a> </h3>{{ end }}
-      {{ if .HasPrevPage }}<h3> <a href="/c/{{ .Category.ID }}/?p={{ .PrevPage }}"> Prev </a> </h3>{{ end }}
-
-      <div class="torrents">
-        {{ range .Torrents }}
-        <div class="torrent" id="torrent_{{ .InfoHash }}">
-          <div class="header">
-            <div class="magnet">
-              <a href="magnet:?xt=urn:btih:{{ .InfoHash }}"><img src="/static/magnet.png"></img></a>
-            </div>
-            <div class="torrentfile">
-              <a href="{{ .DownloadLink }}"><img src="/static/download.png"></img></a>
-            </div>
-          </div>
-          <div class="info">
-            <div class="name"><a href="/t/{{ .InfoHash }}/">{{ .Name }}</a></div>
-            <div class="date">{{ FormatDate .UploadedAt }}</div>
-            <div class="size">{{ .SizeString }}</div>
-          </div>
-        </div>
-        {{ end }}
-      </div>
-      <div class="addtorrent"> Add torrent </div>
-      <div class="poster">
+        <center>
+          <h1> {{ .Category.Name }} </h1>
+          <h3> <a href="/">Front Page</a> </h3>
+          {{ if .HasNextPage }}<h3> <a href="/c/{{ .Category.ID }}/?p={{ .NextPage }}"> Next </a> </h3>{{ end }}
+          {{ if .HasPrevPage }}<h3> <a href="/c/{{ .Category.ID }}/?p={{ .PrevPage }}"> Prev </a> </h3>{{ end }}
+        <table>
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Name</th>
+                    <th>Size</th>
+                    <th>Uploaded</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{ range .Torrents }}
+                <tr>
+                  <td>
+                    <a href="magnet:?xt=urn:btih:{{ .InfoHash }}"><img src="/static/magnet.png"></img></a>
+                    <a href="{{ .DownloadLink }}"><img src="/static/download.png"></img></a>
+                  </td>
+                    <td><a href="/t/{{ .InfoHash }}/">{{ .Name }}</a></td>
+                    <td>{{ .Size }}</td>
+                    <td>{{ FormatDate .UploadedAt }}</td>
+                </tr>
+                {{ end }}
+            </tbody>
+        </table>
+        <hr/>
+        <p> add a torrent </p>
         <form method="POST" enctype="multipart/form-data">
-          <input type="hidden" name="captcha-id" value="{{ .Captcha }}" />
-          <input type="file" name="torrent-file" />
-          <br/>
-          <label for="name">Name of Torrent</label>
-          <input name="torrent-name" id="name" />
-          <br/>
-          <label for="tags">Tags (delimited by comma)</label>
-          <input name="torrent-tags" id="tags" />
-          <br/>
-          <label for="description">Description of Torrent</label>
-          <br/>
-          <textarea name="torrent-description" id="description"></textarea>
-          <br/>
-          <img src="/captcha/{{ .Captcha }}.png"></img>
-          <br/>
-          <label for="captcha">captcha solution:</label>
-          <input id="captcha" name="captcha-solution" />
-          <input type="submit" value="upload" />
+            <input type="hidden" name="captcha-id" value="{{ .Captcha }}" />
+            <input type="file" name="torrent-file" />
+            <br/>
+            <label for="name">Name of Torrent</label>
+            <input name="torrent-name" id="name" />
+            <br/>
+            <label for="tags">Tags (delimited by comma)</label>
+            <input name="torrent-tags" id="tags" />
+            <br/>
+            <label for="description">Description of Torrent</label>
+            <br/>
+            <textarea name="torrent-description" id="description"></textarea>
+            <br/>
+            <img src="/captcha/{{ .Captcha }}.png"></img>
+            <br/>
+            <label for="captcha">captcha solution:</label>
+            <input id="captcha" name="captcha-solution" />
+            <input type="submit" value="upload" />
         </form>
-      </div>
+        </center>
     </body>
 </html>

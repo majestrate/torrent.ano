@@ -24,23 +24,29 @@
 
           {{ if .SelectedTag }}
           <h2> Torrents For {{ .SelectedTag.Name }} </h2>
-          <div class="torrents">
-            {{ range .Torrents }}
-            <div class="torrent" id="torrent_{{ .InfoHash }}">
-              <div class="header">
-                <div class="magnet">
-                  <a href="magnet:?xt=urn:btih:{{ .InfoHash }}"><img src="/static/magnet.png"></img></a>
-                </div>
-                <div class="torrentfile">
-                  <a href="{{ .DownloadLink }}"><img src="/static/download.png"></img></a>
-                </div>
-              </div>
-              <div class="info">
-                <div class="name"><a href="/t/{{ .InfoHash }}/">{{ .Name}}</a></div>
-                <div class="date">{{ FormatDate .UploadedAt }}</div>
-                <div class="size">{{ .SizeString }}</a></div>
-              </div>
-            </div>{{ end }}
+          <table>
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Name</th>
+                    <th>Size</th>
+                    <th>Uploaded</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{ range .Torrents }}
+                <tr>
+                  <td>
+                    <a href="magnet:?xt=urn:btih:{{ .InfoHash }}"><img src="/static/magnet.png"></img></a>
+                    <a href="{{ .DownloadLink }}"><img src="/static/download.png"></img></a>
+                  </td>
+                    <td><a href="/t/{{ .InfoHash }}/">{{ .Name }}</a></td>
+                    <td>{{ .Size }}</td>
+                    <td>{{ FormatDate .UploadedAt }}</td>
+                </tr>
+                {{ end }}
+            </tbody>
+          </table>
           {{ else }}
           {{ if .Search }}
           <h3> No Such Tag </h3>
