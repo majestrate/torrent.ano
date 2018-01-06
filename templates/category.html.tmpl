@@ -37,7 +37,6 @@
         <hr/>
         <p> add a torrent </p>
         <form method="POST" enctype="multipart/form-data">
-            <input type="hidden" name="captcha-id" value="{{ .Captcha }}" />
             <input type="file" name="torrent-file" />
             <br/>
             <label for="name">Name of Torrent</label>
@@ -50,10 +49,13 @@
             <br/>
             <textarea name="torrent-description" id="description"></textarea>
             <br/>
+            {{ if .Captcha }}
+            <input type="hidden" name="captcha-id" value="{{ .Captcha }}" />
             <img src="/captcha/{{ .Captcha }}.png"></img>
             <br/>
             <label for="captcha">captcha solution:</label>
             <input id="captcha" name="captcha-solution" />
+            {{ end }}
             <input type="submit" value="upload" />
         </form>
         </center>

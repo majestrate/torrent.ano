@@ -74,6 +74,10 @@ func (s *Server) filterTorrent(t *metainfo.TorrentFile) *metainfo.TorrentFile {
 	return t
 }
 
+func (s *Server) shouldAUTH(r *http.Request) bool {
+	return r.URL.Query().Get("auth") == "1"
+}
+
 func (s *Server) shouldJSON(r *http.Request) bool {
 	return r.URL.Query().Get("t") == "json"
 }
@@ -169,6 +173,7 @@ func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Category) {
 	j := s.shouldJSON(r)
+	a := s.shouldAUTH(r)
 	store := s.DB
 	if store == nil {
 		s.Error(w, "internal error: no storage backend", j)
@@ -274,7 +279,13 @@ func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Ca
 				"URL":      u.String(),
 			})
 		} else {
-			http.Redirect(w, r, torrent.PageLocation(), http.StatusFound)
+
+			location := torrent.PageLocation()
+			if a {
+				location += "?auth=1"
+			}
+			http.Redirect(w, r, location, http.StatusFound)
+
 		}
 	}, w, r)
 }
@@ -293,6 +304,7 @@ func (s *Server) NotFound(w http.ResponseWriter, p map[string]interface{}, j boo
 func (s *Server) handleCategoryPage(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
 	j := s.shouldJSON(r)
+	a := s.shouldAUTH(r)
 	feed := s.shouldATOM(r)
 
 	p := map[string]interface{}{
@@ -372,17 +384,36 @@ func (s *Server) handleCategoryPage(w http.ResponseWriter, r *http.Request) {
 			}
 			nextPage = page + 1
 
-			err = s.tmpl.ExecuteTemplate(w, "category.html.tmpl", map[string]interface{}{
+			p := map[string]interface{}{
 				"Domain":      r.Host,
 				"Torrents":    torrents,
 				"Category":    cat,
-				"Captcha":     captcha.New(),
 				"Site":        s.cfg.SiteName,
 				"NextPage":    nextPage,
 				"PrevPage":    prevPage,
 				"HasNextPage": !isEmpty,
 				"HasPrevPage": page > 0,
-			})
+			}
+
+			var ok bool
+			ok, _, err = s.checkAuth(r)
+			if ok {
+
+			} else {
+				if a {
+					w.Header().Set("WWW-Authenticate", "Basic")
+					w.WriteHeader(http.StatusUnauthorized)
+					return
+				} else {
+					cid := captcha.New()
+					p["Captcha"] = cid
+				}
+			}
+			if err == nil {
+				err = s.tmpl.ExecuteTemplate(w, "category.html.tmpl", p)
+			} else {
+				s.Error(w, err.Error(), j)
+			}
 		}
 
 		if err != nil {
@@ -469,6 +500,7 @@ func (s *Server) serveFrontPage(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 	j := s.shouldJSON(r)
+	a := s.shouldAUTH(r)
 	ihstr := strings.Trim(r.URL.Path[3:], "/")
 	ihbytes, err := hex.DecodeString(ihstr)
 	if err == nil {
@@ -499,15 +531,26 @@ func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 					}
 
 					// get captcha
-					cid := captcha.New()
 					t.Domain = r.Host
 					p := map[string]interface{}{
 						"Tags":     tags,
 						"Torrent":  t,
 						"Files":    files,
 						"Site":     s.cfg.SiteName,
-						"Captcha":  cid,
 						"Comments": comments,
+					}
+
+					var ok bool
+					ok, _, err = s.checkAuth(r)
+					if ok {
+					} else {
+						if a {
+							w.Header().Set("WWW-Authenticate", "Basic")
+							w.WriteHeader(http.StatusUnauthorized)
+							return
+						} else {
+							p["Captcha"] = captcha.New()
+						}
 					}
 					if j {
 						err = json.NewEncoder(w).Encode(p)
@@ -525,7 +568,11 @@ func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 					if len(comment) > 0 {
 						err = s.DB.InsertComment(comment, t.IH)
 						if err == nil {
-							http.Redirect(w, r, t.PageLocation(), http.StatusFound)
+							location := t.PageLocation()
+							if a {
+								location += "?auth=1"
+							}
+							http.Redirect(w, r, location, http.StatusFound)
 						} else {
 							s.Error(w, err.Error(), j)
 						}
@@ -560,9 +607,13 @@ func (s *Server) checkAuth(r *http.Request) (ok, requireCaptcha bool, err error)
 
 func (s *Server) requireAuth(handler http.HandlerFunc, w http.ResponseWriter, r *http.Request) {
 	j := s.shouldJSON(r)
+	a := s.shouldAUTH(r)
 	ok, wantCaptcha, err := s.checkAuth(r)
 	if ok {
 		handler(w, r)
+	} else if a {
+		w.Header().Set("WWW-Authenticate", "Basic")
+		w.WriteHeader(http.StatusUnauthorized)
 	} else if wantCaptcha {
 		s.Error(w, "invalid captcha", j)
 	} else if err == nil {
@@ -570,22 +621,6 @@ func (s *Server) requireAuth(handler http.HandlerFunc, w http.ResponseWriter, r 
 		w.WriteHeader(http.StatusUnauthorized)
 	} else {
 		s.Error(w, err.Error(), j)
-	}
-}
-
-func (s *Server) handleAuth(w http.ResponseWriter, r *http.Request) {
-	user, passwd, ok := r.BasicAuth()
-	var err error
-	if ok {
-		ok, err = s.DB.CheckLogin(user, passwd)
-	}
-	if ok {
-		http.Redirect(w, r, "/", http.StatusFound)
-	} else if err == nil {
-		w.Header().Set("WWW-Authenticate", "Basic")
-		w.WriteHeader(http.StatusUnauthorized)
-	} else {
-		s.Error(w, err.Error(), s.shouldJSON(r))
 	}
 }
 
@@ -603,7 +638,6 @@ func New(cfg *config.IndexConfig) (s *Server) {
 	}
 
 	// set up routes
-	s.mux.HandleFunc("/login/", s.handleAuth)
 	s.mux.Handle("/static/", http.FileServer(http.Dir(cfg.StaticDir)))
 	s.mux.Handle("/captcha/", captcha.Server(cfg.CaptchaWidth, cfg.CaptchaHeight))
 	s.mux.HandleFunc("/c/", s.handleCategoryPage)

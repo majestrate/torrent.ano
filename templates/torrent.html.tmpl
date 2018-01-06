@@ -58,6 +58,7 @@
               <div class="message">{{ .Text }}</div></div>{{ end }}
             <hr />
             <form method="POST">
+              {{if .Captcha }}
               <input name="captcha-id" type="hidden" value="{{ .Captcha }}"/>
               <br />
               <img src="/captcha/{{ .Captcha }}.png"></img>
@@ -65,6 +66,7 @@
               <label for="captcha">captcha solution:</label>
               <input id="captcha" name="captcha-solution"></input>
               <br />
+              {{ end }}
               <textarea class="comment" name="comment"></textarea>
               <br />
               <input type="submit" value="comment" />
