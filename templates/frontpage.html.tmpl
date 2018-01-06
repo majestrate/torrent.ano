@@ -28,6 +28,7 @@
               <tr>
                 <th>Category</th>
                 <th>Name</th>
+                <th>Size</th>
                 <th>Uploaded</th>
               </tr>
             </thead>
@@ -36,6 +37,7 @@
               <tr>
                 <td><span class="cat"><a href="/c/{{ .Category.ID }}/">{{ .Category.Name }}</a></span></td>
                 <td><span class="name"><a href="/t/{{ .InfoHash }}/">{{ .Name}}</a></span></td>
+                <td><span class="size">{{ .SizeString }}</span></td>
                 <td><span class="date">{{ FormatDate .UploadedAt }}</span></td>
               </tr>{{ end }}
             </tbody>
