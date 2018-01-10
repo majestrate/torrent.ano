@@ -5,7 +5,7 @@ import (
 	"tracker/config/parser"
 )
 
-const DefaultTrackerURL = "http://21.3.37.31:6881/announce"
+const DefaultTrackerURL = "http://uajd4nctepxpac4c4bdyrdw7qvja2a5u3x25otfhkptcjgd53ioq.b32.i2p/announce"
 const DefaultSiteName = "torrent.ano"
 
 type IndexConfig struct {
