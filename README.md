@@ -4,7 +4,7 @@ Anonymous Torrent Index (with captcha)
 
 ## Dependencies
 
-* go 1.8
+* go 1.9
 * postgres
 
 ## Building
