@@ -53,7 +53,7 @@ func (t *Torrent) SizeString() string {
 	return util.SizeString(t.Size)
 }
 
-func (t *Torrent) UploadedAt() time.Time {
+func (t Torrent) UploadedAt() time.Time {
 	return time.Unix(t.Uploaded, 0)
 }
 
@@ -94,7 +94,7 @@ func (t *Torrent) toFeed() *torrentFeed {
 	}
 }
 
-func (t *Torrent) MarshalXML(e *xml.Encoder, start xml.StartElement) (err error) {
+func (t Torrent) MarshalXML(e *xml.Encoder, start xml.StartElement) (err error) {
 	err = e.EncodeElement(t.toFeed(), start)
 	return
 }

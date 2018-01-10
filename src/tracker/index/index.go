@@ -132,7 +132,7 @@ func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request) {
 			}
 			for _, torrent := range torrents {
 				torrent.Domain = r.Host
-				f.Torrents = append(f.Torrents, torrent)
+				f.Entries = append(f.Entries, torrent)
 			}
 			w.Header().Set("Content-Type", "application/atom+xml")
 			enc := xml.NewEncoder(w)
@@ -362,7 +362,7 @@ func (s *Server) handleCategoryPage(w http.ResponseWriter, r *http.Request) {
 			}
 			for _, torrent := range torrents {
 				torrent.Domain = r.Host
-				f.Torrents = append(f.Torrents, torrent)
+				f.Entries = append(f.Entries, torrent)
 			}
 			enc := xml.NewEncoder(w)
 			err = enc.Encode(f)
@@ -470,7 +470,7 @@ func (s *Server) serveFrontPage(w http.ResponseWriter, r *http.Request) {
 		}
 		for _, torrent := range torrents {
 			torrent.Domain = r.Host
-			f.Torrents = append(f.Torrents, torrent)
+			f.Entries = append(f.Entries, torrent)
 		}
 		w.Header().Set("Content-Type", "application/atom+xml")
 		enc := xml.NewEncoder(w)
@@ -500,6 +500,7 @@ func (s *Server) serveFrontPage(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 	j := s.shouldJSON(r)
+	feed := s.shouldATOM(r)
 	a := s.shouldAUTH(r)
 	ihstr := strings.Trim(r.URL.Path[3:], "/")
 	ihbytes, err := hex.DecodeString(ihstr)
@@ -552,7 +553,25 @@ func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 							p["Captcha"] = captcha.New()
 						}
 					}
-					if j {
+					if feed {
+						u := r.URL
+						u.Host = r.Host
+						u.Scheme = "http"
+						f := &model.AtomFeed{
+							Title:   fmt.Sprintf("Comments on %s", t.Name),
+							ID:      fmt.Sprintf("comments-%s", ihstr),
+							BaseURL: u,
+							Domain:  r.Host,
+						}
+						for _, comment := range comments {
+							comment.Domain = r.Host
+							comment.Torrent = t
+							f.Entries = append(f.Entries, comment)
+						}
+						w.Header().Set("Content-Type", "application/atom+xml")
+						enc := xml.NewEncoder(w)
+						err = enc.Encode(f)
+					} else if j {
 						err = json.NewEncoder(w).Encode(p)
 					} else {
 						err = s.tmpl.ExecuteTemplate(w, "torrent.html.tmpl", p)

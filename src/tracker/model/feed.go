@@ -6,12 +6,17 @@ import (
 	"time"
 )
 
+type FeedEntry interface {
+	xml.Marshaler
+	UploadedAt() time.Time
+}
+
 type AtomFeed struct {
-	Domain   string
-	BaseURL  *url.URL
-	Torrents []Torrent
-	Title    string
-	ID       string
+	Domain  string
+	BaseURL *url.URL
+	Entries []FeedEntry
+	Title   string
+	ID      string
 }
 
 type Link struct {
@@ -29,20 +34,20 @@ func NewLink(domain, path string) Link {
 	}
 }
 
-type AtomFeedImpl struct {
-	Title    string    `xml:"title"`
-	SubTitle string    `xml:"subtitle"`
-	ID       string    `xml:"id"`
-	Link     Link      `xml:"link"`
-	Updated  time.Time `xml:"updated"`
-	Torrents []Torrent `xml:"entry"`
+type atomFeedImpl struct {
+	Title    string      `xml:"title"`
+	SubTitle string      `xml:"subtitle"`
+	ID       string      `xml:"id"`
+	Link     Link        `xml:"link"`
+	Updated  time.Time   `xml:"updated"`
+	Entries  []FeedEntry `xml:"entry"`
 }
 
-func (feed *AtomFeed) toFeed() *AtomFeedImpl {
+func (feed *AtomFeed) toFeed() *atomFeedImpl {
 
 	latest := time.Unix(0, 0)
-	for _, t := range feed.Torrents {
-		u := t.UploadedAt()
+	for _, ent := range feed.Entries {
+		u := ent.UploadedAt()
 		if u.After(latest) {
 			latest = u
 		}
@@ -50,12 +55,12 @@ func (feed *AtomFeed) toFeed() *AtomFeedImpl {
 
 	u := feed.BaseURL
 
-	return &AtomFeedImpl{
+	return &atomFeedImpl{
 		Title:    feed.Title,
 		SubTitle: feed.Title,
 		Link:     NewLink(feed.Domain, u.RequestURI()),
 		ID:       feed.ID,
-		Torrents: feed.Torrents,
+		Entries:  feed.Entries,
 		Updated:  latest,
 	}
 }
