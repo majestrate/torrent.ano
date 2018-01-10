@@ -385,6 +385,7 @@ func (s *Server) handleCategoryPage(w http.ResponseWriter, r *http.Request) {
 			nextPage = page + 1
 
 			p := map[string]interface{}{
+				"TrackerURL":  s.cfg.TrackerURL.Host,
 				"Domain":      r.Host,
 				"Torrents":    torrents,
 				"Category":    cat,

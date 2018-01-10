@@ -28,5 +28,5 @@ func (cfg *IndexConfig) Load(s *parser.Section) (err error) {
 	cfg.StaticDir = s.Get("static-dir", "./static/")
 	cfg.TorrentsDir = s.Get("torrents-dir", "./torrents/")
 	cfg.SiteName = s.Get("site-name", DefaultSiteName)
-	return nil
+	return
 }
