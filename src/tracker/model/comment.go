@@ -34,7 +34,7 @@ func (c *Comment) toFeed() *commentFeed {
 		Link:       NewLink(c.Domain, c.Torrent.PageLocation(), fmt.Sprintf("comment_%d", c.ID)),
 		ID:         fmt.Sprintf("%s-%d", c.Torrent.InfoHash(), c.ID),
 		Updated:    c.UploadedAt(),
-		Summary:    "new comment",
+		Summary:    c.Text,
 		AuthorName: "anonymous",
 	}
 }
