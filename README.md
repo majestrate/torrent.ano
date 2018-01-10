@@ -25,3 +25,10 @@ anodex:
 torrent.ano:
 
 * [anonet](http://21.3.37.31/)
+
+
+## Info
+
+* uploaded torrents are modified by adding an i2p torrent tracker as the default but keeps the rest, for clearnet torrents
+* every page has atom feeds, just add `?t=atom` to the url
+* http basic auth used to bypass captchas
