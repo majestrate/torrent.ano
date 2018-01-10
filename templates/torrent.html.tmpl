@@ -3,6 +3,7 @@
     <head>
         <title> {{ .Site }} - {{ .Torrent.Name }} </title>
         <link rel="stylesheet" href="/static/style.css" />
+        <link href="http://{{ .Domain }}/t/{{ .Torrent.Infohash }}/?t=atom" type="application/atom+xml" rel="alternate" title="recent comments on {{ .Torrent.Name }}" />
     </head>
     <body>
         <center>
