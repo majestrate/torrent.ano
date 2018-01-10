@@ -38,9 +38,9 @@ func (t *Torrent) MarshalJSON() (data []byte, err error) {
 		"Size":        t.Size,
 		"Uploaded":    t.Uploaded,
 		"InfoHash":    t.InfoHash(),
-		"DownloadURL": NewLink(t.Domain, t.DownloadLink()).URL,
+		"DownloadURL": NewLink(t.Domain, t.DownloadLink(), "").URL,
 		"Magnet":      t.Magnet(),
-		"InfoURL":     NewLink(t.Domain, fmt.Sprintf("/t/%s/?t=json", t.InfoHash())).URL,
+		"InfoURL":     NewLink(t.Domain, fmt.Sprintf("/t/%s/?t=json", t.InfoHash()), "").URL,
 	}
 	if id != 0 {
 		m["Category"] = id
@@ -86,7 +86,7 @@ func (t *Torrent) toFeed() *torrentFeed {
 
 	return &torrentFeed{
 		Title:      t.Name,
-		Link:       NewLink(t.Domain, t.DownloadLink()),
+		Link:       NewLink(t.Domain, t.DownloadLink(), ""),
 		ID:         t.InfoHash(),
 		Updated:    t.UploadedAt(),
 		Summary:    t.Name,

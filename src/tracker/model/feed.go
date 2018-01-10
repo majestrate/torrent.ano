@@ -23,11 +23,12 @@ type Link struct {
 	URL string `xml:"href,attr"`
 }
 
-func NewLink(domain, path string) Link {
+func NewLink(domain, path, fragment string) Link {
 	u := &url.URL{
-		Scheme: "http",
-		Host:   domain,
-		Path:   path,
+		Scheme:   "http",
+		Host:     domain,
+		Path:     path,
+		Fragment: fragment,
 	}
 	return Link{
 		URL: u.String(),
@@ -58,7 +59,7 @@ func (feed *AtomFeed) toFeed() *atomFeedImpl {
 	return &atomFeedImpl{
 		Title:    feed.Title,
 		SubTitle: feed.Title,
-		Link:     NewLink(feed.Domain, u.RequestURI()),
+		Link:     NewLink(feed.Domain, u.RequestURI(), ""),
 		ID:       feed.ID,
 		Entries:  feed.Entries,
 		Updated:  latest,
