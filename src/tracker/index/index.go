@@ -539,6 +539,7 @@ func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 						"Files":    files,
 						"Site":     s.cfg.SiteName,
 						"Comments": comments,
+						"Domain":   r.Host,
 					}
 
 					var ok bool
