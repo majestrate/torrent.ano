@@ -12,6 +12,7 @@ var ErrUserExists = errors.New("user already exists")
 type DB interface {
 	Init() error
 	StoreTorrent(*model.Torrent, *metainfo.TorrentFile) error
+	HasTorrent(ih [20]byte) (bool, error)
 	FindTorrentByInfohash(ih [20]byte) (*model.Torrent, error)
 	FindTorrentsWithTag(tag model.Tag) ([]model.Torrent, error)
 	ListPopularTags(limit int) ([]model.Tag, error)

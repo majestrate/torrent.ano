@@ -5,6 +5,7 @@ import (
 	"os"
 	"tracker/config"
 	"tracker/db"
+	"tracker/feed"
 	"tracker/index"
 	"tracker/log"
 )
@@ -14,7 +15,7 @@ func Run() {
 	if len(os.Args) > 1 {
 		fname = os.Args[1]
 	}
-
+	log.SetLevel("info")
 	cfg := new(config.Config)
 	err := cfg.Load(fname)
 	if err != nil {
@@ -30,6 +31,8 @@ func Run() {
 	if err != nil {
 		log.Fatalf("%s", err)
 	}
+	fetcher := feed.NewFetcher(cfg.Feeds, idx.DB)
+	go fetcher.Run(cfg.Feeds.Jobs)
 	addr := cfg.Index.Addr
 	log.Infof("serve http at http://%s/", addr)
 	err = http.ListenAndServe(addr, idx)

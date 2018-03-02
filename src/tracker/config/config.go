@@ -12,6 +12,7 @@ type Config struct {
 	DB    DBConfig
 	Index IndexConfig
 	Log   LogConfig
+	Feeds FeedsConfig
 }
 
 func (cfg *Config) Load(fname string) error {
@@ -19,6 +20,7 @@ func (cfg *Config) Load(fname string) error {
 		"db":    &cfg.DB,
 		"index": &cfg.Index,
 		"log":   &cfg.Log,
+		"feeds": &cfg.Feeds,
 	}
 
 	conf, err := parser.Read(fname)

@@ -413,6 +413,19 @@ func (db *Postgres) DelCategory(name string) (err error) {
 	return
 }
 
+func (db *Postgres) HasTorrent(ih [20]byte) (has bool, err error) {
+	ihhex := hex.EncodeToString(ih[:])
+	var rows *sql.Rows
+	rows, err = db.conn.Query(fmt.Sprintf("SELECT infohash from %s WHERE infohash = $1", tableMetaInfo), ihhex)
+	if err == nil {
+		has = true
+		rows.Close()
+	} else if err == sql.ErrNoRows {
+		err = nil
+	}
+	return
+}
+
 func NewPostgres(cfg *config.DBConfig) (db *Postgres, err error) {
 	var conn *sql.DB
 	conn, err = sql.Open("postgres", cfg.URL)
