@@ -31,8 +31,10 @@ func Run() {
 	if err != nil {
 		log.Fatalf("%s", err)
 	}
-	fetcher := feed.NewFetcher(cfg.Feeds, idx.DB)
-	go fetcher.Run(cfg.Feeds.Jobs)
+	if cfg.Feeds.Enabled {
+		fetcher := feed.NewFetcher(cfg.Feeds, idx.DB)
+		go fetcher.Run(cfg.Feeds.Jobs)
+	}
 	addr := cfg.Index.Addr
 	log.Infof("serve http at http://%s/", addr)
 	err = http.ListenAndServe(addr, idx)
