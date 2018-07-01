@@ -1,0 +1,18 @@
+
+
+[Unit]
+Description=BitTorrent Index
+Requires=postgresql.service
+
+[Service]
+Type=simple
+User=torrents
+WorkingDirectory=/usr/local/torrent.ano
+ExecStart=/usr/local/torrent.ano/indextracker default.ini
+ExecStop=/bin/kill -15 $MAINPID
+Restart=always
+RestartSec=30s
+
+
+[Install]
+WantedBy=multi-user.target
