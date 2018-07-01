@@ -23,13 +23,13 @@
             <tbody>
                 {{ range .Torrents }}
                 <tr>
-                  <td>
+                  <td class="info">
                     <a href="magnet:?xt=urn:btih:{{ .InfoHash }}"><img src="/static/magnet.png"></img></a>
                     <a href="{{ .DownloadLink }}"><img src="/static/download.png"></img></a>
                   </td>
-                    <td><a href="/t/{{ .InfoHash }}/">{{ .Name }}</a></td>
-                    <td>{{ .SizeString }}</td>
-                    <td>{{ FormatDate .UploadedAt }}</td>
+                  <td class="info"><a href="/t/{{ .InfoHash }}/">{{ .Name }}</a></td>
+                  <td class="info">{{ .SizeString }}</td>
+                  <td class="info">{{ FormatDate .UploadedAt }}</td>
                 </tr>
                 {{ end }}
             </tbody>
@@ -37,29 +37,55 @@
         <hr/>
           <h2> Add a torrent </h2>
           <h4> {{.TrackerURL}} will be added as a default tracker, existing trackers will be preserved.</h4>
-        <form method="POST" enctype="multipart/form-data">
-            <input type="file" name="torrent-file" />
-            <br/>
-            <label for="name">Name of Torrent</label>
-            <input name="torrent-name" id="name" />
-            <br/>
-            <label for="tags">Tags (separated by commas)</label>
-            <input name="torrent-tags" id="tags" />
-            <br/>
-            <label for="description">Description of Torrent</label>
-            <br/>
-            <textarea name="torrent-description" id="description"></textarea>
-            <br/>
-            {{ if .Captcha }}
-            <input type="hidden" name="captcha-id" value="{{ .Captcha }}" />
-            <img src="/captcha/{{ .Captcha }}.png"></img>
-            <br/>
-            <label for="captcha">captcha solution:</label>
-            <input id="captcha" name="captcha-solution" />
-            {{ end }}
-            <input type="submit" value="upload" />
-        </form>
         </center>
+        <div class="postform" align="center">
+          <form method="POST" enctype="multipart/form-data">
+            <table cellspacing="1" cellpadding="0">
+              <tr>
+                <th>Torrent Name</th>
+                <td><input id="name" type="text" name="torrent-name" class="posttext" /></td>
+              </tr>
+              <tr>
+                <th>Torrent Tags</th>
+                <td><input id="tags" type="text" name="torrent-tags" class="posttext" /></td>
+              </tr>
+              <tr>
+                <th>Description</th>
+                <td><textarea id="description" name="torrent-description" class="postarea"></textarea></td>
+              </tr>
+              {{ if .Captcha }}
+              <tr>
+                <th>
+                  Captcha
+                </th>
+                <td>
+                  <img id="captcha_img" src="/captcha/{{.Captcha}}.png" alt="captcha" />
+                </td>
+              </tr>
+              <tr>
+                <th>
+                  Solution
+                </th>
+                <td>
+                  <input type="hidden" name="captcha-id" value="{{.Captcha}}" />
+                  <input type="text" name="captcha-solution" autocomplete="off" id="captcha_solution" height="175" width="350"/>
+                </td>
+              </tr>
+              {{ end }}
+              <tr>
+                <th>Torrent File</th>
+                <td>
+                  <table cellspacing="0" cellpadding="0" width="100%">
+                    <tr>
+                      <td><input type="file" name="torrent-file" class="postfile" /></td>
+                      <td align="right"><input type="submit" value="upload" class="postbutton"/></td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </form>
+        </div>
         {{ template "script.html.tmpl" . }}
     </body>
 </html>

@@ -35,10 +35,10 @@
             <tbody>
               {{ range .Torrents }}
               <tr>
-                <td><span class="cat"><a href="/c/{{ .Category.ID }}/">{{ .Category.Name }}</a></span></td>
-                <td><span class="name"><a href="/t/{{ .InfoHash }}/">{{ .Name}}</a></span></td>
-                <td><span class="size">{{ .SizeString }}</span></td>
-                <td><span class="date">{{ FormatDate .UploadedAt }}</span></td>
+                <td class="info"><span class="cat"><a href="/c/{{ .Category.ID }}/">{{ .Category.Name }}</a></span></td>
+                <td class="info"><span class="name"><a href="/t/{{ .InfoHash }}/">{{ .Name}}</a></span></td>
+                <td class="info"><span class="size">{{ .SizeString }}</span></td>
+                <td class="info"><span class="date">{{ FormatDate .UploadedAt }}</span></td>
               </tr>{{ end }}
             </tbody>
           </table>

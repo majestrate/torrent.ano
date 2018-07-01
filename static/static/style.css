@@ -3,10 +3,12 @@ body {
     line-height: 1.2;
     font-size: 14px;
     padding: 0 0.5em;
+    color: #444;
 }
 
-hr, body {
-    color: #444;
+hr {
+    border: 1px dotted;
+    height: 1px;
 }
 
 h1, h2, h3 {
@@ -18,7 +20,6 @@ textarea.comment {
 }
 
 div.comment {
-    background: #eee;
     padding-bottom: 0.5em;
     margin: 1em;
     border-radius: 5px;
@@ -29,7 +30,67 @@ div.message {
     font-family: monospace;
     white-space: pre-wrap;
     width: 75%;
-    background: #ddd;
+    background: #eae8e8;
     padding: 1em;
     border-radius: 5px;
+}
+
+.torrent-files table {
+    width: 90%;
+}
+
+td.header {
+    color: #ddd;
+    background: #3d403c;
+    border: 1px solid #3d403c;
+    text-align: left;
+    padding-left: 4px;
+    padding-right: 5px;
+}
+
+td.filesize {
+    width: 100px;
+}
+
+td.filename, td.filesize, td.info {
+    background: #b9b9b9;
+    border: 1px solid #3d403c;
+    text-align: left;
+    padding-left: 4px;
+    padding-right: 5px;
+
+}
+
+.posttext {
+    width: 400px;
+    height: 20px;
+    border: 1px solid #363636;
+    background: #fff;
+}
+
+.postarea {
+    width: 400px;
+    height: 48px;
+    border: 1px solid #363636;
+    background: #fff;
+    padding: 0px;
+    margin: 0px;
+}
+
+
+html {
+    background: #e2e0e0;
+}
+
+#captcha_img {
+    background-color: white;
+}
+
+th {
+    color: #ddd;
+    background: #3d403c;
+    border: 1px solid #3d403c;
+    text-align: left;
+    padding-left: 4px;
+    padding-right: 5px;
 }

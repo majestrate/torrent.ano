@@ -11,22 +11,22 @@
             <table>
                 <tbody>
                     <tr>
-                        <td>Name </td>
-                        <td>{{ .Torrent.Name }}</td>
+                        <td class="info">Name </td>
+                        <td class="info">{{ .Torrent.Name }}</td>
                     </tr>
                     <tr>
-                        <td>Infohash </td>
-                        <td>{{ .Torrent.InfoHash }}</td>
+                        <td class="info">Infohash </td>
+                        <td class="info">{{ .Torrent.InfoHash }}</td>
                     </tr>
                     <tr>
-                        <td> Uploaded </td>
-                        <td> {{ FormatDate .Torrent.UploadedAt }} </td>
+                        <td class="info"> Uploaded </td>
+                        <td class="info"> {{ FormatDate .Torrent.UploadedAt }} </td>
                     </tr>
                     <tr>
-                     <td>
+                     <td class="info">
                        Magnet: <a href="magnet:?xt=urn:btih:{{ .Torrent.InfoHash }}"><img src="/static/magnet.png"></img></a>
                      </td>
-                     <td>
+                     <td class="info">
                        Torrent: <a href="/dl/{{ .Torrent.InfoHash }}.torrent"><img src="/static/download.png"></img></a>
                     </td>
                     </tr>
@@ -42,37 +42,78 @@
               {{ end }}
             </div>
             <p> Files </p>
-            <table>
+            <div class="torrent-files" align="center">
+              <table>
                 <tbody>
-                    <tr><td> Name </td><td> Size </td></tr>
-                    {{ range .Files }}
-                    <tr><td> {{ .Name }} </td><td> {{ .SizeString }} </td></tr>
-                    {{ end }}
-                    <tr>
-                    </tr>
-                    <tr><td> Total Size: </td><td> {{ .Torrent.SizeString }} </td></tr>
+                  <tr>
+                    <td class="header"> Name </td>
+                    <td class="header"> Size </td>
+                  </tr>
+                  {{ range .Files }}
+                  <tr>
+                    <td class="filename"> {{ .Name }} </td>
+                    <td class="filesize"> {{ .SizeString }} </td>
+                  </tr>
+                  {{ end }}
+                  <tr>
+                  </tr>
+                  <tr>
+                    <td>--</td>
+                    <td>--</td>
+                  </tr>
+                  <tr>
+                    <td> Total Size: </td>
+                    <td> {{ .Torrent.SizeString }} </td>
+                  </tr>
                 </tbody>
-            </table>
+              </table>
+            </div>
             <hr />
-            <p> Comments </p>
-            {{ range .Comments }}<div class="comment" id="comment_{{ .ID }}"><div class="date"> Posted On {{ FormatDate .Posted }} </div>
-              <div class="message">{{ .Text }}</div></div>{{ end }}
-            <hr />
-            <form method="POST">
-              {{if .Captcha }}
-              <input name="captcha-id" type="hidden" value="{{ .Captcha }}"/>
-              <br />
-              <img src="/captcha/{{ .Captcha }}.png"></img>
-              <br />
-              <label for="captcha">captcha solution:</label>
-              <input id="captcha" name="captcha-solution"></input>
-              <br />
-              {{ end }}
-              <textarea class="comment" name="comment"></textarea>
-              <br />
-              <input type="submit" value="comment" />
-            </form>
         </center>
+        <div class="postform" align="center">
+          <form method="POST">
+            <table cellspacing="1" cellpadding="0">
+              <tr>
+                <th>Comment</th>
+                <td><textarea id="comment" name="comment" class="postarea"></textarea></td>
+              </tr>
+              {{ if .Captcha }}
+              <tr>
+                <th>
+                  Captcha
+                </th>
+                <td>
+                  <img id="captcha_img" src="/captcha/{{.Captcha}}.png" alt="captcha" />
+                </td>
+              </tr>
+              <tr>
+                <th>
+                  Solution
+                </th>
+                <td>
+                  <input type="hidden" name="captcha-id" value="{{.Captcha}}" />
+                  <input type="text" name="captcha-solution" autocomplete="off" id="captcha_solution" height="175" width="350"/>
+                </td>
+              </tr>
+              {{ end }}
+              <tr>
+                <th>Post</th>
+                <td>
+                  <table cellspacing="0" cellpadding="0" width="100%">
+                    <tr>
+                      <td align="right"><input type="submit" value="comment" class="postbutton"/></td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </form>
+          <p> Comments </p>
+          {{ range .Comments }}<div class="comment" id="comment_{{ .ID }}"><div class="date"> Posted On {{ FormatDate .Posted }} </div>
+            <div class="message">{{ .Text }}</div></div>{{ end }}
+          <hr />
+        </div>
+
         {{ template "script.html.tmpl" . }}
     </body>
 </html>
