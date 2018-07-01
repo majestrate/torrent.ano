@@ -15,6 +15,29 @@ Anonymous Torrent Index (with captcha)
 
     $ ./indextracker
 
+## Management
+
+adding a new category
+
+    $ ./trackermanager config.ini add-category anime
+
+deleting an existing category
+
+    $ ./trackermanager config.ini del-category anime
+    
+deleting a torrent
+
+    $ ./trackermanager config.ini del-torrent hexinfohashhere
+    
+adding a new user for captcha bypass
+
+    $ ./trackermanager config.ini add-user username password
+
+deleting an existing user
+
+    $ ./trackermanager config.ini del-user username
+
+
 ## Demos
 
 anodex:
