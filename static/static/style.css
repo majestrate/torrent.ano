@@ -58,7 +58,18 @@ td.filename, td.filesize, td.info {
     text-align: left;
     padding-left: 4px;
     padding-right: 5px;
+}
 
+tr:hover td.info {
+    background: #d0d0d0;
+}
+
+td.captcha_img {
+    line-height: 0.0;
+}
+
+span.date {
+    font-family: monospace;
 }
 
 .posttext {
@@ -66,6 +77,8 @@ td.filename, td.filesize, td.info {
     height: 20px;
     border: 1px solid #363636;
     background: #fff;
+    padding: 0px;
+    margin: 0px;
 }
 
 .postarea {
@@ -84,6 +97,9 @@ html {
 
 #captcha_img {
     background-color: white;
+    border: 1px solid #363636;
+    padding: 0px;
+    margin: 0px;
 }
 
 th {
