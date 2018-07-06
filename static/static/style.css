@@ -68,9 +68,9 @@ td.captcha_img {
     line-height: 0.0;
 }
 
-span.date {
+/*.date {
     font-family: monospace;
-}
+}*/
 
 .posttext {
     width: 400px;

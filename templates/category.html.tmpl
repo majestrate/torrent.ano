@@ -29,7 +29,7 @@
                   </td>
                   <td class="info"><a href="/t/{{ .InfoHash }}/">{{ .Name }}</a></td>
                   <td class="info">{{ .SizeString }}</td>
-                  <td class="info"><span class="date">{{ FormatDate .UploadedAt }}</span></td>
+                  <td class="info"><time class="date" datetime="{{ FormatDateGlobal .UploadedAt }}" title="{{ FormatDateRFC2822 .UploadedAt }}">{{ FormatDate .UploadedAt }}</time></td>
                 </tr>
                 {{ end }}
             </tbody>
