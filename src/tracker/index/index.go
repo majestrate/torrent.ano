@@ -648,8 +648,25 @@ func (s *Server) requireAuth(handler http.HandlerFunc, w http.ResponseWriter, r 
 func New(cfg *config.IndexConfig) (s *Server) {
 
 	funcs := template.FuncMap{
+		// ISO 8601 human readable version
 		"FormatDate": func(t time.Time) string {
-			return t.Format(time.ANSIC)
+			Y, M, D := t.Date()
+			h, m, s := t.Clock()
+			return fmt.Sprintf("%d-%02d-%02d %02d:%02d:%02d", Y, M, D, h, m, s)
+		},
+		// machine readable, manually specify global timezone
+		"FormatDateGlobal": func(t time.Time) string {
+			t = t.UTC()
+			Y, M, D := t.Date()
+			h, m, s := t.Clock()
+			return fmt.Sprintf("%d-%02d-%02dT%02d:%02d:%02dZ", Y, M, D, h, m, s)
+		},
+		// RFC 2822 Date: header style
+		"FormatDateRFC2822": func(t time.Time) string {
+			Y, M, D := t.Date()
+			W := t.Weekday()
+			h, m, s := t.Clock()
+			return fmt.Sprintf("%s, %02d %s %04d %02d:%02d:%02d", W, D, M, Y, h, m, s)
 		},
 	}
 	s = &Server{
