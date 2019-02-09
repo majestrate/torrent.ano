@@ -24,6 +24,7 @@ div.comment {
     margin: 1em;
     border-radius: 5px;
     width: 75%;
+    text-align: left;
 }
 
 div.message {
