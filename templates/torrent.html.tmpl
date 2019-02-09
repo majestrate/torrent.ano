@@ -20,7 +20,7 @@
                     </tr>
                     <tr>
                         <td class="info"> Uploaded </td>
-                        <td class="info"> {{ FormatDate .Torrent.UploadedAt }} </td>
+                        <td class="info"> <time class="date" datetime="{{ FormatDateGlobal .Torrent.UploadedAt }}" title="{{ FormatDateRFC2822 .Torrent.UploadedAt }}">{{ FormatDate .Torrent.UploadedAt }}</time> </td>
                     </tr>
                     <tr>
                      <td class="info">
@@ -82,7 +82,7 @@
                 <th>
                   Captcha
                 </th>
-                <td>
+                <td class="captcha_img">
                   <img id="captcha_img" src="/captcha/{{.Captcha}}.png" alt="captcha" />
                 </td>
               </tr>

@@ -29,7 +29,7 @@
                   </td>
                   <td class="info"><a href="/t/{{ .InfoHash }}/">{{ .Name }}</a></td>
                   <td class="info">{{ .SizeString }}</td>
-                  <td class="info">{{ FormatDate .UploadedAt }}</td>
+                  <td class="info"><time class="date" datetime="{{ FormatDateGlobal .UploadedAt }}" title="{{ FormatDateRFC2822 .UploadedAt }}">{{ FormatDate .UploadedAt }}</time></td>
                 </tr>
                 {{ end }}
             </tbody>
@@ -58,7 +58,7 @@
                 <th>
                   Captcha
                 </th>
-                <td>
+                <td class="captcha_img">
                   <img id="captcha_img" src="/captcha/{{.Captcha}}.png" alt="captcha" />
                 </td>
               </tr>
@@ -68,7 +68,7 @@
                 </th>
                 <td>
                   <input type="hidden" name="captcha-id" value="{{.Captcha}}" />
-                  <input type="text" name="captcha-solution" autocomplete="off" id="captcha_solution" height="175" width="350"/>
+                  <input type="text" name="captcha-solution" autocomplete="off" id="captcha_solution" height="175" width="350" />
                 </td>
               </tr>
               {{ end }}
