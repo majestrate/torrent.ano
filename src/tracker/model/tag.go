@@ -33,12 +33,13 @@ func (t Tag) UploadedAt() time.Time {
 func (t *Tag) toFeed() *tagFeed {
 
 	return &tagFeed{
-		Title:   "Torrents tagged with '" + t.Name + "'",
-		Link:    NewQueryLink(t.Domain, "/s/", fmt.Sprintf("id=%d", t.ID)),
-		ID:      fmt.Sprintf("tag-%d", t.ID),
-		Updated: t.UploadedAt(),
-		Summary: t.Name,
-		//		AuthorName: "Anonymous Uploader",
+
+		Title:      t.Name,
+		Link:       NewLink(t.Domain, t.SearchLink(), ""),
+		ID:         fmt.Sprintf("tag-%d", t.ID),
+		Updated:    t.UploadedAt(),
+		Summary:    t.Name,
+		AuthorName: "anonymous uploader",
 	}
 }
 
