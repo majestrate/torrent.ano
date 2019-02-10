@@ -1,19 +1,29 @@
 <!DOCTYPE HTML>
 <html>
-
-<head>
-  <title> {{ .Site }} </title>
-  <link rel="stylesheet" href="/static/style.css" />
-  <link href="http://{{ .Domain }}/?t=atom" type="application/atom+xml" rel="alternate" title="Recent torrents on {{ .Site }}" />
-</head>
-
-<body id="home">
-  <div class="container">
-    <div class="panel">
-      <div class="inner">
-        <div id="topnav"> {{ .Site }} </div>
-        <div>
-          <table id="categories">
+    <head>
+      <title> {{ .Site }} </title>
+      <link rel="stylesheet" href="/static/style.css" />
+      <link href="http://{{ .Domain }}/?t=atom" type="application/atom+xml" rel="alternate" title="recent torrents on {{ .Site }}" />
+    </head>
+    <body>
+        <center>
+          <h1> {{ .Site }} </h1>
+          <h2> Torrent Booru </h2>
+          <hr />
+          <h3><a href="/s/">Tag Search</a></h3>
+          <h3> Categories </h3>
+          <table>
+            <tbody>
+              {{ range .Categories }}
+              <tr>
+                <td><span class="cat"><a href="/c/{{ .ID }}/">{{ .Name }}</a></span></td>
+              </tr>
+              {{ end }}
+            </tbody>
+          </table>
+          <hr />
+          <h3> Recent Uploads </h3>
+          <table>
             <thead>
               <tr class="header">
                 <td><b>Categories</b>&nbsp;
