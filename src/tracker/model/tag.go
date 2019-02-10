@@ -35,7 +35,7 @@ func (t *Tag) toFeed() *tagFeed {
 	return &tagFeed{
 
 		Title:      t.Name,
-		Link:       NewLink(t.Domain, t.SearchLink(), ""),
+		Link:       NewQueryLink(t.Domain, "/s/", fmt.Sprintf("id=%d", t.ID)),
 		ID:         fmt.Sprintf("tag-%d", t.ID),
 		Updated:    t.UploadedAt(),
 		Summary:    t.Name,
