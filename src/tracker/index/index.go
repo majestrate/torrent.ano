@@ -127,7 +127,7 @@ func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request) {
 
 		if feed && selectedTag != nil {
 			f := &model.AtomFeed{
-				Title:   "Torrents tagged with '" + selectedTag.Name+"'",
+				Title:   "Torrents tagged with '" + selectedTag.Name + "'",
 				ID:      fmt.Sprintf("torrents-tag-%d", selectedTag.ID),
 				BaseURL: r.URL,
 				Domain:  r.Host,
@@ -646,31 +646,21 @@ func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 								s.Error(w, err.Error(), j)
 							}
 						} else {
-							s.Error(w, "Empty comment", j)
+							s.Error(w, "empty comment", j)
 						}
 					} else if action == "tag" {
-
-						if err := CheckTags(r.FormValue("add")); err != nil {
-							s.Error(w, err.Error(), j)
-						}
-						if err := CheckTags(r.FormValue("del")); err != nil {
-							s.Error(w, err.Error(), j)
-						}
-
 						addTags := strings.Split(r.FormValue("add"), ",")
-
 						for idx, tag := range addTags {
 							addTags[idx] = strings.TrimFunc(tag, util.IsSpace)
 						}
 
 						delTags := strings.Split(r.FormValue("del"), ",")
-
 						for idx, tag := range delTags {
 							delTags[idx] = strings.TrimFunc(tag, util.IsSpace)
 						}
 
 						if len(addTags)+len(delTags) == 0 {
-							s.Error(w, "No tags changed", j)
+							s.Error(w, "no tags changed", j)
 							return
 						}
 
@@ -679,6 +669,7 @@ func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 							s.Error(w, err.Error(), j)
 							return
 						}
+
 						var addTagsTorrent []string
 						for _, tag := range addTags {
 							if len(tag) > 0 {

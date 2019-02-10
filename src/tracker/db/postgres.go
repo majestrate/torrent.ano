@@ -407,7 +407,6 @@ func (db *Postgres) AddTorrentTags(tags []model.Tag, t *model.Torrent) (err erro
 	if len(tags) == 0 {
 		return
 	}
-
 	ih := t.InfoHash()
 	var tagValues string
 	if len(tags) > 1 {
