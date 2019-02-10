@@ -38,7 +38,7 @@ func NewLink(domain, path, fragment string) Link {
 	u := &url.URL{
 		Scheme:   "http",
 		Host:     domain,
-		Path:     path,
+		RawPath:  path,
 		Fragment: fragment,
 	}
 	return Link{
