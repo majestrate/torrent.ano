@@ -146,7 +146,28 @@ func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request) {
 			err = json.NewEncoder(w).Encode(map[string]interface{}{
 				"Torrents": jtorrents,
 			})
+		} else if feed {
+			f := &model.AtomFeed{
+				Title:   "popular tags",
+				ID:      "torrent-popular-tags",
+				BaseURL: r.URL,
+				Domain:  r.Host,
+			}
+			for _, tag := range tags {
+				tag.Domain = r.Host
+				f.Entries = append(f.Entries, tag)
+			}
+			w.Header().Set("Content-Type", "application/atom+xml")
+			enc := xml.NewEncoder(w)
+			err = enc.Encode(f)
+
 		} else {
+			results:=""
+			if len(torrents) == 1{
+				results="result"
+			}else{
+				results="results"
+			}
 			u := r.URL
 			q := u.Query()
 			q.Add("t", "atom")
@@ -161,10 +182,11 @@ func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request) {
 				"Search":      tag != "" || name != "",
 				"SearchTag":   name,
 				"FeedURL":     u.String(),
+				"ResultString": results, // TODO
 			})
 		}
 		if err != nil {
-			log.Errorf("failed to render search page: %s", err)
+			log.Errorf("Failed to render search page: %s", err)
 		}
 	} else {
 		w.WriteHeader(http.StatusMethodNotAllowed)
@@ -237,6 +259,16 @@ func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Ca
 		}
 
 		// set tags
+		tags = strings.ToLower(tags);
+
+		for _, tag := range strings.Split(tags,","){
+			for _, tag1 := range strings.Split(tags,","){
+				if tag == tag1 {
+					s.Error(w, "tags error", j);
+					return
+				}
+			}
+		}
 		for _, tag := range strings.Split(tags, ",") {
 			tname := strings.Replace(strings.Trim(tag, " "), " ", "-", -1)
 			torrent.Tags = append(torrent.Tags, model.Tag{
@@ -418,7 +450,7 @@ func (s *Server) handleCategoryPage(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if err != nil {
-			log.Errorf("failed to render category page: %s", err)
+			log.Errorf("Failed to render category page: %s", err)
 		}
 	} else if r.Method == "POST" {
 		s.addTorrent(w, r, *cat)
@@ -495,7 +527,7 @@ func (s *Server) serveFrontPage(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 	if err != nil {
-		log.Errorf("failed to render front page: %s", err)
+		log.Errorf("Failed to render front page: %s", err)
 	}
 }
 
@@ -579,26 +611,87 @@ func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 						err = s.tmpl.ExecuteTemplate(w, "torrent.html.tmpl", p)
 					}
 					if err != nil {
-						log.Errorf("failed to render torrent page: %s", err)
+						log.Errorf("Failed to render torrent page: %s", err)
 					}
 					return
 				}
 			} else if r.Method == "POST" {
 				s.requireAuth(func(w http.ResponseWriter, r *http.Request) {
-					comment := strings.TrimFunc(r.FormValue("comment"), util.IsSpace)
-					if len(comment) > 0 {
-						err = s.DB.InsertComment(comment, t.IH)
-						if err == nil {
-							location := t.PageLocation()
-							if a {
-								location += "?auth=1"
+					action := strings.TrimFunc(r.FormValue("action"), util.IsSpace)
+					if action == "comment" {
+						comment := strings.TrimFunc(r.FormValue("comment"), util.IsSpace)
+						if len(comment) > 0 {
+							err = s.DB.InsertComment(comment, t.IH)
+							if err == nil {
+								location := t.PageLocation()
+								if a {
+									location += "?auth=1"
+								}
+								http.Redirect(w, r, location, http.StatusFound)
+							} else {
+								s.Error(w, err.Error(), j)
 							}
-							http.Redirect(w, r, location, http.StatusFound)
 						} else {
-							s.Error(w, err.Error(), j)
+							s.Error(w, "Empty comment", j)
 						}
-					} else {
-						s.Error(w, "empty comment", j)
+					} else if action == "tag" {
+						addTags := strings.Split(r.FormValue("add"), ",")
+						for idx, tag := range addTags {
+							addTags[idx] = strings.TrimFunc(tag, util.IsSpace)
+						}
+
+						delTags := strings.Split(r.FormValue("del"), ",")
+						for idx, tag := range delTags {
+							delTags[idx] = strings.TrimFunc(tag, util.IsSpace)
+						}
+
+						if len(addTags)+len(delTags) == 0 {
+							s.Error(w, "No tags changed", j)
+							return
+						}
+
+						existing, err := s.DB.GetTorrentTags(t)
+						if err != nil {
+							s.Error(w, err.Error(), j)
+							return
+						}
+						var addTagsTorrent []string
+						for _, tag := range addTags {
+							if len(tag) > 0 {
+								tag = strings.ToLower(tag)
+								found := false
+								for _, val := range existing {
+									if strings.ToLower(val.Name) == tag {
+										found = true
+										break
+									}
+								}
+								if !found {
+									addTagsTorrent = append(addTagsTorrent, tag)
+								}
+							}
+						}
+						if len(addTags) > 0 {
+							tags, err := s.DB.EnsureTags(addTagsTorrent)
+							if err == nil {
+								err = s.DB.AddTorrentTags(tags, t)
+							}
+							if err != nil {
+								s.Error(w, err.Error(), j)
+								return
+							}
+						}
+						if len(delTags) > 0 {
+							tags, err := s.DB.EnsureTags(delTags)
+							if err == nil {
+								err = s.DB.DelTorrentTags(tags, t)
+							}
+							if err != nil {
+								s.Error(w, err.Error(), j)
+								return
+							}
+						}
+						http.Redirect(w, r, t.PageLocation(), http.StatusFound)
 					}
 				}, w, r)
 			} else {
@@ -650,6 +743,7 @@ func New(cfg *config.IndexConfig) (s *Server) {
 	funcs := template.FuncMap{
 		// ISO 8601 human readable version
 		"FormatDate": func(t time.Time) string {
+			t = t.UTC()
 			Y, M, D := t.Date()
 			h, m, s := t.Clock()
 			return fmt.Sprintf("%d-%02d-%02d %02d:%02d:%02d", Y, M, D, h, m, s)
@@ -663,6 +757,7 @@ func New(cfg *config.IndexConfig) (s *Server) {
 		},
 		// RFC 2822 Date: header style
 		"FormatDateRFC2822": func(t time.Time) string {
+			t = t.UTC()
 			Y, M, D := t.Date()
 			W := t.Weekday()
 			h, m, s := t.Clock()

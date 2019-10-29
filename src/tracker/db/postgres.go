@@ -5,11 +5,13 @@ import (
 	"encoding/hex"
 	"fmt"
 	_ "github.com/lib/pq"
+	"strings"
 	"time"
 	"tracker/config"
 	"tracker/log"
 	"tracker/metainfo"
 	"tracker/model"
+	"tracker/util"
 )
 
 // PQTorrentStorage is a postgresql torrent metadata storage implementation
@@ -130,7 +132,7 @@ func (st *Postgres) FindTorrentByInfohash(ih [20]byte) (t *model.Torrent, err er
 
 func (st *Postgres) GetAllCategories() (cats []model.Category, err error) {
 	var rows *sql.Rows
-	rows, err = st.conn.Query(fmt.Sprintf("SELECT name, id FROM %s", tableCategories))
+	rows, err = st.conn.Query(fmt.Sprintf("SELECT name, id FROM %s ORDER BY name", tableCategories))
 	if err == nil {
 		for rows.Next() {
 			var cat model.Category
@@ -369,17 +371,54 @@ func (db *Postgres) GetTorrentTags(t *model.Torrent) (tags []model.Tag, err erro
 	return
 }
 
-func (db *Postgres) AddTorrentTags(tags []model.Tag, t *model.Torrent) (err error) {
-	ih := t.InfoHash()
-	var tagValues string
-	for idx, tag := range tags {
-		if idx == 0 {
-			tagValues += fmt.Sprintf("( ('%s', %d ) ", ih, tag.ID)
+func (db *Postgres) EnsureTags(tags []string) (ensured []model.Tag, err error) {
+	ensured = make([]model.Tag, len(tags))
+	for idx, name := range tags {
+		name = strings.TrimFunc(name, util.IsSpace)
+		if len(name) == 0 {
+			continue
+		}
+		var tag *model.Tag
+		tag, err = db.GetTagByName(name)
+		if tag == nil && err == nil {
+			ensured[idx].Name = name
+			// new tag
+			_, err = db.conn.Exec(fmt.Sprintf("INSERT INTO %s (name) VALUES ($1)", tableTags), ensured[idx].Name)
+			// get tag id
+			err = db.conn.QueryRow(fmt.Sprintf("SELECT id FROM %s WHERE name = $1 LIMIT 1", tableTags), ensured[idx].Name).Scan(&ensured[idx].ID)
+			if err != nil {
+				ensured = nil
+				return
+			}
+		} else if err != nil {
+			ensured = nil
+			return
 		} else {
-			tagValues += fmt.Sprintf(", ('%s', %d ) ", ih, tag.ID)
+			ensured[idx].Name = tag.Name
+			ensured[idx].ID = tag.ID
 		}
 	}
-	tagValues += ")"
+	return
+}
+
+func (db *Postgres) AddTorrentTags(tags []model.Tag, t *model.Torrent) (err error) {
+	if len(tags) == 0 {
+		return
+	}
+
+	ih := t.InfoHash()
+	var tagValues string
+	if len(tags) > 1 {
+		for idx, tag := range tags {
+			if idx == 0 {
+				tagValues += fmt.Sprintf("('%s', %d ) ", ih, tag.ID)
+			} else {
+				tagValues += fmt.Sprintf(", ('%s', %d ) ", ih, tag.ID)
+			}
+		}
+	} else {
+		tagValues = fmt.Sprintf("( '%s', %d )", ih, tags[0].ID)
+	}
 	_, err = db.conn.Exec(fmt.Sprintf("INSERT INTO %s(tag_infohash, tag_id) VALUES %s", tableTagMetaInt, tagValues))
 	return
 }

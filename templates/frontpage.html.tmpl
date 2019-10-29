@@ -1,53 +1,63 @@
-<!doctype html>
+<!DOCTYPE HTML>
 <html>
-    <head>
-      <title> {{ .Site }} </title>
-      <link rel="stylesheet" href="/static/style.css" />
-      <link href="http://{{ .Domain }}/?t=atom" type="application/atom+xml" rel="alternate" title="recent torrents on {{ .Site }}" />
-    </head>
-    <body>
-        <center>
-          <h1> {{ .Site }} </h1>
-          <h2> Torrent Index </h2>
-          <hr />
-          <h3><a href="/s/">Tag Search</a></h3>
-          <h3> Categories </h3>
-          <table>
-            <tbody>
-              {{ range .Categories }}
-              <tr>
-                <td><span class="cat"><a href="/c/{{ .ID }}/">{{ .Name }}</a></span></td>
-              </tr>
-              {{ end }}
-            </tbody>
-          </table>
-          <hr />
-          <h3> Recent Uploads </h3>
-          <table>
+
+<head>
+  <title> {{ .Site }} </title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <link href="http://{{ .Domain }}/?t=atom" type="application/atom+xml" rel="alternate" title="recent torrents on {{ .Site }}" />
+</head>
+
+<body id="home">
+  <div class="container">
+    <div class="panel">
+      <div class="inner">
+        <div id="topnav"> {{ .Site }} </div>
+        <hr>
+        <div>
+          <table id="categories">
             <thead>
+              <tr class="header">
+                <td><b>Categories</b></td>
+              </tr>
               <tr>
-                <th>Category</th>
-                <th>Name</th>
-                <th>Size</th>
-                <th>Uploaded</th>
+                <th id="catlist" style="text-align: center !important;">{{ range .Categories }}<span class="cat"><a href="/c/{{ .ID }}/">{{ .Name }}</a></span>{{ end }}</th>
               </tr>
             </thead>
-            <tbody>
-              {{ range .Torrents }}
+            <tfoot>
               <tr>
-                <td class="info"><span class="cat"><a href="/c/{{ .Category.ID }}/">{{ .Category.Name }}</a></span></td>
-                <td class="info"><span class="name"><a href="/t/{{ .InfoHash }}/">{{ .Name}}</a></span></td>
-                <td class="info"><span class="size">{{ .SizeString }}</span></td>
-                <td class="info"><time class="date" datetime="{{ FormatDateGlobal .UploadedAt }}" title="{{ FormatDateRFC2822 .UploadedAt }}">{{ FormatDate .UploadedAt }}</time></td>
-              </tr>{{ end }}
-            </tbody>
+                <th id="search" style="text-align: center !important"><span id="tagsearch"><a href="/s/">Tag Search</a></span></th>
+              </tr>
+            </tfoot>
           </table>
-          <hr />
-          <h3> Source Code </h3>
-          <p> <a href="http://git.psii2pdloxelodts.onion/psi/torrent.ano/"> onion </a> </p>
-          <p> <a href="http://git.psi.i2p/psi/torrent.ano/"> i2p </a> </p>
-          <p> for automated upload ask psi on irc2p for a login </p>
-        </center>
-        {{ template "script.html.tmpl" . }}
-    </body>
+        </div>
+        <hr>
+        <table id="recent">
+          <thead>
+            <tr class="header">
+              <td colspan="4"><b>Recent Uploads</b></td>
+            </tr>
+            <tr>
+              <th>Category</th>
+              <th>Name</th>
+              <th class="dateuploaded">Uploaded</th>
+              <th class="filesize">Size</th>
+            </tr>
+          </thead>
+          <tbody>
+          {{ range .Torrents }}
+            <tr>
+              <td><span class="cat"><a href="/c/{{ .Category.ID }}/">{{ .Category.Name }}</a></span></td>
+              <td><span class="name"><a href="/t/{{ .InfoHash }}/">{{ .Name}}</a></span></td>
+              <td class="dateuploaded"><time class="date" datetime="{{ FormatDateGlobal .UploadedAt }}" title="{{ FormatDateRFC2822 .UploadedAt }}"><span class="timeshort">{{ FormatDate .UploadedAt }} UTC</span></time></td>
+              <td class="filesize"><span class="size">{{ .SizeString }}</span></td>
+            </tr>
+          {{ end }}
+          </tbody>
+        </table> {{ template "script.html.tmpl" . }}
+      </div>
+    </div>
+  </div>
+  <p style="text-align: center !important;" id="footer">Running on <a href="http://git.psi.i2p/psi/torrent.ano/" target="_blank">torrent.ano</a> / <a href="http://skank.i2p/static/i2p+.html" target="_blank">I2P+</a> | Mods & theme by dr|z3d</p>
+</body>
+
 </html>

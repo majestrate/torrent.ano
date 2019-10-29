@@ -1,113 +1,753 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+    color: #bbb;
+    background: #111;
+}
+
+body, input, textarea {
+    font-family: "Droid Sans", "Open Sans", "Noto Sans", Ubuntu, "Segoe UI", "Bitstream Vera Sans", Verdana, "Lucida Grande", Helvetica, sans-serif;
+}
+
 body {
-    margin: 1em auto;
     line-height: 1.2;
-    font-size: 14px;
-    padding: 0 0.5em;
-    color: #444;
+    font-size: 11pt;
+    text-align: center;
+    min-width: 800px;
+}
+
+.container {
+    display: table;
+    margin: 0 auto;
+    width: 100%;
+    display: table;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+
+.panel {
+    padding: 10px;
+    vertical-align: middle;
+    text-align: center;
+    display: table-cell;
+    background: repeating-linear-gradient(45deg, #444, #333 2px, #222 3px), repeating-linear-gradient(135deg, #444, #333 2px, #222 3px);
+    background-blend-mode: multiply, normal;
+    background-size: 100% 100%, 100% 100%;
+}
+
+#home .panel {
+    padding-bottom: 25px;
+}
+
+.inner {
+    padding: 20px 20px 10px;
+    margin: 0 auto;
+    max-width: 1000px;
+    border: 1px solid #000;
+    border-radius: 8px;
+    box-shadow: inset 0 0 0 1px #111, inset 0 0 1px 2px #444;
+    background: #222;
+    background: repeating-linear-gradient(to bottom, rgba(32, 32, 32, .5), rgba(16, 16, 16, .5) 2px), linear-gradient(to bottom, #222, #212121);
+    position: relative;
+    z-index: 1;
+}
+
+.inner.error {
+    max-width: 600px;
+    min-height: 200px;
+    color: #eee;
+    text-shadow: 0 1px 1px #000;
+    box-shadow: inset 0 0 0 1px #100, inset 0 0 1px 2px #500, inset 0 0 0 3px #900, inset 0 0 0 4px #000;
+    background: #222;
+    background: linear-gradient(to bottom, #200, #100);
+}
+
+#topnav, h1, .header, #totalsize, td.info:first-child, .toggle, .header a {
+    font-weight: bold;
+    text-shadow: 0 1px 1px #000;
+}
+
+td a {
+    text-shadow: none;
+}
+
+#topnav {
+    margin: -19px auto 20px;
+    padding: 10px 30px;
+    width: 50%;
+    letter-spacing: 0.1em;
+    font-size: 160%;
+    text-transform: uppercase;
+    color: #ccc;
+    border-width: 0 20px;
+    border-color: #555;
+    border-radius: 0 0 5px 5px;
+    box-shadow: inset 0 0 0 1px #333;
+    background: #555;
+    background: repeating-linear-gradient(to left, rgba(0,0,0,.1), rgba(0,0,0,.2) 2px),
+                linear-gradient(to right, rgba(0,0,0,.2), rgba(0,0,0,0), rgba(0,0,0,.2)),
+                linear-gradient(to bottom, #666, #444);
+    filter: drop-shadow(1px 0 2px rgba(0, 0, 0, .5));
+}
+
+.error #topnav {
+    margin-top: -17px;
+    width: 80%;
+    color: #900;
+    border: 1px solid #900;
+    border-top: none;
+    box-shadow: inset 0 0 0 1px #000;
+    background: #900;
+    background: repeating-linear-gradient(to left, rgba(0,0,0,.1), rgba(0,0,0,.2) 2px),
+                linear-gradient(to right, rgba(096,0,0,.2), rgba(0,0,0,0), rgba(96,0,0,.2)),
+                linear-gradient(to bottom, rgba(0,0,0,0), #400 1px, #100);
+}
+
+a:visited {
+    color: #930;
+}
+
+a, #topnav a:visited, .header a:visited {
+    margin: 0;
+    padding: 0;
+    display: inline-block;
+    vertical-align: middle;
+    color: #b30;
+    font-weight: bold;
+    text-decoration: none;
+    outline: none;
+}
+
+#topnav a, #topnav a:visited {
+    color: #e50;
+}
+
+#topnav a:hover, #topnav a:focus {
+    color: #f70;
+}
+
+.header a {
+    color: #d30;
+    font-size: 90%;
+    text-shadow: none;
+}
+
+a:hover, a:focus, .header a:hover, .header a:focus {
+    color: #f50;
+}
+
+a:active, #topnav a:active, .header a:active {
+    color: #f90;
 }
 
 hr {
-    border: 1px dotted;
+    margin: 20px 10px;
     height: 1px;
+    color: transparent;
+    border: none;
+    background: #555;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0), #555, rgba(0, 0, 0, 0));
+}
+
+.error hr {
+    margin: 30px 10px 55px;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0), #500, rgba(0, 0, 0, 0));
 }
 
 h1, h2, h3 {
-    line-height:1.1;
+    line-height: 1.1;
 }
 
-textarea.comment {
+h1 {
+    font-size: 16pt;
+}
 
+.error h2 {
+    font-size: 18pt;
+    text-shadow: 0 1px 1px #000;
+    text-transform: capitalize;
+}
+
+div {
+    margin-left: auto;
+    margin-right: auto;
 }
 
 div.comment {
-    padding-bottom: 0.5em;
-    margin: 1em;
-    border-radius: 5px;
-    width: 75%;
-    text-align: left;
+    position: relative;
+    text-align: center;
 }
 
 div.message {
-    font-family: monospace;
+    padding: 22px 22px 22px 60px;
     white-space: pre-wrap;
-    width: 75%;
-    background: #eae8e8;
-    padding: 1em;
-    border-radius: 5px;
-}
-
-.torrent-files table {
-    width: 90%;
-}
-
-td.header {
-    color: #ddd;
-    background: #3d403c;
-    border: 1px solid #3d403c;
     text-align: left;
-    padding-left: 4px;
-    padding-right: 5px;
+    color: #333;
+    border-radius: 3px;
+    box-shadow: inset 0 0 0 1px #eee, inset 0 0 1px 2px #fff, 0 0 2px 2px #000;
+    background: #eee url("/static/balloon.png") 16px center no-repeat;
 }
 
-td.filesize {
-    width: 100px;
+.comment+.comment {
+    margin-top: 15px;
 }
 
-td.filename, td.filesize, td.info {
-    background: #b9b9b9;
-    border: 1px solid #3d403c;
-    text-align: left;
-    padding-left: 4px;
-    padding-right: 5px;
+span.date {
+    padding: 2px 4px;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    font-size: 85%;
+    color: #444;
+    border-right: none;
+    border-bottom: none;
+    border-radius: 3px 0 3px 0;
+    background: #ffe;
+    display: none;
 }
 
-tr:hover td.info {
-    background: #d0d0d0;
+.message:hover + .date {
+    display: inline-block;
 }
 
-td.captcha_img {
-    line-height: 0.0;
+.dateuploaded {
+    text-align: center;
 }
 
-/*.date {
-    font-family: monospace;
-}*/
-
-.posttext {
-    width: 400px;
-    height: 20px;
-    border: 1px solid #363636;
-    background: #fff;
-    padding: 0px;
-    margin: 0px;
+.header td {
+    text-align: left !important;
+    font-size: 120%;
+    font-weight: bold;
+    color: #fff;
+    background: repeating-linear-gradient(to left, rgba(255,255,255,.05), rgba(0,0,0,.05) 2px), linear-gradient(to bottom, #bbb, #999 50%, #777 50%, #555) !important;
 }
 
-.postarea {
-    width: 400px;
-    height: 48px;
-    border: 1px solid #363636;
-    background: #fff;
-    padding: 0px;
-    margin: 0px;
+#categories {
+    margin: 0 auto;
+    position: relative;
+    text-align: center;
 }
 
-
-html {
-    background: #e2e0e0;
+#categories .cat {
+    margin: 0 -1px 0 0;
+    padding: 3px 8px 5px;
+    display: inline-block;
+    position: relative;
+    z-index: 1;
+    line-height: 1;
+    white-space: nowrap;
+    border: 1px solid #888;
+    box-shadow: inset 0 0 0 1px #ccc;
+    background: #999;
+    background: linear-gradient(to bottom, #f2f2f2, #aaa);
 }
 
-#captcha_img {
-    background-color: white;
-    border: 1px solid #363636;
-    padding: 0px;
-    margin: 0px;
+#categories .cat:hover {
+    z-index: 2;
+    border: 1px solid #930;
+    box-shadow: inset 0 0 0 1px #ddd;
+    background: linear-gradient(to bottom, #aaa, #eee);
+}
+
+#categories .cat:active {
+    box-shadow: inset 0 0 0 1px #ddd, inset 2px 2px 2px #555;
+}
+
+#categories .cat a {
+    text-shadow: 0 1px 1px rgba(255, 255, 255, .4);
+}
+
+#categories td {
+    background: #ddd;
+}
+
+.download {
+    text-align: center;
+}
+
+table {
+    margin: 10px auto;
+    min-width: 600px;
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 1px;
+    border: 1px solid #777 !important;
+    box-shadow: 0 0 0 1px #000;
+    background: #444;
+}
+
+table table {
+    margin: 0;
+    padding: 0;
+    border: none !important;
+    box-shadow: none;
+    background: none;
+}
+
+tr:nth-child(odd), #addcomment tr, #tagedit tr, #uploadtorrent tr {
+    background: #eee;
+}
+
+tr:nth-child(even), #torrentinfo tr {
+    background: #ddd;
 }
 
 th {
-    color: #ddd;
-    background: #3d403c;
-    border: 1px solid #3d403c;
+    color: #333;
     text-align: left;
-    padding-left: 4px;
-    padding-right: 5px;
+    background: #e2e2e2;
 }
+
+thead th, tfoot th {
+    background: linear-gradient(to bottom, #fff 50%, #ddd 50%);
+    text-shadow: 0 1px 1px #fff;
+}
+
+tfoot th {
+    background: linear-gradient(to bottom, #fff, #ddd);
+}
+
+#tagsearch {
+    text-shadow: none;
+}
+
+td, th {
+    padding: 6px 8px;
+    color: #333;
+}
+
+td {
+    text-align: left;
+}
+
+table table td {
+    box-shadow: none;
+    border: none !important;
+    padding: 0;
+}
+
+tbody td {
+    box-shadow: inset 0 0 0 1px #fff;
+}
+
+.info {
+    text-align: right;
+    color: #fff;
+    background: #aaa;
+}
+
+.header td, #torrentinfo td {
+    box-shadow: none;
+}
+
+.infohelp {
+    background: #eee;
+}
+
+.filesize {
+    text-align: right;
+}
+
+#catlist, #download, #search {
+    padding: 12px;
+    background: linear-gradient(to bottom, #eee, #aaa);
+}
+
+#search {
+    background: linear-gradient(to bottom, #ddd, #999);
+}
+
+.magnet, .torrent {
+    margin: 0 4px;
+    padding: 0 8px 0 4px;
+    display: inline-block;
+    vertical-align: middle;
+    box-shadow: 0 0 0 1px #888, inset 0 0 0 1px #fff;
+    border-radius: 2px;
+    background: #eee;
+}
+
+a.torrent, a.magnet {
+    padding: 0 2px;
+}
+
+.magnet img, .torrent img {
+    padding: 2px 0;
+    height: 18px;
+    width: 18px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+span.magnet img {
+    margin-right: 4px;
+}
+
+ span.torrent img {
+    margin-right: 2px;
+}
+
+a.magnet img, a.torrent img {
+    padding: 2px;
+    margin: 0;
+    height: 18px;
+    width: 18px;
+}
+
+#recent tbody td:first-child {
+    padding-left: 30px;
+    background-image: url("/static/category.png");
+    background-size: 16px 16px;
+    background-position: 8px center;
+    background-repeat: no-repeat;
+}
+
+#tagged .magnet, #tagged .torrent {
+    padding: 0 4px;
+}
+
+#tagged .magnet img, #tagged .torrent img {
+    margin: 0;
+}
+
+.poptag, td.filename {
+    padding-left: 30px;
+    width: 50%;
+    background-image: url("/static/tag.png");
+    background-size: 16px 16px;
+    background-position: 8px center;
+    background-repeat: no-repeat;
+}
+
+td.filename {
+    width: auto;
+    background-image: url("/static/file.png");
+    background-size: 16px 16px;
+    background-position: 8px center;
+    background-repeat: no-repeat;
+}
+
+.tag a {
+    margin-right: 2px;
+}
+
+.tag::before {
+    margin-right: -1px;
+    content: "";
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+    background: url("/static/tag.png") center center no-repeat;
+    background-size: 16px 16px;
+}
+
+#infohash {
+    text-transform: uppercase;
+    -moz-user-select: all;
+    -webkit-user-select: all;
+    user-select: all;
+    color: #070;
+}
+
+.info img {
+    margin: 0 4px;
+    width: 18px;
+    height: 18px;
+}
+
+td.captcha_img {
+    line-height: 0;
+}
+
+.postbutton {
+    margin: 2px -1px 2px 4px;
+}
+
+.posttext, #captcha_solution {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 20px;
+    border: 1px solid #fff;
+    background: #fff;
+}
+
+.postarea {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 48px;
+    min-height: 48px;
+    border: 1px solid #fff;
+    background: #fff;
+    resize: vertical;
+}
+
+.postfile {
+    margin: 2px 0 0 -2px;
+    float: left;
+    cursor: pointer;
+}
+
+#captcha_img {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+input[type="text"], textarea, .postarea, .posttext, #captcha_solution, #query {
+    margin: 1px 1px 1px -1px;
+    padding: 6px 8px;
+    box-shadow: inset 2px 2px 2px #666, 0 0 0 1px #111;
+    border-radius: 0;
+    border: none;
+    box-sizing: border-box;
+    width: calc(100% + 3px);
+    background: #eee;
+}
+
+input[type="text"]:focus, textarea:focus, #captcha_solution:focus {
+    background: #fff;
+}
+
+#query {
+    padding: 8px 8px 8px 30px;
+    width: calc(100% - 70px);
+    background: #ddd url("/static/search.png") 8px center no-repeat;
+    background-size: 16px 16px;
+}
+
+#query:focus {
+    padding-left: 30px;
+    background: #fff url("/static/search.png") 8px center no-repeat;
+    background-size: 16px 16px;
+}
+
+.posttext, #captcha_solution, #name, #tagged {
+    height: auto;
+}
+
+::placeholder {
+    font-style: italic;
+}
+
+input[type="text"]:focus::placeholder {
+    opacity: 0;
+}
+
+input[type="submit"] {
+    padding: 4px 10px;
+    text-transform: capitalize;
+    color: #333;
+    border: 1px solid #999;
+    border-radius: 3px;
+    box-shadow: inset 0 0 0 1px #f8f8f8;
+    background: #ccc;
+    background: linear-gradient(to bottom, #f2f2f2, #ccc);
+    cursor: pointer;
+}
+
+input[type="submit"][value="search"] {
+    padding: 7px 10px;
+}
+
+input[type="submit"]:hover, input[type="submit"]:focus {
+    color: #222;
+    background: #ccc;
+    background: linear-gradient(to bottom, #ccc, #f2f2f2);
+}
+
+input[type="submit"]:active {
+    color: #777;
+    box-shadow: inset 0 0 0 1px #ddd, inset 2px 2px 2px #777;
+}
+
+#tagsearch {
+    padding-left: 20px;
+    display: inline-block;
+    background: url("/static/search.png") left center no-repeat;
+    background-size: 16px 16px;
+}
+
+#footer {
+    display: none;
+}
+
+#form {
+    padding: 0;
+}
+
+#tagform {
+    padding: 20px;
+    width: auto;
+    border: 1px solid #111;
+    box-shadow: inset 0 0 0 1px #333, inset 0 0 2px 1px #777, 0 0 0 1px rgba(0,0,0,.5);
+    background: #333;
+}
+
+.formaction {
+    text-align: right;
+}
+
+#commentpost, #torrentadd, #tinfo {
+    border: 1px solid #777 !important;
+    box-shadow: 0 0 0 1px #000;
+    padding: 0;
+    margin-bottom: 10px;
+}
+
+
+#addcomment, #tageditor table, #uploadtorrent, #torrentinfo {
+    margin: -2px auto 0;
+    border: none;
+    box-shadow: none;
+    border-collapse: collapse;
+}
+
+#torrentinfo {
+    margin: 0 auto;
+}
+
+#tageditor {
+    margin-top: -1px;
+}
+
+#addcomment th, #addcomment td, #tageditor th, #tageditor td, #uploadtorrent th, #uploadtorrent td, #torrentinfo th, #torrentinfo td {
+    border: 1px solid #444;
+}
+
+#addcomment td[colspan="2"] {
+    display: none;
+}
+
+#uploadtorrent th:first-child, #tageditor th:first-child, #addcomment th:first-child, #torrentinfo tr:nth-last-child(n+2) td:first-child {
+    width: 1%;
+    min-width: 140px;
+    text-align: right;
+}
+
+#torrentinfo tr:nth-last-child(n+2) td:first-child {
+    min-width: 100px;
+}
+
+.toggleinput {
+    position: absolute;
+    top: -99999999px;
+    left: -99999999px;
+    opacity: 0;
+}
+
+.toggle {
+    margin: 0;
+    padding: 6px 8px;
+    width: auto;
+    text-align: left;
+    font-size: 120%;
+    font-weight: bold;
+    color: #fff;
+    background: repeating-linear-gradient(to left, rgba(255,255,255,.05), rgba(0,0,0,.05) 2px), linear-gradient(to bottom, #bbb, #999 50%, #777 50%, #555) !important;
+    display: block;
+    border: 1px solid #444;
+    position: relative;
+    z-index: 10;
+    cursor: pointer;
+}
+
+.toggleinput:hover + .toggle, .toggleinput:focus + .toggle {
+    color: #f60;
+    border: 1px solid #930;
+}
+
+.toggle:active {
+    box-shadow: inset 2px 2px 2px 1px #555;
+}
+
+#togglecomment+label+#addcomment, #toggletagedit+label+#tagedit, #toggleaddtorrent+label+#uploadtorrent {
+    display: none;
+}
+
+#togglecomment:checked+label+#addcomment, #toggletagedit:checked+label+#tagedit, #toggleaddtorrent:checked+label+#uploadtorrent {
+    display: table;
+}
+
+.toggleinput + .toggle {
+    background: url(/static/expand.png) right 8px center no-repeat,
+                repeating-linear-gradient(to left, rgba(255,255,255,.05), rgba(0,0,0,.05) 2px),
+                linear-gradient(to bottom, #bbb, #999 50%, #777 50%, #555) !important;
+    background-size: 16px 16px, 100% 100%, 100% 100% !important;
+}
+
+.toggleinput:checked + .toggle {
+    background: url(/static/collapse.png) right 8px center no-repeat,
+                repeating-linear-gradient(to left, rgba(255,255,255,.05), rgba(0,0,0,.05) 2px),
+                linear-gradient(to bottom, #bbb, #999 50%, #777 50%, #555) !important;
+    background-size: 16px 16px, 100% 100%, 100% 100% !important;
+}
+
+.toggleinput:hover + .toggle, .toggleinput:focus + .toggle {
+    background: url(/static/expand_hover.png) right 8px center no-repeat,
+                repeating-linear-gradient(to left, rgba(255,255,255,.05), rgba(0,0,0,.05) 2px),
+                linear-gradient(to bottom, #bbb, #999 50%, #777 50%, #555) !important;
+    background-size: 16px 16px, 100% 100%, 100% 100% !important;
+}
+
+.toggleinput:checked:hover + .toggle, .toggleinput:checked:focus + .toggle {
+    background: url(/static/collapse_hover.png) right 8px center no-repeat,
+                repeating-linear-gradient(to left, rgba(255,255,255,.05), rgba(0,0,0,.05) 2px),
+                linear-gradient(to bottom, #bbb, #999 50%, #777 50%, #555) !important;
+    background-size: 16px 16px, 100% 100%, 100% 100% !important;
+}
+
+#footer {
+    display: none;
+}
+
+#footer {
+    margin: 0;
+    padding: 3px 3px 4px;
+    display: block;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 0;
+    font-size: 80%;
+    border-top: 1px solid #333;
+    box-shadow: -1px 0 1px 1px #000;
+    background: #080808;
+    animation: ease fade 1s 60s forwards;
+}
+
+#footer a {
+    display: inline !important;
+    vertical-align: baseline;
+}
+
+@keyframes fade {
+from {
+    filter: opacity(1);
+}
+to {
+    filter: opacity(0);
+}
+}
+
+@media screen and (max-width: 1024px) {
+body {
+    font-size: 10pt;
+}
+
+.panel {
+    padding: 5px;
+}
+
+#categories .cat a {
+   padding-top: 2px;
+}
+}
+

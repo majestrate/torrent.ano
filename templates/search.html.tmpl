@@ -1,70 +1,66 @@
-<!doctype html>
+<!DOCTYPE HTML>
 <html>
-    <head>
-      <title> {{ .Site }} -- Tag Search </title>
-      {{ if .Search }}
-      {{ if .SelectedTag }}
-      <link href="{{ .FeedURL }}" type="application/atom+xml" rel="alternate" title="{{ .SelectedTag.Name}} torrents on {{ .Site }}" />
-      {{ else }}
-      <link href="{{ .FeedURL }}" type="application/atom+xml" rel="alternate" title="{{ .SearchTag }} torrents on {{ .Site }}" />
-      {{ end }}
-      {{ end }}
-      <link rel="stylesheet" href="/static/style.css" />
-    </head>
-    <body>
-        <center>
-          <h3> <a href="/">Front Page</a> </h3>
-          <h3> <a href="/s/">Search</a> </h3>
-          <form method="GET">
-            <label for="query">Search by Tag Name</label>
-            <input name="q" id="query" />
-            <input type="submit" value="search" />
-          </form>
-          <hr />
 
-          {{ if .SelectedTag }}
-          <h2> Torrents For {{ .SelectedTag.Name }} </h2>
-          <table>
-            <thead>
-                <tr>
-                    <th></th>
-                    <th>Name</th>
-                    <th>Size</th>
-                    <th>Uploaded</th>
-                </tr>
-            </thead>
-            <tbody>
-                {{ range .Torrents }}
-                <tr>
-                  <td>
-                    <a href="magnet:?xt=urn:btih:{{ .InfoHash }}"><img src="/static/magnet.png"></img></a>
-                    <a href="{{ .DownloadLink }}"><img src="/static/download.png"></img></a>
-                  </td>
-                    <td><a href="/t/{{ .InfoHash }}/">{{ .Name }}</a></td>
-                    <td>{{ .Size }}</td>
-                    <td>{{ FormatDate .UploadedAt }}</td>
-                </tr>
-                {{ end }}
-            </tbody>
-          </table>
-          {{ else }}
-          {{ if .Search }}
-          <h3> No Such Tag </h3>
-          {{ else }}
-          <h3> Popular Tags </h3>
-          <table>
-            <tbody>
-                {{ range .PopularTags }}
-                <tr>
-                  <td><a href="{{ .SearchLink }}">{{ .Name }}</a></td>
-                  <td>{{ .Rank }} Results</td>
-                </tr>
-                {{ end }}
-            </tbody>
-          </table>
-          {{ end }}
-          {{ end }}
-        </center>
-        {{ template "script.html.tmpl" . }}
-    </body>
+<head>
+  <title> {{ .Site }} - Tag Search </title> {{ if .Search }} {{ if .SelectedTag }}
+  <link href="{{ .FeedURL }}" type="application/atom+xml" rel="alternate" title="{{ .SelectedTag.Name}} torrents on {{ .Site }}" /> {{ else }}
+  <link href="{{ .FeedURL }}" type="application/atom+xml" rel="alternate" title="{{ .SearchTag }} torrents on {{ .Site }}" /> {{ end }} {{ end }}
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+
+<body>
+  <div class="container">
+    <div class="panel">
+      <div class="inner">
+        <div id="topnav"> <a href="/"> {{ .Site }} </a> </div>
+        <hr>
+        <form method="GET" id="tagform">
+          <input name="q" id="query" type="text" placeholder="Search by Tag name" />
+          <input type="submit" value="search" />
+        </form>
+        <hr>
+
+        {{ if .SelectedTag }}
+        <table id="tagged">
+          <thead>
+            <tr class="header">
+              <td colspan="4">Torrents with tag: {{ .SelectedTag.Name }}</td>
+            </tr>
+            <tr>
+              <th>Name</th>
+              <th class="dateuploaded">Uploaded</th>
+              <th class="filesize">Size (bytes)</th>
+              <th class="download">Download</th>
+            </tr>
+          </thead>
+          <tbody> {{ range .Torrents }} <tr>
+              <td><a href="/t/{{ .InfoHash }}/">{{ .Name }}</a></td>
+              <td class="dateuploaded" title="{{ FormatDateRFC2822 .UploadedAt }}">{{ FormatDate .UploadedAt }}</td>
+              <td class="filesize">{{ .Size }}</td>
+              <td class="download">
+                <span class="magnet"><a href="magnet:?xt=urn:btih:{{ .InfoHash }}"><img src="/static/magnet.png" height="24" width="24"></a></span>&nbsp; <span class="torrent"><a href="{{ .DownloadLink }}"><img src="/static/download.png" height="24" width="24"></a></span>
+              </td>
+            </tr> {{ end }}
+          </tbody>
+        </table> {{ else }} {{ if .Search }} <h3>Tag does not exist in the database.</h3> {{ else }}
+
+        <table id="tags">
+          <thead>
+            <tr class="header">
+              <td colspan="2">Popular Tags</td>
+            </tr>
+          </thead>
+          <tbody> {{ range .PopularTags }}
+            <tr>
+              <td class="poptag"><a href="{{ .SearchLink }}">{{ .Name }}</a></td>
+              <td>{{ .Rank }} result(s) </td>
+            </tr> {{ end }}
+          </tbody>
+        </table> {{ end }} {{ end }} {{ template "script.html.tmpl" . }}
+
+      </div>
+    </div>
+  </div>
+</body>
+
 </html>
