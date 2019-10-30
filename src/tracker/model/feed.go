@@ -23,6 +23,17 @@ type Link struct {
 	URL string `xml:"href,attr"`
 }
 
+func NewQueryLink(domain, path, query string) Link {
+	u := &url.URL{
+		Scheme:   "http",
+		Host:     domain,
+		Path:     path,
+		RawQuery: query,
+	}
+	return Link{
+		URL: u.String(),
+	}
+}
 func NewLink(domain, path, fragment string) Link {
 	u := &url.URL{
 		Scheme:   "http",

@@ -1,119 +1,141 @@
-<!doctype html>
+<!DOCTYPE HTML>
 <html>
-    <head>
-        <title> {{ .Site }} - {{ .Torrent.Name }} </title>
-        <link rel="stylesheet" href="/static/style.css" />
-        <link href="http://{{ .Domain }}/t/{{ .Torrent.InfoHash }}/?t=atom" type="application/atom+xml" rel="alternate" title="recent comments on {{ .Torrent.Name }}" />
-    </head>
-    <body>
-        <center>
-            <h3> <a href="/">Front Page</a> </h3>
-            <table>
-                <tbody>
-                    <tr>
-                        <td class="info">Name </td>
-                        <td class="info">{{ .Torrent.Name }}</td>
-                    </tr>
-                    <tr>
-                        <td class="info">Infohash </td>
-                        <td class="info">{{ .Torrent.InfoHash }}</td>
-                    </tr>
-                    <tr>
-                        <td class="info"> Uploaded </td>
-                        <td class="info"> <time class="date" datetime="{{ FormatDateGlobal .Torrent.UploadedAt }}" title="{{ FormatDateRFC2822 .Torrent.UploadedAt }}">{{ FormatDate .Torrent.UploadedAt }}</time> </td>
-                    </tr>
-                    <tr>
-                     <td class="info">
-                       Magnet: <a href="magnet:?xt=urn:btih:{{ .Torrent.InfoHash }}"><img src="/static/magnet.png"></img></a>
-                     </td>
-                     <td class="info">
-                       Torrent: <a href="/dl/{{ .Torrent.InfoHash }}.torrent"><img src="/static/download.png"></img></a>
-                    </td>
-                    </tr>
-                </tbody>
-            </table>
-            <hr />
-            <p> Tags </p>
-            <div class="tags">
-              {{ range .Tags }}
-              <span class="tag">
-               [ <a href="{{ .SearchLink }}">{{ .Name }}</a> ( {{ .Rank }} ) ]
-              </span>
-              {{ end }}
-            </div>
-            <p> Files </p>
-            <div class="torrent-files" align="center">
-              <table>
-                <tbody>
+
+<head>
+  <title> {{ .Site }} - {{ .Torrent.Name }} </title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <link href="http://{{ .Domain }}/t/{{ .Torrent.InfoHash }}/?t=atom" type="application/atom+xml" rel="alternate" title="Recent comments on {{ .Torrent.Name }}" />
+</head>
+
+<body>
+  <div class="container">
+    <div class="panel">
+      <div class="inner">
+        <div id="topnav"> <a href="/"> {{ .Site }} </a> </div>
+        <hr>
+        <div id="tinfo">
+          <table id="torrentinfo">
+            <tr class="header">
+              <td colspan="2"><b>Torrent</b></td>
+            </tr>
+            <tr>
+              <td class="info">Name </td>
+              <td>{{ .Torrent.Name }}</td>
+            </tr>
+            <tr>
+              <td class="info">Infohash </td>
+              <td id="infohash">{{ .Torrent.InfoHash }}</td>
+            </tr>
+            <tr>
+              <td class="info"> Uploaded </td>
+              <td> <time class="date" datetime="{{ FormatDateGlobal .Torrent.UploadedAt }}">{{ FormatDateRFC2822 .Torrent.UploadedAt }} UTC</time> </td>
+            </tr>
+            <tr>
+              <td class="info"> Tags </td>
+              <td> {{ range .Tags }} <span class="tag"> <a href="{{ .SearchLink }}">{{ .Name }}</a> </span> {{ end }} </td>
+            </tr>
+            <tfoot>
+              <tr>
+                <th colspan="2" id="download" style="text-align: center !important;">
+                  <span class="magnet"><a href="magnet:?xt=urn:btih:{{ .Torrent.InfoHash }}"><img src="/static/magnet.png">Magnet</a></span>
+                  <span class="torrent"><a href="/dl/{{ .Torrent.InfoHash }}.torrent"><img src="/static/download.png">Torrent</a></span>
+                </th>
+              </tr>
+            </tfoot>
+          </table>
+          <div class="postform" align="center" id="tageditor">
+            <form method="POST">
+              <input type="hidden" name="action" value="tag" />
+              <input type="checkbox" id="toggletagedit" class="toggleinput">
+              <label class="toggle" for="toggletagedit"><b>Edit Tags</b></label>
+              <table id="tagedit">
+                <tr>
+                  <th>Add</th>
+                  <td><input id="add-tag" name="add" class="posttext" title="Separate tags with commas e.g. movie,horror" /></td>
+                </tr>
+                <tr>
+                  <th>Remove</th>
+                  <td><input id="del-tag" name="del" class="posttext" /></td>
+                </tr> {{ if .Captcha }} <tr>
+                  <th> Captcha </th>
+                  <td class="captcha_img">
+                    <img id="captcha_img" src="/captcha/{{.Captcha}}.png" alt="captcha" />
+                  </td>
+                </tr>
+                <tr>
+                  <th> Solution </th>
+                  <td>
+                    <input type="hidden" name="captcha-id" value="{{.Captcha}}" />
+                    <input type="text" class="posttext" name="captcha-solution" autocomplete="off" id="captcha_solution" height="175" width="350" required />
+                  </td>
+                </tr> {{ end }} <tfoot>
                   <tr>
-                    <td class="header"> Name </td>
-                    <td class="header"> Size </td>
+                    <th colspan="2" class="formaction"><input type="submit" value="Update Tags" class="postbutton" /></th>
                   </tr>
-                  {{ range .Files }}
-                  <tr>
-                    <td class="filename"> {{ .Name }} </td>
-                    <td class="filesize"> {{ .SizeString }} </td>
-                  </tr>
-                  {{ end }}
-                  <tr>
-                  </tr>
-                  <tr>
-                    <td>--</td>
-                    <td>--</td>
-                  </tr>
-                  <tr>
-                    <td> Total Size: </td>
-                    <td> {{ .Torrent.SizeString }} </td>
-                  </tr>
-                </tbody>
+                </tfoot>
               </table>
-            </div>
-            <hr />
-        </center>
-        <div class="postform" align="center">
+            </form>
+          </div>
+        </div>
+        <hr>
+        <div class="torrent-files" align="center">
+          <table id="torrentfiles">
+            <thead>
+              <tr class="header">
+                <td colspan="2"><b>Files</b></td>
+              </tr>
+              <tr>
+                <th class="filename"> Name </th>
+                <th class="filesize"> Size </th>
+              </tr>
+            </thead> {{ range .Files }} <tr>
+              <td class="filename"> {{ .Name }} </td>
+              <td class="filesize"> {{ .SizeString }} </td>
+            </tr> {{ end }} <tfoot>
+              <tr>
+                <th> Total Size: </th>
+                <th class="filesize"> {{ .Torrent.SizeString }} </th>
+              </tr>
+            </tfoot>
+          </table>
+        </div> {{ range .Comments }}
+        <hr>
+        <div class="comment" id="comment_{{ .ID }}">
+          <div class="message">{{ .Text }}</div><span class="date">{{ FormatDateRFC2822 .Posted }} UTC</span>
+        </div> {{ end }}
+        <hr>
+        <div id="commentpost" class="postform" align="center">
           <form method="POST">
-            <table cellspacing="1" cellpadding="0">
+            <input type="hidden" name="action" value="comment" />
+            <input type="checkbox" id="togglecomment" class="toggleinput">
+            <label class="toggle" for="togglecomment"><b>Add Comment</b></label>
+            <table id="addcomment">
               <tr>
                 <th>Comment</th>
-                <td><textarea id="comment" name="comment" class="postarea"></textarea></td>
-              </tr>
-              {{ if .Captcha }}
-              <tr>
-                <th>
-                  Captcha
-                </th>
+                <td><textarea id="comment" name="comment" class="postarea" required></textarea></td>
+              </tr> {{ if .Captcha }} <tr>
+                <th> Captcha </th>
                 <td class="captcha_img">
                   <img id="captcha_img" src="/captcha/{{.Captcha}}.png" alt="captcha" />
                 </td>
               </tr>
               <tr>
-                <th>
-                  Solution
-                </th>
+                <th> Solution </th>
                 <td>
                   <input type="hidden" name="captcha-id" value="{{.Captcha}}" />
-                  <input type="text" name="captcha-solution" autocomplete="off" id="captcha_solution" height="175" width="350"/>
+                  <input type="text" class="posttext" name="captcha-solution" autocomplete="off" id="captcha_solution" height="175" width="350" required />
                 </td>
-              </tr>
-              {{ end }}
-              <tr>
-                <th>Post</th>
-                <td>
-                  <table cellspacing="0" cellpadding="0" width="100%">
-                    <tr>
-                      <td align="right"><input type="submit" value="comment" class="postbutton"/></td>
-                    </tr>
-                  </table>
-                </td>
-              </tr>
+              </tr> {{ end }} <tfoot>
+                <tr>
+                  <th colspan="2" class="formaction"><input type="submit" value="Post Comment" class="postbutton" /></th>
+                </tr>
+              </tfoot>
             </table>
-          </form>
-          <p> Comments </p>
-          {{ range .Comments }}<div class="comment" id="comment_{{ .ID }}"><div class="date"> Posted On {{ FormatDate .Posted }} </div>
-            <div class="message">{{ .Text }}</div></div>{{ end }}
-          <hr />
+          </form> {{ template "script.html.tmpl" . }}
         </div>
+      </div>
+    </div>
+  </div>
+</body>
 
-        {{ template "script.html.tmpl" . }}
-    </body>
 </html>

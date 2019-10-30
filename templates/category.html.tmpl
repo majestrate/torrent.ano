@@ -1,91 +1,94 @@
-<!doctype html>
+<!DOCTYPE HTML>
 <html>
-    <head>
-      <title> {{ .Site }} -- {{ .Category.Name }} </title>
-      <link rel="stylesheet" href="/static/style.css" />
-      <link href="http://{{ .Domain }}/c/{{ .Category.ID }}/?t=atom" type="application/atom+xml" rel="alternate" title="{{ .Category.Name}} torrents on {{ .Site }}" />
-    </head>
-    <body>
-        <center>
-          <h1> {{ .Category.Name }} </h1>
-          <h3> <a href="/">Front Page</a> </h3>
-          {{ if .HasNextPage }}<h3> <a href="/c/{{ .Category.ID }}/?p={{ .NextPage }}"> Next </a> </h3>{{ end }}
-          {{ if .HasPrevPage }}<h3> <a href="/c/{{ .Category.ID }}/?p={{ .PrevPage }}"> Prev </a> </h3>{{ end }}
-        <table>
-            <thead>
-                <tr>
-                    <th></th>
-                    <th>Name</th>
-                    <th>Size</th>
-                    <th>Uploaded</th>
-                </tr>
-            </thead>
-            <tbody>
-                {{ range .Torrents }}
-                <tr>
-                  <td class="info">
-                    <a href="magnet:?xt=urn:btih:{{ .InfoHash }}"><img src="/static/magnet.png"></img></a>
-                    <a href="{{ .DownloadLink }}"><img src="/static/download.png"></img></a>
-                  </td>
-                  <td class="info"><a href="/t/{{ .InfoHash }}/">{{ .Name }}</a></td>
-                  <td class="info">{{ .SizeString }}</td>
-                  <td class="info"><time class="date" datetime="{{ FormatDateGlobal .UploadedAt }}" title="{{ FormatDateRFC2822 .UploadedAt }}">{{ FormatDate .UploadedAt }}</time></td>
-                </tr>
-                {{ end }}
-            </tbody>
+
+<head>
+  <title> {{ .Site }} - {{ .Category.Name }} </title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <link href="http://{{ .Domain }}/c/{{ .Category.ID }}/?t=atom" type="application/atom+xml" rel="alternate" title="{{ .Category.Name}} torrents on {{ .Site }}" />
+</head>
+
+<body>
+  <div class="container">
+    <div class="panel">
+      <div class="inner">
+        <div id="topnav"> <a href="/"> {{ .Site }} </a> </div>
+        <hr>
+        <table id="category">
+          <thead>
+            <tr class="header">
+              <td colspan="4">Category: {{ .Category.Name }} &nbsp;<span id="catnav" style="float: right;"> {{ if .HasNextPage }}<a href="/c/{{ .Category.ID }}/?p={{ .NextPage }}"> Next</a>{{ end }} {{ if .HasPrevPage }}<a href="/c/{{ .Category.ID }}/?p={{ .PrevPage }}"> Previous </a>{{ end }} </span>
+              </td>
+            </tr>
+            <tr>
+              <th>Name</th>
+              <th class="dateuploaded">Uploaded</th>
+              <th class="filesize">Size</th>
+              <th style="text-align: center !important;">Download</th>
+            </tr>
+          </thead>
+          <tbody> {{ range .Torrents }}
+            <tr>
+              <td><a href="/t/{{ .InfoHash }}/">{{ .Name }}</a></td>
+              <td class="dateuploaded"><time class="date" datetime="{{ FormatDateGlobal .UploadedAt }}" title="{{ FormatDateRFC2822 .UploadedAt }}">{{ FormatDate .UploadedAt }}</time></td>
+              <td class="filesize">{{ .SizeString }}</td>
+              <td style="text-align: center !important;">
+                <a class="magnet" href="magnet:?xt=urn:btih:{{ .InfoHash }}"><img src="/static/magnet.png"></a>
+                <a class="torrent" href="{{ .DownloadLink }}"><img src="/static/download.png"></a>
+              </td>
+            </tr> {{ end }}
+          </tbody>
+          <tfoot>
+            <tr>
+              <th id="search" style="text-align: center !important;" colspan="4"><span id="tagsearch"><a href="/s/">Tag Search</a></span></th>
+            </tr>
+          </tfoot>
         </table>
-        <hr/>
-          <h2> Add a torrent </h2>
-          <h4> {{.TrackerURL}} will be added as a default tracker, existing trackers will be preserved.</h4>
-        </center>
-        <div class="postform" align="center">
+        <hr>
+        <div class="postform" align="center" id="torrentadd">
           <form method="POST" enctype="multipart/form-data">
-            <table cellspacing="1" cellpadding="0">
+            <input type="checkbox" id="toggleaddtorrent" class="toggleinput">
+            <label class="toggle" for="toggleaddtorrent"><b>Add Torrent</b></label>
+            <table id="uploadtorrent">
               <tr>
                 <th>Torrent Name</th>
-                <td><input id="name" type="text" name="torrent-name" class="posttext" /></td>
+                <td><input id="name" type="text" name="torrent-name" class="posttext" required /></td>
               </tr>
               <tr>
                 <th>Torrent Tags</th>
-                <td><input id="tags" type="text" name="torrent-tags" class="posttext" /></td>
+                <td><input id="tags" type="text" name="torrent-tags" class="posttext" title="Separate tags with commas e.g. movie,horror" /></td>
               </tr>
               <tr>
                 <th>Description</th>
-                <td><textarea id="description" name="torrent-description" class="postarea"></textarea></td>
-              </tr>
-              {{ if .Captcha }}
-              <tr>
-                <th>
-                  Captcha
-                </th>
+                <td><textarea id="description" name="torrent-description" class="postarea" required></textarea></td>
+              </tr> {{ if .Captcha }} <tr>
+                <th> Captcha </th>
                 <td class="captcha_img">
                   <img id="captcha_img" src="/captcha/{{.Captcha}}.png" alt="captcha" />
                 </td>
               </tr>
               <tr>
-                <th>
-                  Solution
-                </th>
+                <th> Solution </th>
                 <td>
                   <input type="hidden" name="captcha-id" value="{{.Captcha}}" />
-                  <input type="text" name="captcha-solution" autocomplete="off" id="captcha_solution" height="175" width="350" />
+                  <input type="text" name="captcha-solution" autocomplete="off" id="captcha_solution" height="175" width="350" required />
                 </td>
-              </tr>
-              {{ end }}
-              <tr>
+              </tr> {{ end }} <tr>
                 <th>Torrent File</th>
-                <td>
-                  <table cellspacing="0" cellpadding="0" width="100%">
-                    <tr>
-                      <td><input type="file" name="torrent-file" class="postfile" /></td>
-                      <td align="right"><input type="submit" value="upload" class="postbutton"/></td>
-                    </tr>
-                  </table>
-                </td>
+                <td class="formaction">
+                  <input type="file" name="torrent-file" class="postfile" />
+                  <input type="submit" value="Upload" class="postbutton" /></td>
               </tr>
+<!--
+              <tr>
+                <td colspan="2" class="infohelp">Note: <b>{{.TrackerURL}}</b> will be added as the default tracker; existing trackers will be preserved.</td>
+              </tr>
+-->
             </table>
           </form>
-        </div>
-        {{ template "script.html.tmpl" . }}
-    </body>
+        </div> {{ template "script.html.tmpl" . }}
+      </div>
+    </div>
+  </div>
+</body>
+
 </html>

@@ -1,11 +1,19 @@
-<!doctype html>
+<!DOCTYPE HTML>
 <html>
-    <head>
-      <title> Error </title>
-      <link rel="stylesheet" href="/static/style.css" />
-      <meta http-equiv="refresh" content="3; ." />
-    </head>
-    <body>
-        <h2 style="color:red;">{{ .Error }} </h2>
-    </body>
+  <head>
+    <title> Error </title>
+    <link rel="stylesheet" href="/static/style.css" />
+    <meta http-equiv="refresh" content="3; ." />
+  </head>
+  <body>
+    <div class="container">
+    <div class="panel">
+    <div class="inner error">
+      <div id="topnav">ERROR</a> </div>
+      <hr>
+      <h2>{{ .Error }}</h2>
+    </div>
+    </div>
+    </div>
+  <body>
 </html>

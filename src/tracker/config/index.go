@@ -5,8 +5,8 @@ import (
 	"tracker/config/parser"
 )
 
-const DefaultTrackerURL = "http://uajd4nctepxpac4c4bdyrdw7qvja2a5u3x25otfhkptcjgd53ioq.b32.i2p/announce"
-const DefaultSiteName = "torrent.ano"
+const DefaultTrackerURL = "http://tracker.livingstone.i2p/a"
+const DefaultSiteName = "TORRENTS.LIVINGSTONE.I2P"
 
 type IndexConfig struct {
 	CaptchaWidth  int
