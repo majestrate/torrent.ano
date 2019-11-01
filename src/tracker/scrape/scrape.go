@@ -4,12 +4,11 @@ import (
 	b "github.com/jackpal/bencode-go"
 	"fmt"
         "os"
-	config_scrape "./config_scrape"
 )
 
 
-func ReadScrape() (interface{}){
-	file,err:=os.Open(config_scrape.DEFAULT_SCRAPE_FILE_PATH)
+func ReadScrape(file_path string) (interface{}){
+	file,err:=os.Open(file_path)
 	if err != nil{
 		fmt.Println(err)
 		return err

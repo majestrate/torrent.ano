@@ -1,7 +1,7 @@
 package scrape
 
 import "testing"
-import config_scrape "./config_scrape"
+import config_scrape "./test_config_scrape"
 import "fmt"
 
 
@@ -14,7 +14,7 @@ func TestDownloadFile(t *testing.T){
 }
 
 func TestReadScrape(t *testing.T){
-	switch data:=ReadScrape().(type) {
+	switch data:=ReadScrape(config_scrape.DEFAULT_SCRAPE_FILE_PATH).(type) {
 		case map[string]map[string]string :
 
 			fmt.Println("Its map");
