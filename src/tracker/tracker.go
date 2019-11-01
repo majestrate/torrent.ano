@@ -21,7 +21,9 @@ func Run() {
 	if err != nil {
 		log.Fatalf("%s", err)
 	}
+
 	log.SetLevel(cfg.Log.Level)
+
 	idx := index.New(&cfg.Index)
 	idx.DB, err = db.NewPostgres(&cfg.DB)
 	if err != nil {
