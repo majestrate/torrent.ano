@@ -15,13 +15,14 @@ func DownloadFile(filepath string, url string) (err error) {
 		return err
 	}
 	defer response.Body.Close()
-
+	if response.StatusCode != http.StatusOK{
+		fmt.Println(response.StatusCode)
+	}
 	outfile, err := os.Create(filepath)
 	if err != nil {
 		return err
 	}
 	defer outfile.Close()
-
 	_, err = io.Copy(outfile, response.Body)
 	return err
 }
@@ -38,7 +39,7 @@ func GetScrapeByInfoHash(filepath string, url string, hash string) (err error, m
 	if err != nil {
 		return err, nil
 	}
-	info_hash := fmt.Sprintf("%s\n", net_url.QueryEscape(string(bin[:n])))
+	info_hash := fmt.Sprintf("%s", net_url.QueryEscape(string(bin[:n])))
 	if err := DownloadFile(filepath+"_"+hash, url+"?info_hash="+info_hash); err != nil {
 		return err, nil
 	}
