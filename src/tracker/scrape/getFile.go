@@ -15,7 +15,7 @@ func DownloadFile(filepath string, url string) (err error) {
 		return err
 	}
 	defer response.Body.Close()
-	if response.StatusCode != http.StatusOK{
+	if response.StatusCode != http.StatusOK {
 		fmt.Println(response.StatusCode)
 	}
 	outfile, err := os.Create(filepath)

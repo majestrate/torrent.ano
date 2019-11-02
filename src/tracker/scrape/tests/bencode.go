@@ -71,7 +71,7 @@ func main() {
 	//tmp:= i["files"].(map[string]interface{})
 
 	m := map[string]map[string]string{
-		"some": map[string]string{
+		"some": {
 			"some1": "value",
 		},
 	}

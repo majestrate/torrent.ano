@@ -9,19 +9,19 @@ type configLoadable interface {
 }
 
 type Config struct {
-	DB    DBConfig
-	Index IndexConfig
-	Log   LogConfig
-	Feeds FeedsConfig
+	DB     DBConfig
+	Index  IndexConfig
+	Log    LogConfig
+	Feeds  FeedsConfig
 	Scrape ScrapeConfig
 }
 
 func (cfg *Config) Load(fname string) error {
 	sections := map[string]configLoadable{
-		"db":    &cfg.DB,
-		"index": &cfg.Index,
-		"log":   &cfg.Log,
-		"feeds": &cfg.Feeds,
+		"db":     &cfg.DB,
+		"index":  &cfg.Index,
+		"log":    &cfg.Log,
+		"feeds":  &cfg.Feeds,
 		"scrape": &cfg.Scrape,
 	}
 

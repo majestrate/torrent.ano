@@ -19,15 +19,15 @@ import (
 	"tracker/log"
 	"tracker/metainfo"
 	"tracker/model"
-	"tracker/util"
 	"tracker/scrape"
+	"tracker/util"
 )
 
 type Server struct {
-	cfg  *config.IndexConfig
-	mux  *http.ServeMux
-	tmpl *template.Template
-	DB   db.DB
+	cfg        *config.IndexConfig
+	mux        *http.ServeMux
+	tmpl       *template.Template
+	DB         db.DB
 	Cfg_scrape *config.ScrapeConfig
 }
 
@@ -164,11 +164,11 @@ func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request) {
 			err = enc.Encode(f)
 
 		} else {
-			results:=""
-			if len(torrents) == 1{
-				results="result"
-			}else{
-				results="results"
+			results := ""
+			if len(torrents) == 1 {
+				results = "result"
+			} else {
+				results = "results"
 			}
 			u := r.URL
 			q := u.Query()
@@ -177,13 +177,13 @@ func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request) {
 			u.Host = r.Host
 			u.Scheme = "http"
 			err = s.tmpl.ExecuteTemplate(w, "search.html.tmpl", map[string]interface{}{
-				"PopularTags": tags,
-				"Site":        s.cfg.SiteName,
-				"Torrents":    torrents,
-				"SelectedTag": selectedTag,
-				"Search":      tag != "" || name != "",
-				"SearchTag":   name,
-				"FeedURL":     u.String(),
+				"PopularTags":  tags,
+				"Site":         s.cfg.SiteName,
+				"Torrents":     torrents,
+				"SelectedTag":  selectedTag,
+				"Search":       tag != "" || name != "",
+				"SearchTag":    name,
+				"FeedURL":      u.String(),
 				"ResultString": results, // TODO
 			})
 		}
@@ -261,12 +261,12 @@ func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Ca
 		}
 
 		// set tags
-		tags = strings.ToLower(tags);
+		tags = strings.ToLower(tags)
 
-		for _, tag := range strings.Split(tags,","){
-			for _, tag1 := range strings.Split(tags,","){
+		for _, tag := range strings.Split(tags, ",") {
+			for _, tag1 := range strings.Split(tags, ",") {
 				if tag == tag1 {
-					s.Error(w, "tags error", j);
+					s.Error(w, "tags error", j)
 					return
 				}
 			}
@@ -575,27 +575,27 @@ func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 					//get scrape
 					//get map
 					//write the map into template
-					err,sm:=scrape.GetScrapeByInfoHash( s.Cfg_scrape.File_path , s.Cfg_scrape.URL , string(t.IH[:]) )	
-					if err != nil{
+					err, sm := scrape.GetScrapeByInfoHash(s.Cfg_scrape.File_path, s.Cfg_scrape.URL, string(t.IH[:]))
+					if err != nil {
 						s.Error(w, "Error with get scrape", j)
 					}
 					var downloaded, complete, incomplete int64
-					for _,tmp_ := range sm{
-						downloaded= tmp_["downloaded"]
-						complete= tmp_["complete"]
-						incomplete= tmp_["incomplete"]
+					for _, tmp_ := range sm {
+						downloaded = tmp_["downloaded"]
+						complete = tmp_["complete"]
+						incomplete = tmp_["incomplete"]
 
 					}
 
 					p := map[string]interface{}{
-						"Tags":     tags,
-						"Torrent":  t,
-						"Files":    files,
-						"Site":     s.cfg.SiteName,
-						"Comments": comments,
-						"Domain":   r.Host,
+						"Tags":       tags,
+						"Torrent":    t,
+						"Files":      files,
+						"Site":       s.cfg.SiteName,
+						"Comments":   comments,
+						"Domain":     r.Host,
 						"downloaded": downloaded,
-						"complete": complete,
+						"complete":   complete,
 						"incomplete": incomplete,
 					}
 
