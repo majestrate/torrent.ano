@@ -1,32 +1,31 @@
-package scrape;
+package scrape
 
 import (
-	b "github.com/jackpal/bencode-go"
 	"fmt"
-        "os"
+	b "github.com/jackpal/bencode-go"
+	"os"
 )
 
-
-func ReadScrape(file_path string) (interface{}){
-	file,err:=os.Open(file_path)
-	if err != nil{
+func ReadScrape(file_path string) interface{} {
+	file, err := os.Open(file_path)
+	if err != nil {
 		fmt.Println(err)
 		return err
 	}
-	defer file.Close();
+	defer file.Close()
 	//check if file is not null
-	stat, err := file.Stat();
-	if err !=nil{
-		fmt.Println(err);
+	stat, err := file.Stat()
+	if err != nil {
+		fmt.Println(err)
 		return err
 	}
-	if(stat.Size() == 0){;
-		fmt.Println("Scrape file is null size");
+	if stat.Size() == 0 {
+		fmt.Println("Scrape file is null size")
 		return err
 	}
 	data, err := b.Decode(file)
-	if err!=nil{
-		fmt.Println(err);
+	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 	return data
