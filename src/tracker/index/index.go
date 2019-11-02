@@ -19,7 +19,7 @@ import (
 	"tracker/log"
 	"tracker/metainfo"
 	"tracker/model"
-	"tracker/scrape"
+//	"tracker/scrape"
 	"tracker/util"
 )
 
@@ -575,7 +575,8 @@ func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 					//get scrape
 					//get map
 					//write the map into template
-					err, sm := scrape.GetScrapeByInfoHash(s.Cfg_scrape.File_path, s.Cfg_scrape.URL, string(t.IH[:]))
+
+					/*err, sm := scrape.GetScrapeByInfoHash(s.Cfg_scrape.File_path, s.Cfg_scrape.URL, string(t.IH[:]))
 					if err != nil {
 						s.Error(w, "Error with get scrape", j)
 					}
@@ -586,7 +587,7 @@ func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 						incomplete = tmp_["incomplete"]
 
 					}
-
+					*/
 					p := map[string]interface{}{
 						"Tags":       tags,
 						"Torrent":    t,
@@ -594,9 +595,9 @@ func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 						"Site":       s.cfg.SiteName,
 						"Comments":   comments,
 						"Domain":     r.Host,
-						"downloaded": downloaded,
-						"complete":   complete,
-						"incomplete": incomplete,
+						//"downloaded": downloaded,
+						//"complete":   complete,
+						//"incomplete": incomplete,
 					}
 
 					var ok bool
