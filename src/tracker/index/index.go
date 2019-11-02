@@ -20,6 +20,7 @@ import (
 	"tracker/metainfo"
 	"tracker/model"
 	"tracker/util"
+	"tracker/scrape"
 )
 
 type Server struct {
@@ -27,6 +28,7 @@ type Server struct {
 	mux  *http.ServeMux
 	tmpl *template.Template
 	DB   db.DB
+	Cfg_scrape *config.ScrapeConfig
 }
 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -566,6 +568,25 @@ func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 
 					// get captcha
 					t.Domain = r.Host
+
+					//
+					//get metainfos
+
+					//get scrape
+					//get map
+					//write the map into template
+					err,sm:=scrape.GetScrapeByInfoHash( s.Cfg_scrape.File_path , s.Cfg_scrape.URL , string(t.IH[:]) )	
+					if err != nil{
+						s.Error(w, "Error with get scrape", j)
+					}
+					var downloaded, complete, incomplete int64
+					for _,tmp_ := range sm{
+						downloaded= tmp_["downloaded"]
+						complete= tmp_["complete"]
+						incomplete= tmp_["incomplete"]
+
+					}
+
 					p := map[string]interface{}{
 						"Tags":     tags,
 						"Torrent":  t,
@@ -573,6 +594,9 @@ func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 						"Site":     s.cfg.SiteName,
 						"Comments": comments,
 						"Domain":   r.Host,
+						"downloaded": downloaded,
+						"complete": complete,
+						"incomplete": incomplete,
 					}
 
 					var ok bool

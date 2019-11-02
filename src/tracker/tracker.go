@@ -26,6 +26,7 @@ func Run() {
 
 	idx := index.New(&cfg.Index)
 	idx.DB, err = db.NewPostgres(&cfg.DB)
+	//idx.Cfg_scrape.Load(&cfg.Scrape) // TODO
 	if err != nil {
 		log.Fatalf("%s", err)
 	}
