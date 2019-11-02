@@ -13,15 +13,19 @@ func TestDownloadFile(t *testing.T) {
 }
 
 func TestReadScrape(t *testing.T) {
-	switch data := ReadScrape(config_scrape.DEFAULT_SCRAPE_FILE_PATH).(type) {
-	case map[string]map[string]string:
-
-		fmt.Println("Its map")
-		fmt.Println(data)
-	default:
-		fmt.Println("I get error")
-		fmt.Println(data)
-
+	_, err := ReadScrape(config_scrape.DEFAULT_SCRAPE_FILE_PATH)
+	if err != nil{
+		t.Error(err)
 	}
+}
 
+func TestGetScrapeByInfoHash(t *testing.T){
+	err,mp:=GetScrapeByInfoHash(config_scrape.DEFAULT_SCRAPE_FILE_PATH, config_scrape.DEFAULT_SCRAPE_URL, "9865c87afbdf138aa3e2b88220187f38015dcfc0")
+	if err != nil{
+		t.Error(err)
+	}
+	for key, value := range mp{
+		fmt.Print(key+": ")
+		fmt.Println(value)
+	}
 }

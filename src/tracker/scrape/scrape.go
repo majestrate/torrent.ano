@@ -29,28 +29,33 @@ func FilesConstructMap(raw interface{}) map[string]map[string]int64 {
 	return ret
 }
 
-func ReadScrape(file_path string) interface{} {
+func ReadScrape(file_path string) ( interface{}, error) {
 	file, err := os.Open(file_path)
 	if err != nil {
 		fmt.Println(err)
-		return err
+		return nil,err
 	}
 	defer file.Close()
 	//check if file is not null
 	stat, err := file.Stat()
 	if err != nil {
 		fmt.Println(err)
-		return err
+		return nil,err
 	}
 	if stat.Size() == 0 {
 		fmt.Println("Scrape file is null size")
-		return err
+		return nil,err
 	}
-	var tmp0 interface{}
-	tmp, err := b.Decode(file)
+	packet := make([]byte, stat.Size())
+	_, err = file.Read(packet)
+	if err != nil{
+		fmt.Println(err)
+		return nil, err
+	}
+	data, err := b.Decode(packet)
 	if err != nil {
 		fmt.Println(err)
-		return err
+		return nil,err
 	}
-	return data
+	return data, nil
 }
