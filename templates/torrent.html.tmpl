@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <title> {{ .Site }} - {{ .Torrent.Name }}  - D: {{ .Downloaded }}  C: {{ .Complete }} I: {{ .Incomplete }} </title>
+  <title> {{ .Site }} - {{ .Torrent.Name }} </title>
   <link rel="stylesheet" href="/static/style.css" />
   <link href="http://{{ .Domain }}/t/{{ .Torrent.InfoHash }}/?t=atom" type="application/atom+xml" rel="alternate" title="Recent comments on {{ .Torrent.Name }}" />
 </head>
@@ -33,6 +33,10 @@
             <tr>
               <td class="info"> Tags </td>
               <td> {{ range .Tags }} <span class="tag"> <a href="{{ .SearchLink }}">{{ .Name }}</a> </span> {{ end }} </td>
+            </tr>
+            <tr>
+              <td class="info"> Stats </td>
+              <td> Seeds: {{ .Complete }} &bullet; Leeches: {{ .Incomplete }} &bullet; Total Downloads: {{ .Downloaded }}</td>
             </tr>
             <tfoot>
               <tr>

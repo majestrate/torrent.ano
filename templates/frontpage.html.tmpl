@@ -4,7 +4,7 @@
 <head>
   <title> {{ .Site }} </title>
   <link rel="stylesheet" href="/static/style.css" />
-  <link href="http://{{ .Domain }}/?t=atom" type="application/atom+xml" rel="alternate" title="recent torrents on {{ .Site }}" />
+  <link href="http://{{ .Domain }}/?t=atom" type="application/atom+xml" rel="alternate" title="Recent torrents on {{ .Site }}" />
 </head>
 
 <body id="home">
@@ -34,6 +34,7 @@
         <table id="recent">
           <thead>
             <tr class="header">
+<!--              <td colspan="5"><b>Recent Uploads</b></td>-->
               <td colspan="4"><b>Recent Uploads</b></td>
             </tr>
             <tr>
@@ -41,6 +42,7 @@
               <th>Name</th>
               <th class="dateuploaded">Uploaded</th>
               <th class="filesize">Size</th>
+<!--              <th>Seeds</th>-->
             </tr>
           </thead>
           <tbody>
@@ -48,8 +50,9 @@
             <tr>
               <td><span class="cat"><a href="/c/{{ .Category.ID }}/">{{ .Category.Name }}</a></span></td>
               <td><span class="name"><a href="/t/{{ .InfoHash }}/">{{ .Name}}</a></span></td>
-              <td class="dateuploaded"><time class="date" datetime="{{ FormatDateGlobal .UploadedAt }}" title="{{ FormatDateRFC2822 .UploadedAt }}"><span class="timeshort">{{ FormatDate .UploadedAt }} UTC</span></time></td>
+              <td class="dateuploaded"><time class="date" datetime="{{ FormatDateGlobal .UploadedAt }}" title="{{ FormatDateRFC2822 .UploadedAt }}"><span class="timeshort">{{ FormatDateNoTime .UploadedAt }}</span></time></td>
               <td class="filesize"><span class="size">{{ .SizeString }}</span></td>
+<!--              <td> .Complete </td>-->
             </tr>
           {{ end }}
           </tbody>

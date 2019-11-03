@@ -778,6 +778,12 @@ func New(cfg *config.IndexConfig) (s *Server) {
 			h, m, s := t.Clock()
 			return fmt.Sprintf("%s, %02d %s %04d %02d:%02d:%02d", W, D, M, Y, h, m, s)
 		},
+		// just the date, not the time
+		"FormatDateNoTime": func(t time.Time) string {
+			t = t.UTC()
+			Y, M, D := t.Date()
+			return fmt.Sprintf("%d-%02d-%02d", Y, M, D)
+		},
 	}
 	s = &Server{
 		cfg:  cfg,
