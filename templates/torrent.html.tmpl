@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <title> {{ .Site }} - {{ .Torrent.Name }} </title>
+  <title> {{ .Site }} - {{ .Torrent.Name }}  - D: {{ .Downloaded }}  C: {{ .Complete }} I: {{ .Incomplete }} </title>
   <link rel="stylesheet" href="/static/style.css" />
   <link href="http://{{ .Domain }}/t/{{ .Torrent.InfoHash }}/?t=atom" type="application/atom+xml" rel="alternate" title="Recent comments on {{ .Torrent.Name }}" />
 </head>
