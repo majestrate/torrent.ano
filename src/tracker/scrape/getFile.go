@@ -29,7 +29,7 @@ func DownloadFile(filepath string, url string) (err error) {
 
 //hash from psql
 //url to scrape
-func GetScrapeByInfoHash(filepath string, url string, hash string) (err error, mp map[string]map[string]int64) {
+func GetScrapeByInfoHash(filepath string, url string, hash string) (err error, mp []Files) {
 	var n int
 
 	src := []byte(hash)

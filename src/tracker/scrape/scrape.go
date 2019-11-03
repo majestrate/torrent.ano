@@ -9,11 +9,16 @@ import (
 	"os"
 )
 
-func FilesConstructMap(raw interface{}) map[string]map[string]int64 {
+type Files struct{
+	hash string
+	downloaded, complete, incomplete int64
+};
+
+func FilesConstructMap(raw interface{}) []Files {
 	tmp := raw.(map[string]interface{})
 	tmp1 := tmp["files"]
 	tmp2 := tmp1.(map[string]interface{})
-	ret := make(map[string]map[string]int64)
+	ret := make([]Files, 0)
 
 	h := sha1.New()
 	for key, value := range tmp2 {
@@ -21,10 +26,23 @@ func FilesConstructMap(raw interface{}) map[string]map[string]int64 {
 		key = fmt.Sprintf("%x", h.Sum(nil))
 		tmp_ := value.(map[string]interface{})
 
-		ret[key] = make(map[string]int64)
+		var downloaded, complete, incomplete int64
 		for K, V := range tmp_ {
-			ret[key][K] = V.(int64)
+			switch K{
+				case "complete":
+					complete=V.(int64)
+				case "incomplete":
+					incomplete=V.(int64)
+				case "downloaded":
+					downloaded=V.(int64)
+			}
 		}
+		newItem := Files{ 
+			downloaded: downloaded,
+			complete: complete,
+			incomplete: incomplete,
+		}
+		ret = append(ret, newItem)
 	}
 	return ret
 }

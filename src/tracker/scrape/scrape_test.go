@@ -24,8 +24,8 @@ func TestGetScrapeByInfoHash(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	for key, value := range mp {
-		fmt.Print(key + ": ")
+	for  value, key := range mp {
+		fmt.Print(key)
 		fmt.Println(value)
 	}
 }
