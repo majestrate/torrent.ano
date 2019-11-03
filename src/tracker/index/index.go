@@ -19,7 +19,7 @@ import (
 	"tracker/log"
 	"tracker/metainfo"
 	"tracker/model"
-//	"tracker/scrape"
+	"tracker/scrape"
 	"tracker/util"
 )
 
@@ -569,25 +569,17 @@ func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 					// get captcha
 					t.Domain = r.Host
 
-					//
-					//get metainfos
-
-					//get scrape
-					//get map
-					//write the map into template
-
-					/*err, sm := scrape.GetScrapeByInfoHash(s.Cfg_scrape.File_path, s.Cfg_scrape.URL, string(t.IH[:]))
-					if err != nil {
-						s.Error(w, "Error with get scrape", j)
+					_, sm := scrape.GetScrapeByInfoHash(s.Cfg_scrape.File_path, s.Cfg_scrape.URL, string( hex.EncodeToString(t.IH[:]) ))
+					if len(sm) == 0	{
+						item:=scrape.Files{
+							Downloaded: 0,
+							Complete: 0,
+							Incomplete: 0,
+						}
+						sm=append(sm, item)
 					}
-					var downloaded, complete, incomplete int64
-					for _, tmp_ := range sm {
-						downloaded = tmp_["downloaded"]
-						complete = tmp_["complete"]
-						incomplete = tmp_["incomplete"]
+					fmt.Println( sm )
 
-					}
-					*/
 					p := map[string]interface{}{
 						"Tags":       tags,
 						"Torrent":    t,
@@ -595,9 +587,9 @@ func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 						"Site":       s.cfg.SiteName,
 						"Comments":   comments,
 						"Domain":     r.Host,
-						//"downloaded": downloaded,
-						//"complete":   complete,
-						//"incomplete": incomplete,
+						"Downloaded": sm[0].Downloaded,
+						"Complete":   sm[0].Complete,
+						"Incomplete": sm[0].Incomplete,
 					}
 
 					var ok bool
