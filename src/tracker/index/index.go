@@ -578,8 +578,6 @@ func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 						}
 						sm=append(sm, item)
 					}
-					fmt.Println( sm )
-
 					p := map[string]interface{}{
 						"Tags":       tags,
 						"Torrent":    t,
