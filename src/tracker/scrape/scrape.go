@@ -9,10 +9,10 @@ import (
 	"os"
 )
 
-type Files struct{
-	hash string
-	downloaded, complete, incomplete int64
-};
+type Files struct {
+	Hash                             string
+	Downloaded, Complete, Incomplete int64
+}
 
 func FilesConstructMap(raw interface{}) []Files {
 	tmp := raw.(map[string]interface{})
@@ -28,19 +28,19 @@ func FilesConstructMap(raw interface{}) []Files {
 
 		var downloaded, complete, incomplete int64
 		for K, V := range tmp_ {
-			switch K{
-				case "complete":
-					complete=V.(int64)
-				case "incomplete":
-					incomplete=V.(int64)
-				case "downloaded":
-					downloaded=V.(int64)
+			switch K {
+			case "complete":
+				complete = V.(int64)
+			case "incomplete":
+				incomplete = V.(int64)
+			case "downloaded":
+				downloaded = V.(int64)
 			}
 		}
-		newItem := Files{ 
-			downloaded: downloaded,
-			complete: complete,
-			incomplete: incomplete,
+		newItem := Files{
+			Downloaded: downloaded,
+			Complete:   complete,
+			Incomplete: incomplete,
 		}
 		ret = append(ret, newItem)
 	}
