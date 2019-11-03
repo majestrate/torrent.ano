@@ -29,7 +29,6 @@ func (cfg *Config) Load(fname string) error {
 	if err != nil {
 		return err
 	}
-
 	for sect := range sections {
 		s, err := conf.Section(sect)
 		if err != nil {
