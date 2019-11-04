@@ -10,13 +10,14 @@
 <body>
   <div class="container">
     <div class="panel">
-      <div class="inner">
+      <div class="inner category">
         <div id="topnav"> <a href="/"> {{ .Site }} </a> </div>
-        <hr>
         <table id="category">
           <thead>
             <tr class="header">
-              <td colspan="4">Category: {{ .Category.Name }} &nbsp;<span id="catnav" style="float: right;"> {{ if .HasNextPage }}<a href="/c/{{ .Category.ID }}/?p={{ .NextPage }}"> Next</a>{{ end }} {{ if .HasPrevPage }}<a href="/c/{{ .Category.ID }}/?p={{ .PrevPage }}"> Previous </a>{{ end }} </span>
+              <td colspan="4">Category: {{ .Category.Name }} &nbsp;
+                <span id="atom" style="float: right;"><a href=".?t=atom" title="Atom feed for this category"><img src="/static/feed.png"></a></span>
+                <span id="tsearch" style="float: right;"><a href="/s/" title="Search for content by tag"><img src="/static/search.png"></a></a></span>
               </td>
             </tr>
             <tr>
@@ -29,7 +30,7 @@
           <tbody> {{ range .Torrents }}
             <tr>
               <td><a href="/t/{{ .InfoHash }}/">{{ .Name }}</a></td>
-              <td class="dateuploaded"><time class="date" datetime="{{ FormatDateGlobal .UploadedAt }}" title="{{ FormatDateRFC2822 .UploadedAt }}">{{ FormatDate .UploadedAt }}</time></td>
+              <td class="dateuploaded"><time class="date" datetime="{{ FormatDateGlobal .UploadedAt }}" title="{{ FormatDateRFC2822 .UploadedAt }}">{{ FormatDateNoTime .UploadedAt }}</time></td>
               <td class="filesize">{{ .SizeString }}</td>
               <td style="text-align: center !important;">
                 <a class="magnet" href="magnet:?xt=urn:btih:{{ .InfoHash }}"><img src="/static/magnet.png"></a>
@@ -39,7 +40,10 @@
           </tbody>
           <tfoot>
             <tr>
-              <th id="search" style="text-align: center !important;" colspan="4"><span id="tagsearch"><a href="/s/">Tag Search</a></span></th>
+              <th id="pagenav" style="text-align: center !important;" colspan="4">
+                {{ if .HasNextPage }}<a href="/c/{{ .Category.ID }}/?p={{ .NextPage }}"> Next Page</a>{{ end }}
+                {{ if .HasPrevPage }}<a href="/c/{{ .Category.ID }}/?p={{ .PrevPage }}"> Previous Page</a>{{ end }}
+              </th>
             </tr>
           </tfoot>
         </table>

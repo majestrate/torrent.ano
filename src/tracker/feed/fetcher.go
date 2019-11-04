@@ -30,7 +30,7 @@ func (f *feedEvent) Name() string {
 
 func (f *feedEvent) Fetch() (err error) {
 	var torrents []Torrent
-	log.Infof("fetching feed %s", f.Name())
+	log.Infof("Fetching feed %s", f.Name())
 	var resp *http.Response
 	resp, err = f.client.Get(f.conf.URL)
 	if err == nil {
@@ -122,7 +122,7 @@ func (f *Fetcher) worker() {
 		for _, fetch := range fetches {
 			err := fetch.Fetch()
 			if err != nil {
-				log.Errorf("failed to fetch %s: %s", fetch.Name(), err)
+				log.Errorf("Failed to fetch %s: %s", fetch.Name(), err)
 				fetch.Retry()
 			}
 		}

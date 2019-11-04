@@ -200,7 +200,7 @@ func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Ca
 	a := s.shouldAUTH(r)
 	store := s.DB
 	if store == nil {
-		s.Error(w, "internal error: no storage backend", j)
+		s.Error(w, "Internal error: no storage backend", j)
 		return
 	}
 	defer r.Body.Close()
@@ -210,7 +210,7 @@ func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Ca
 
 	s.requireAuth(func(w http.ResponseWriter, r *http.Request) {
 		if len(description) == 0 {
-			s.Error(w, "no description", j)
+			s.Error(w, "No description provided", j)
 			return
 		}
 
@@ -220,7 +220,7 @@ func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Ca
 			name = h.Filename
 		}
 		if name == "" {
-			s.Error(w, "torrent name not specified", j)
+			s.Error(w, "Torrent name not specified", j)
 			return
 		}
 		if err != nil {
@@ -234,7 +234,7 @@ func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Ca
 		}
 
 		if t.Info.Private > 0 {
-			s.Error(w, "private torrents not allowed", j)
+			s.Error(w, "Private torrents not allowed", j)
 			return
 		}
 
@@ -246,7 +246,7 @@ func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Ca
 			return
 		}
 		if torrent != nil {
-			s.Error(w, "duplicate torrent", j)
+			s.Error(w, "Duplicate torrent", j)
 			return
 		}
 
@@ -266,7 +266,7 @@ func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Ca
 		for _, tag := range strings.Split(tags, ",") {
 			for _, tag1 := range strings.Split(tags, ",") {
 				if tag == tag1 {
-					s.Error(w, "tags error", j)
+					s.Error(w, "Tags error", j)
 					return
 				}
 			}
@@ -279,7 +279,7 @@ func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Ca
 		}
 		err = store.StoreTorrent(torrent, t)
 		if err != nil {
-			s.Error(w, "could not store torrent: "+err.Error(), j)
+			s.Error(w, "Could not store torrent: "+err.Error(), j)
 			return
 		}
 		// store torrent seed file
@@ -287,7 +287,7 @@ func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Ca
 		var file *os.File
 		file, err = os.OpenFile(fpath, os.O_CREATE|os.O_WRONLY, 0600)
 		if err != nil {
-			s.Error(w, "could not open file: "+err.Error(), j)
+			s.Error(w, "Could not open file: "+err.Error(), j)
 			return
 		}
 		err = t.Encode(file)
@@ -484,12 +484,12 @@ func (s *Server) serveFrontPage(w http.ResponseWriter, r *http.Request) {
 	}
 	cats, err := s.DB.GetAllCategories()
 	if err != nil {
-		s.Error(w, "failed to fetch categories: "+err.Error(), j)
+		s.Error(w, "Failed to fetch categories: "+err.Error(), j)
 		return
 	}
 	torrents, err := s.DB.GetFrontPageTorrents()
 	if err != nil {
-		s.Error(w, "failed to fetch front page torrents: "+err.Error(), j)
+		s.Error(w, "Failed to fetch front page torrents: "+err.Error(), j)
 		return
 	}
 
@@ -716,7 +716,7 @@ func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	s.NotFound(w, map[string]interface{}{
-		"Error": "torrent not found",
+		"Error": "Torrent not found",
 	}, j)
 }
 

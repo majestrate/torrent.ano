@@ -90,7 +90,7 @@ func (t *Torrent) toFeed() *torrentFeed {
 		ID:         t.InfoHash(),
 		Updated:    t.UploadedAt(),
 		Summary:    t.Name,
-		AuthorName: "anonymous uploader",
+		AuthorName: "Anonymous Uploader",
 	}
 }
 

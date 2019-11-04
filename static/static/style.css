@@ -1,3 +1,6 @@
+/* torrent.ano theme by dr|z3d */
+/* https://github.com/majestrate/torrent.ano */
+
 html, body {
     margin: 0;
     padding: 0;
@@ -54,6 +57,7 @@ body {
     background: repeating-linear-gradient(to bottom, rgba(32, 32, 32, .5), rgba(16, 16, 16, .5) 2px), linear-gradient(to bottom, #222, #212121);
     position: relative;
     z-index: 1;
+    will-change: transform;
 }
 
 .inner.error {
@@ -76,7 +80,7 @@ td a {
 }
 
 #topnav {
-    margin: -19px auto 20px;
+    margin: -19px auto 15px;
     padding: 10px 30px;
     width: 50%;
     letter-spacing: 0.1em;
@@ -122,11 +126,11 @@ a, #topnav a:visited, .header a:visited {
     outline: none;
 }
 
-#topnav a, #topnav a:visited {
+#topnav a, #topnav a:visited, #pagenav a:visited {
     color: #e50;
 }
 
-#topnav a:hover, #topnav a:focus {
+#topnav a:hover, #topnav a:focus, #pagenav a:hover, #pagenav a:focus {
     color: #f70;
 }
 
@@ -140,12 +144,34 @@ a:hover, a:focus, .header a:hover, .header a:focus {
     color: #f50;
 }
 
-a:active, #topnav a:active, .header a:active {
+a:active, #topnav a:active, .header a:active, #pagenav a:active {
     color: #f90;
 }
 
+#pagenav a {
+    margin: 3px;
+    padding: 5px 15px;
+    min-width: 120px;
+    display: inline-block;
+    line-height: 1;
+    text-shadow: none;
+    border-radius: 15px;
+    box-shadow: inset 0 0 0 1px #999;
+    background: #bbb;
+    background: linear-gradient(to bottom, #eee, #bbb);
+    font-size: 90%;
+}
+
+#pagenav a:hover, #pagenav a:focus {
+    background: linear-gradient(to bottom, #bbb, #eee);
+}
+
+#pagenav a:active {
+    box-shadow: inset 0 0 0 1px #999, inset 2px 2px 2px #444;
+}
+
 hr {
-    margin: 20px 10px;
+    margin: 10px;
     height: 1px;
     color: transparent;
     border: none;
@@ -170,6 +196,26 @@ h1 {
     font-size: 18pt;
     text-shadow: 0 1px 1px #000;
     text-transform: capitalize;
+}
+
+#atom img, #tsearch img {
+    margin: -7px -3px;
+    height: 24px;
+    width: 24px;
+    display: inline-block;
+    opacity: .7;
+    mix-blend-mode: luminosity;
+    transform: scale(.85);
+}
+
+#atom + #tsearch img {
+    margin: -7px 8px;
+}
+
+#atom img:hover, #tsearch img:hover {
+    opacity: 1;
+    mix-blend-mode: normal;
+    transform: scale(1);
 }
 
 div {
@@ -406,12 +452,29 @@ a.magnet img, a.torrent img {
     background-repeat: no-repeat;
 }
 
+#recent th:first-child, #recent td:first-child,
+#recent th:nth-child(n+3), #recent td:nth-child(n+3),
+#tagged th:nth-child(n+2), #tagged td:nth-child(n+2),
+#tags th:nth-child(n+2), #tags td:nth-child(n+2),
+#category th:nth-child(n+2), #category td:nth-child(n+2) {
+    width: 10%;
+    white-space: nowrap;
+}
+
+#tags th:nth-child(n+2), #tags td:nth-child(n+2) {
+    width: 1%;
+}
+
 #tagged .magnet, #tagged .torrent {
     padding: 0 4px;
 }
 
 #tagged .magnet img, #tagged .torrent img {
     margin: 0;
+}
+
+#tags th:last-child, #tags td:last-child {
+    text-align: right;
 }
 
 .poptag, td.filename {
