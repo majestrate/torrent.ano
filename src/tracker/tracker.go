@@ -18,12 +18,18 @@ func Run() {
 	log.SetLevel("info")
 	cfg := new(config.Config)
 	err := cfg.Load(fname)
+
 	if err != nil {
 		log.Fatalf("%s", err)
 	}
+
 	log.SetLevel(cfg.Log.Level)
+
 	idx := index.New(&cfg.Index)
+
 	idx.DB, err = db.NewPostgres(&cfg.DB)
+	idx.Cfg_scrape = &cfg.Scrape
+
 	if err != nil {
 		log.Fatalf("%s", err)
 	}
@@ -36,6 +42,7 @@ func Run() {
 		go fetcher.Run(cfg.Feeds.Jobs)
 	}
 	addr := cfg.Index.Addr
+
 	log.Infof("serve http at http://%s/", addr)
 	err = http.ListenAndServe(addr, idx)
 	if err != nil {

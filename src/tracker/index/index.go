@@ -19,14 +19,16 @@ import (
 	"tracker/log"
 	"tracker/metainfo"
 	"tracker/model"
+	"tracker/scrape"
 	"tracker/util"
 )
 
 type Server struct {
-	cfg  *config.IndexConfig
-	mux  *http.ServeMux
-	tmpl *template.Template
-	DB   db.DB
+	cfg        *config.IndexConfig
+	mux        *http.ServeMux
+	tmpl       *template.Template
+	DB         db.DB
+	Cfg_scrape *config.ScrapeConfig
 }
 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -162,11 +164,11 @@ func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request) {
 			err = enc.Encode(f)
 
 		} else {
-			results:=""
-			if len(torrents) == 1{
-				results="result"
-			}else{
-				results="results"
+			results := ""
+			if len(torrents) == 1 {
+				results = "result"
+			} else {
+				results = "results"
 			}
 			u := r.URL
 			q := u.Query()
@@ -175,13 +177,13 @@ func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request) {
 			u.Host = r.Host
 			u.Scheme = "http"
 			err = s.tmpl.ExecuteTemplate(w, "search.html.tmpl", map[string]interface{}{
-				"PopularTags": tags,
-				"Site":        s.cfg.SiteName,
-				"Torrents":    torrents,
-				"SelectedTag": selectedTag,
-				"Search":      tag != "" || name != "",
-				"SearchTag":   name,
-				"FeedURL":     u.String(),
+				"PopularTags":  tags,
+				"Site":         s.cfg.SiteName,
+				"Torrents":     torrents,
+				"SelectedTag":  selectedTag,
+				"Search":       tag != "" || name != "",
+				"SearchTag":    name,
+				"FeedURL":      u.String(),
 				"ResultString": results, // TODO
 			})
 		}
@@ -198,7 +200,7 @@ func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Ca
 	a := s.shouldAUTH(r)
 	store := s.DB
 	if store == nil {
-		s.Error(w, "internal error: no storage backend", j)
+		s.Error(w, "Internal error: no storage backend", j)
 		return
 	}
 	defer r.Body.Close()
@@ -208,7 +210,7 @@ func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Ca
 
 	s.requireAuth(func(w http.ResponseWriter, r *http.Request) {
 		if len(description) == 0 {
-			s.Error(w, "no description", j)
+			s.Error(w, "No description provided", j)
 			return
 		}
 
@@ -218,7 +220,7 @@ func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Ca
 			name = h.Filename
 		}
 		if name == "" {
-			s.Error(w, "torrent name not specified", j)
+			s.Error(w, "Torrent name not specified", j)
 			return
 		}
 		if err != nil {
@@ -232,7 +234,7 @@ func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Ca
 		}
 
 		if t.Info.Private > 0 {
-			s.Error(w, "private torrents not allowed", j)
+			s.Error(w, "Private torrents not allowed", j)
 			return
 		}
 
@@ -244,7 +246,7 @@ func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Ca
 			return
 		}
 		if torrent != nil {
-			s.Error(w, "duplicate torrent", j)
+			s.Error(w, "Duplicate torrent", j)
 			return
 		}
 
@@ -259,12 +261,12 @@ func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Ca
 		}
 
 		// set tags
-		tags = strings.ToLower(tags);
+		tags = strings.ToLower(tags)
 
-		for _, tag := range strings.Split(tags,","){
-			for _, tag1 := range strings.Split(tags,","){
+		for _, tag := range strings.Split(tags, ",") {
+			for _, tag1 := range strings.Split(tags, ",") {
 				if tag == tag1 {
-					s.Error(w, "tags error", j);
+					s.Error(w, "Tags error", j)
 					return
 				}
 			}
@@ -277,7 +279,7 @@ func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Ca
 		}
 		err = store.StoreTorrent(torrent, t)
 		if err != nil {
-			s.Error(w, "could not store torrent: "+err.Error(), j)
+			s.Error(w, "Could not store torrent: "+err.Error(), j)
 			return
 		}
 		// store torrent seed file
@@ -285,7 +287,7 @@ func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Ca
 		var file *os.File
 		file, err = os.OpenFile(fpath, os.O_CREATE|os.O_WRONLY, 0600)
 		if err != nil {
-			s.Error(w, "could not open file: "+err.Error(), j)
+			s.Error(w, "Could not open file: "+err.Error(), j)
 			return
 		}
 		err = t.Encode(file)
@@ -482,12 +484,12 @@ func (s *Server) serveFrontPage(w http.ResponseWriter, r *http.Request) {
 	}
 	cats, err := s.DB.GetAllCategories()
 	if err != nil {
-		s.Error(w, "failed to fetch categories: "+err.Error(), j)
+		s.Error(w, "Failed to fetch categories: "+err.Error(), j)
 		return
 	}
 	torrents, err := s.DB.GetFrontPageTorrents()
 	if err != nil {
-		s.Error(w, "failed to fetch front page torrents: "+err.Error(), j)
+		s.Error(w, "Failed to fetch front page torrents: "+err.Error(), j)
 		return
 	}
 
@@ -566,13 +568,26 @@ func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 
 					// get captcha
 					t.Domain = r.Host
+
+					_, sm := scrape.GetScrapeByInfoHash(s.Cfg_scrape.File_path, s.Cfg_scrape.URL, string( hex.EncodeToString(t.IH[:]) ))
+					if len(sm) == 0	{
+						item:=scrape.Files{
+							Downloaded: 0,
+							Complete: 0,
+							Incomplete: 0,
+						}
+						sm=append(sm, item)
+					}
 					p := map[string]interface{}{
-						"Tags":     tags,
-						"Torrent":  t,
-						"Files":    files,
-						"Site":     s.cfg.SiteName,
-						"Comments": comments,
-						"Domain":   r.Host,
+						"Tags":       tags,
+						"Torrent":    t,
+						"Files":      files,
+						"Site":       s.cfg.SiteName,
+						"Comments":   comments,
+						"Domain":     r.Host,
+						"Downloaded": sm[0].Downloaded,
+						"Complete":   sm[0].Complete,
+						"Incomplete": sm[0].Incomplete,
 					}
 
 					var ok bool
@@ -701,7 +716,7 @@ func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	s.NotFound(w, map[string]interface{}{
-		"Error": "torrent not found",
+		"Error": "Torrent not found",
 	}, j)
 }
 
@@ -762,6 +777,12 @@ func New(cfg *config.IndexConfig) (s *Server) {
 			W := t.Weekday()
 			h, m, s := t.Clock()
 			return fmt.Sprintf("%s, %02d %s %04d %02d:%02d:%02d", W, D, M, Y, h, m, s)
+		},
+		// just the date, not the time
+		"FormatDateNoTime": func(t time.Time) string {
+			t = t.UTC()
+			Y, M, D := t.Date()
+			return fmt.Sprintf("%d-%02d-%02d", Y, M, D)
 		},
 	}
 	s = &Server{

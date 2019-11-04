@@ -1,0 +1,3 @@
+[submodule "src/github.com/felix/go-bencode"]
+	path = src/github.com/felix/go-bencode
+	url = https://github.com/felix/go-bencode

@@ -13,7 +13,6 @@
     <div class="panel">
       <div class="inner">
         <div id="topnav"> <a href="/"> {{ .Site }} </a> </div>
-        <hr>
         <form method="GET" id="tagform">
           <input name="q" id="query" type="text" placeholder="Search by Tag name" />
           <input type="submit" value="search" />
@@ -29,14 +28,14 @@
             <tr>
               <th>Name</th>
               <th class="dateuploaded">Uploaded</th>
-              <th class="filesize">Size (bytes)</th>
+              <th class="filesize">Size</th>
               <th class="download">Download</th>
             </tr>
           </thead>
           <tbody> {{ range .Torrents }} <tr>
               <td><a href="/t/{{ .InfoHash }}/">{{ .Name }}</a></td>
-              <td class="dateuploaded" title="{{ FormatDateRFC2822 .UploadedAt }}">{{ FormatDate .UploadedAt }}</td>
-              <td class="filesize">{{ .Size }}</td>
+              <td class="dateuploaded" title="{{ FormatDateRFC2822 .UploadedAt }}">{{ FormatDateNoTime .UploadedAt }}</td>
+              <td class="filesize">{{ .SizeString }}</td>
               <td class="download">
                 <span class="magnet"><a href="magnet:?xt=urn:btih:{{ .InfoHash }}"><img src="/static/magnet.png" height="24" width="24"></a></span>&nbsp; <span class="torrent"><a href="{{ .DownloadLink }}"><img src="/static/download.png" height="24" width="24"></a></span>
               </td>
