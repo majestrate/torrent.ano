@@ -127,7 +127,7 @@ func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request) {
 
 		if feed && selectedTag != nil {
 			f := &model.AtomFeed{
-				Title:   "Torrents tagged with '" + selectedTag.Name,
+				Title:   "Torrents tagged with '" + selectedTag.Name+"'",
 				ID:      fmt.Sprintf("torrents-tag-%d", selectedTag.ID),
 				BaseURL: r.URL,
 				Domain:  r.Host,
