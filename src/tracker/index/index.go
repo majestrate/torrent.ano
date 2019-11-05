@@ -263,20 +263,13 @@ func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Ca
 		// set tags
 		tags = strings.ToLower(tags)
 
-		tags_ := strings.Split(tags, ",")
-		for i := len(tags_)-1; i > 0; i-- {
-			for i1 := len(tags_)-1; i1 > 0; i1-- {
-				if i == i1 {
-					continue
-				}
-				if tags_[i] == tags_[i1] {
-					s.Error(w, "Tags error - "+tags_[i]+" exists already", j)
-					return
-				}
-			}
+		if err:=CheckTags(tags);err!=nil{
+			s.Error(w, err.Error(), j);
 		}
+		//
 
-		for _, tag := range tags_ {
+
+		for _, tag := range strings.Split(tags, ",") {
 			tname := strings.Replace(strings.Trim(tag, " "), " ", "-", -1)
 			torrent.Tags = append(torrent.Tags, model.Tag{
 				Name: tname,
@@ -657,12 +650,23 @@ func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 							s.Error(w, "Empty comment", j)
 						}
 					} else if action == "tag" {
+
+						if err:=CheckTags(r.FormValue("add") );err!=nil{
+					                       s.Error(w, err.Error(), j);
+						}
+						if err:=CheckTags(r.FormValue("del"));err!=nil{
+								s.Error(w, err.Error(),j);
+						}
+
 						addTags := strings.Split(r.FormValue("add"), ",")
+
+
 						for idx, tag := range addTags {
 							addTags[idx] = strings.TrimFunc(tag, util.IsSpace)
 						}
 
 						delTags := strings.Split(r.FormValue("del"), ",")
+
 						for idx, tag := range delTags {
 							delTags[idx] = strings.TrimFunc(tag, util.IsSpace)
 						}

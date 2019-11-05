@@ -12,6 +12,7 @@ import (
 	"tracker/metainfo"
 	"tracker/model"
 	"tracker/util"
+	"html"
 )
 
 // PQTorrentStorage is a postgresql torrent metadata storage implementation
@@ -331,6 +332,7 @@ func (db *Postgres) DelUserLogin(user string) (err error) {
 }
 
 func (db *Postgres) InsertComment(text string, ih [20]byte) (err error) {
+	text=html.EscapeString(text)
 	infohash := hex.EncodeToString(ih[:])
 	now := time.Now().Unix()
 	_, err = db.conn.Exec(fmt.Sprintf("INSERT INTO %s(comment_infohash, message, posted) VALUES($1, $2, $3)", tableComments), infohash, text, now)
