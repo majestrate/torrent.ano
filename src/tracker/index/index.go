@@ -386,7 +386,8 @@ func (s *Server) handleCategoryPage(w http.ResponseWriter, r *http.Request) {
 			s.Error(w, err.Error(), j)
 			return
 		}
-		isEmpty := len(torrents) == 0
+		torrentsSize := len(torrents)
+		isEmpty := (torrentsSize == 0)
 		if feed {
 			w.Header().Set("Content-Type", "application/atom+xml")
 			if isEmpty {
@@ -432,7 +433,7 @@ func (s *Server) handleCategoryPage(w http.ResponseWriter, r *http.Request) {
 				"Site":        s.cfg.SiteName,
 				"NextPage":    nextPage,
 				"PrevPage":    prevPage,
-				"HasNextPage": !isEmpty,
+				"HasNextPage": !isEmpty && torrentsSize > perpage && (perpage/page) > torrentsSize,
 				"HasPrevPage": page > 0,
 			}
 
