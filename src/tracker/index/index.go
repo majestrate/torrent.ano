@@ -263,11 +263,10 @@ func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Ca
 		// set tags
 		tags = strings.ToLower(tags)
 
-		if err:=CheckTags(tags);err!=nil{
-			s.Error(w, err.Error(), j);
+		if err := CheckTags(tags); err != nil {
+			s.Error(w, err.Error(), j)
 		}
 		//
-
 
 		for _, tag := range strings.Split(tags, ",") {
 			tname := strings.Replace(strings.Trim(tag, " "), " ", "-", -1)
@@ -651,15 +650,14 @@ func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 						}
 					} else if action == "tag" {
 
-						if err:=CheckTags(r.FormValue("add") );err!=nil{
-					                       s.Error(w, err.Error(), j);
+						if err := CheckTags(r.FormValue("add")); err != nil {
+							s.Error(w, err.Error(), j)
 						}
-						if err:=CheckTags(r.FormValue("del"));err!=nil{
-								s.Error(w, err.Error(),j);
+						if err := CheckTags(r.FormValue("del")); err != nil {
+							s.Error(w, err.Error(), j)
 						}
 
 						addTags := strings.Split(r.FormValue("add"), ",")
-
 
 						for idx, tag := range addTags {
 							addTags[idx] = strings.TrimFunc(tag, util.IsSpace)
