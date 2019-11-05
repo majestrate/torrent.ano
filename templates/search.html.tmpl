@@ -23,7 +23,9 @@
         <table id="tagged">
           <thead>
             <tr class="header">
-              <td colspan="4">Torrents with tag: {{ .SelectedTag.Name }}</td>
+              <td colspan="4">Torrents with tag: {{ .SelectedTag.Name }}&nbsp;
+                <span id="atom" style="float: right;"><a href="{{ .FeedURL }}" title="Atom feed for '{{ .SelectedTag.Name }}' tag"><img src="/static/feed.png"></a></span>
+              </td>
             </tr>
             <tr>
               <th>Name</th>
@@ -46,7 +48,9 @@
         <table id="tags">
           <thead>
             <tr class="header">
-              <td colspan="2">Popular Tags</td>
+              <td colspan="2">Popular Tags&nbsp;
+                <span id="atom" style="float: right;"><a href=".?t=atom" title="Atom feed for popular tags"><img src="/static/feed.png"></a></span>
+              </td>
             </tr>
           </thead>
           <tbody> {{ range .PopularTags }}

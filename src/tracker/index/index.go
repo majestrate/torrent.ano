@@ -127,7 +127,7 @@ func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request) {
 
 		if feed && selectedTag != nil {
 			f := &model.AtomFeed{
-				Title:   selectedTag.Name,
+				Title:   "Torrents tagged with '" + selectedTag.Name+"'",
 				ID:      fmt.Sprintf("torrents-tag-%d", selectedTag.ID),
 				BaseURL: r.URL,
 				Domain:  r.Host,
@@ -150,7 +150,7 @@ func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request) {
 			})
 		} else if feed {
 			f := &model.AtomFeed{
-				Title:   "popular tags",
+				Title:   "Popular Torrent Tags",
 				ID:      "torrent-popular-tags",
 				BaseURL: r.URL,
 				Domain:  r.Host,
@@ -263,20 +263,18 @@ func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Ca
 		// set tags
 		tags = strings.ToLower(tags)
 
-		for _, tag := range strings.Split(tags, ",") {
-			for _, tag1 := range strings.Split(tags, ",") {
-				if tag == tag1 {
-					s.Error(w, "Tags error", j)
-					return
-				}
-			}
+		if err := CheckTags(tags); err != nil {
+			s.Error(w, err.Error(), j)
 		}
+		//
+
 		for _, tag := range strings.Split(tags, ",") {
 			tname := strings.Replace(strings.Trim(tag, " "), " ", "-", -1)
 			torrent.Tags = append(torrent.Tags, model.Tag{
 				Name: tname,
 			})
 		}
+
 		err = store.StoreTorrent(torrent, t)
 		if err != nil {
 			s.Error(w, "Could not store torrent: "+err.Error(), j)
@@ -380,7 +378,8 @@ func (s *Server) handleCategoryPage(w http.ResponseWriter, r *http.Request) {
 			s.Error(w, err.Error(), j)
 			return
 		}
-		isEmpty := len(torrents) == 0
+		torrentsSize := len(torrents)
+		isEmpty := (torrentsSize == 0)
 		if feed {
 			w.Header().Set("Content-Type", "application/atom+xml")
 			if isEmpty {
@@ -426,7 +425,7 @@ func (s *Server) handleCategoryPage(w http.ResponseWriter, r *http.Request) {
 				"Site":        s.cfg.SiteName,
 				"NextPage":    nextPage,
 				"PrevPage":    prevPage,
-				"HasNextPage": !isEmpty,
+				"HasNextPage": !isEmpty && torrentsSize > perpage && (perpage/page) > torrentsSize,
 				"HasPrevPage": page > 0,
 			}
 
@@ -569,14 +568,14 @@ func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 					// get captcha
 					t.Domain = r.Host
 
-					_, sm := scrape.GetScrapeByInfoHash(s.Cfg_scrape.File_path, s.Cfg_scrape.URL, string( hex.EncodeToString(t.IH[:]) ))
-					if len(sm) == 0	{
-						item:=scrape.Files{
+					_, sm := scrape.GetScrapeByInfoHash(s.Cfg_scrape.File_path, s.Cfg_scrape.URL, string(hex.EncodeToString(t.IH[:])))
+					if len(sm) == 0 {
+						item := scrape.Files{
 							Downloaded: 0,
-							Complete: 0,
+							Complete:   0,
 							Incomplete: 0,
 						}
-						sm=append(sm, item)
+						sm = append(sm, item)
 					}
 					p := map[string]interface{}{
 						"Tags":       tags,
@@ -650,12 +649,22 @@ func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 							s.Error(w, "Empty comment", j)
 						}
 					} else if action == "tag" {
+
+						if err := CheckTags(r.FormValue("add")); err != nil {
+							s.Error(w, err.Error(), j)
+						}
+						if err := CheckTags(r.FormValue("del")); err != nil {
+							s.Error(w, err.Error(), j)
+						}
+
 						addTags := strings.Split(r.FormValue("add"), ",")
+
 						for idx, tag := range addTags {
 							addTags[idx] = strings.TrimFunc(tag, util.IsSpace)
 						}
 
 						delTags := strings.Split(r.FormValue("del"), ",")
+
 						for idx, tag := range delTags {
 							delTags[idx] = strings.TrimFunc(tag, util.IsSpace)
 						}
