@@ -263,14 +263,14 @@ func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Ca
 		// set tags
 		tags = strings.ToLower(tags)
 
-		for _, tag := range strings.Split(tags, ",") {
-			for _, tag1 := range strings.Split(tags, ",") {
-				if tag == tag1 {
-					s.Error(w, "Tags error", j)
-					return
-				}
-			}
-		}
+		//for _, tag := range strings.Split(tags, ",") {
+		//	for _, tag1 := range strings.Split(tags, ",") {
+		//		if tag == tag1 {
+		//			s.Error(w, "Tags error", j)
+		//			return
+		//		}
+		//	}
+		//}
 		for _, tag := range strings.Split(tags, ",") {
 			tname := strings.Replace(strings.Trim(tag, " "), " ", "-", -1)
 			torrent.Tags = append(torrent.Tags, model.Tag{
