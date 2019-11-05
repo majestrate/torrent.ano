@@ -85,12 +85,12 @@ type torrentFeed struct {
 func (t *Torrent) toFeed() *torrentFeed {
 
 	return &torrentFeed{
-		Title:      t.Name,
-		Link:       NewLink(t.Domain, t.DownloadLink(), ""),
-		ID:         t.InfoHash(),
-		Updated:    t.UploadedAt(),
-		Summary:    t.Name,
-		AuthorName: "Anonymous Uploader",
+		Title:   t.Name,
+		Link:    NewLink(t.Domain, t.PageLocation(), ""),
+		ID:      t.InfoHash(),
+		Updated: t.UploadedAt(),
+		Summary: ("Torrent: <a href=\"" + (t.Domain + t.DownloadLink()) + "\">" + (t.Domain + t.DownloadLink()) + "</a> Infohash: " + t.InfoHash() + " [Size: " + t.SizeString() + "]"),
+		//		AuthorName: "Anonymous Uploader",
 	}
 }
 

@@ -127,7 +127,7 @@ func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request) {
 
 		if feed && selectedTag != nil {
 			f := &model.AtomFeed{
-				Title:   selectedTag.Name,
+				Title:   "Torrents tagged with '" + selectedTag.Name,
 				ID:      fmt.Sprintf("torrents-tag-%d", selectedTag.ID),
 				BaseURL: r.URL,
 				Domain:  r.Host,
@@ -150,7 +150,7 @@ func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request) {
 			})
 		} else if feed {
 			f := &model.AtomFeed{
-				Title:   "popular tags",
+				Title:   "Popular Torrent Tags",
 				ID:      "torrent-popular-tags",
 				BaseURL: r.URL,
 				Domain:  r.Host,
@@ -263,20 +263,26 @@ func (s *Server) addTorrent(w http.ResponseWriter, r *http.Request, cat model.Ca
 		// set tags
 		tags = strings.ToLower(tags)
 
-		//for _, tag := range strings.Split(tags, ",") {
-		//	for _, tag1 := range strings.Split(tags, ",") {
-		//		if tag == tag1 {
-		//			s.Error(w, "Tags error", j)
-		//			return
-		//		}
-		//	}
-		//}
-		for _, tag := range strings.Split(tags, ",") {
+		tags_ := strings.Split(tags, ",")
+		for i := len(tags_)-1; i > 0; i-- {
+			for i1 := len(tags_)-1; i1 > 0; i1-- {
+				if i == i1 {
+					continue
+				}
+				if tags_[i] == tags_[i1] {
+					s.Error(w, "Tags error - "+tags_[i]+" exists already", j)
+					return
+				}
+			}
+		}
+
+		for _, tag := range tags_ {
 			tname := strings.Replace(strings.Trim(tag, " "), " ", "-", -1)
 			torrent.Tags = append(torrent.Tags, model.Tag{
 				Name: tname,
 			})
 		}
+
 		err = store.StoreTorrent(torrent, t)
 		if err != nil {
 			s.Error(w, "Could not store torrent: "+err.Error(), j)
@@ -569,14 +575,14 @@ func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 					// get captcha
 					t.Domain = r.Host
 
-					_, sm := scrape.GetScrapeByInfoHash(s.Cfg_scrape.File_path, s.Cfg_scrape.URL, string( hex.EncodeToString(t.IH[:]) ))
-					if len(sm) == 0	{
-						item:=scrape.Files{
+					_, sm := scrape.GetScrapeByInfoHash(s.Cfg_scrape.File_path, s.Cfg_scrape.URL, string(hex.EncodeToString(t.IH[:])))
+					if len(sm) == 0 {
+						item := scrape.Files{
 							Downloaded: 0,
-							Complete: 0,
+							Complete:   0,
 							Incomplete: 0,
 						}
-						sm=append(sm, item)
+						sm = append(sm, item)
 					}
 					p := map[string]interface{}{
 						"Tags":       tags,
