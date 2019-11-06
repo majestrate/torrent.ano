@@ -131,6 +131,16 @@ func (st *Postgres) FindTorrentByInfohash(ih [20]byte) (t *model.Torrent, err er
 	return
 }
 
+func (st *Postgres) FindTorrentsByFile(name string, perpage, offset int) (torrents []model.Torrent, err error){
+	var rows *sql.Rows
+	rows, err = st.conn.Query(fmt.Sprintf("SELECT id, filename, meta_infohash FROM %s WHERE filename LIKE '%$1%' ORDER BY filename DESC LIMIT $2 OFFSET $3", tableFiles), name, perpage, offset)
+	if err == nil{
+		for rows.Next(){
+		}
+	}
+	return nil,nil; // TODO
+}
+
 func (st *Postgres) GetAllCategories() (cats []model.Category, err error) {
 	var rows *sql.Rows
 	rows, err = st.conn.Query(fmt.Sprintf("SELECT name, id FROM %s ORDER BY name", tableCategories))
