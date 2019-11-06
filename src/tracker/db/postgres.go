@@ -369,7 +369,7 @@ func (db *Postgres) GetCommentsForTorrent(t *model.Torrent) (comments []model.Co
 
 func (db *Postgres) GetTorrentTags(t *model.Torrent) (tags []model.Tag, err error) {
 	var rows *sql.Rows
-	rows, err = db.conn.Query(fmt.Sprintf("SELECT id, name, tagrank(id) as rank FROM %s WHERE id IN ( SELECT tag_id from %s WHERE tag_infohash = $1) ORDER BY name DESC", tableTags, tableTagMetaInt), t.InfoHash())
+	rows, err = db.conn.Query(fmt.Sprintf("SELECT id, name, tagrank(id) as rank FROM %s WHERE id IN ( SELECT tag_id from %s WHERE tag_infohash = $1) ORDER BY name", tableTags, tableTagMetaInt), t.InfoHash())
 	if err == sql.ErrNoRows {
 		err = nil
 	} else if err == nil {
