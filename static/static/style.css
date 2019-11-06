@@ -9,6 +9,18 @@ html, body {
     background: #111;
 }
 
+::selection {
+    color: #fff;
+    text-shadow: none;
+    background: #337;
+}
+
+#topnav, input, #download, .header, .toggle, #footer, #catlist {
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
 body, input, textarea {
     font-family: "Droid Sans", "Open Sans", "Noto Sans", Ubuntu, "Segoe UI", "Bitstream Vera Sans", Verdana, "Lucida Grande", Helvetica, sans-serif;
 }
@@ -18,6 +30,20 @@ body {
     font-size: 11pt;
     text-align: center;
     min-width: 800px;
+    background: url(/static/search.png),
+                url(/static/feed.png),
+                url(/static/category.png),
+                url(/static/magnet.png),
+                url(/static/download.png),
+                url(/static/tag.png),
+                url(/static/expand.png),
+                url(/static/expand_hover.png),
+                url(/static/collapse.png),
+                url(/static/collapse_hover.png),
+                url(/static/file.png),
+                url(/static/balloon.png);
+    background-repeat: no-repeat;
+    background-size: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
 }
 
 .container {
@@ -80,30 +106,28 @@ td a {
 }
 
 #topnav {
-    margin: -19px auto 15px;
-    padding: 10px 30px;
-    width: 50%;
+    margin: -20px auto 15px;
+    padding: 10px 80px;
+    display: inline-block;
     letter-spacing: 0.1em;
     font-size: 160%;
     text-transform: uppercase;
     color: #ccc;
-    border-width: 0 20px;
-    border-color: #555;
+    border-top: 1px solid #444;
     border-radius: 0 0 5px 5px;
-    box-shadow: inset 0 0 0 1px #333;
+    box-shadow: inset 0 0 0 1px #444;
     background: #555;
     background: repeating-linear-gradient(to left, rgba(0,0,0,.1), rgba(0,0,0,.2) 2px),
                 linear-gradient(to right, rgba(0,0,0,.2), rgba(0,0,0,0), rgba(0,0,0,.2)),
                 linear-gradient(to bottom, #666, #444);
     filter: drop-shadow(1px 0 2px rgba(0, 0, 0, .5));
+    will-change: transform;
 }
 
 .error #topnav {
-    margin-top: -17px;
-    width: 80%;
+    margin-top: -18px;
     color: #900;
     border: 1px solid #900;
-    border-top: none;
     box-shadow: inset 0 0 0 1px #000;
     background: #900;
     background: repeating-linear-gradient(to left, rgba(0,0,0,.1), rgba(0,0,0,.2) 2px),
@@ -408,13 +432,25 @@ tbody td {
 }
 
 .magnet, .torrent {
-    margin: 0 4px;
+    margin: 0;
     padding: 0 8px 0 4px;
     display: inline-block;
     vertical-align: middle;
     box-shadow: 0 0 0 1px #888, inset 0 0 0 1px #fff;
     border-radius: 2px;
     background: #eee;
+}
+
+.magnet:hover, .torrent:hover {
+    box-shadow: 0 0 0 1px #d30, inset 0 0 0 1px #fff;
+}
+
+.magnet:active, .torrent:active {
+    box-shadow: 0 0 0 1px #d30, inset 0 0 0 1px #fff, inset 2px 2px 2px #777;
+}
+
+.magnet a, .torrent a {
+    font-size: 90%;
 }
 
 a.torrent, a.magnet {
@@ -433,7 +469,7 @@ span.magnet img {
     margin-right: 4px;
 }
 
- span.torrent img {
+span.torrent img {
     margin-right: 2px;
 }
 
@@ -455,14 +491,14 @@ a.magnet img, a.torrent img {
 #recent th:first-child, #recent td:first-child,
 #recent th:nth-child(n+3), #recent td:nth-child(n+3),
 #tagged th:nth-child(n+2), #tagged td:nth-child(n+2),
-#tags th:nth-child(n+2), #tags td:nth-child(n+2),
 #category th:nth-child(n+2), #category td:nth-child(n+2) {
     width: 10%;
     white-space: nowrap;
 }
 
-#tags th:nth-child(n+2), #tags td:nth-child(n+2) {
+#tags th:last-child, #tags td:last-child {
     width: 1%;
+    white-space: nowrap;
 }
 
 #tagged .magnet, #tagged .torrent {
@@ -515,6 +551,11 @@ td.filename {
     -webkit-user-select: all;
     user-select: all;
     color: #070;
+}
+
+#infohash::selection {
+    color: #fff;
+    background: #070;
 }
 
 .info img {
@@ -606,17 +647,17 @@ input[type="text"]:focus::placeholder {
 input[type="submit"] {
     padding: 4px 10px;
     text-transform: capitalize;
-    color: #333;
-    border: 1px solid #999;
+    color: #444;
+    border: none;
     border-radius: 3px;
-    box-shadow: inset 0 0 0 1px #f8f8f8;
+    box-shadow: inset 0 0 0 1px #999;
     background: #ccc;
     background: linear-gradient(to bottom, #f2f2f2, #ccc);
     cursor: pointer;
 }
 
 input[type="submit"][value="search"] {
-    padding: 7px 10px;
+    padding: 8px 10px;
 }
 
 input[type="submit"]:hover, input[type="submit"]:focus {
@@ -627,7 +668,11 @@ input[type="submit"]:hover, input[type="submit"]:focus {
 
 input[type="submit"]:active {
     color: #777;
-    box-shadow: inset 0 0 0 1px #ddd, inset 2px 2px 2px #777;
+    box-shadow: inset 0 0 0 1px #999, inset 0 0 0 2px #ddd, inset 4px 4px 4px #777;
+}
+
+input::-moz-focus-inner {
+    border: none;
 }
 
 #tagsearch {
@@ -770,6 +815,7 @@ input[type="submit"]:active {
     display: none;
 }
 
+@media screen and (min-height: 700px) {
 #footer {
     margin: 0;
     padding: 3px 3px 4px;
@@ -784,6 +830,7 @@ input[type="submit"]:active {
     box-shadow: -1px 0 1px 1px #000;
     background: #080808;
     animation: ease fade 1s 60s forwards;
+}
 }
 
 #footer a {
@@ -807,6 +854,15 @@ body {
 
 .panel {
     padding: 5px;
+}
+
+#topnav {
+    border-top: 2px solid #444;
+}
+
+.error #topnav {
+    border: 1px solid #900;
+    border-top: 2px solid #900;
 }
 
 #categories .cat a {

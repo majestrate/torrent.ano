@@ -36,16 +36,22 @@
                 <a class="magnet" href="magnet:?xt=urn:btih:{{ .InfoHash }}"><img src="/static/magnet.png"></a>
                 <a class="torrent" href="{{ .DownloadLink }}"><img src="/static/download.png"></a>
               </td>
-            </tr> {{ end }}
-          </tbody>
+            </tr>{{ end }}
+          </tbody>{{ if .HasNextPage }}
           <tfoot>
             <tr>
               <th id="pagenav" style="text-align: center !important;" colspan="4">
-                {{ if .HasNextPage }}<a href="/c/{{ .Category.ID }}/?p={{ .NextPage }}"> Next Page</a>{{ end }}
-                {{ if .HasPrevPage }}<a href="/c/{{ .Category.ID }}/?p={{ .PrevPage }}"> Previous Page</a>{{ end }}
+                <a href="/c/{{ .Category.ID }}/?p={{ .NextPage }}"> Next Page</a>
               </th>
             </tr>
-          </tfoot>
+          </tfoot> {{ end }} {{ if .HasPrevPage }}
+          <tfoot>
+            <tr>
+              <th id="pagenav" style="text-align: center !important;" colspan="4">
+                <a href="/c/{{ .Category.ID }}/?p={{ .PrevPage }}"> Previous Page</a>
+              </th>
+            </tr>
+          </tfoot>{{ end }}
         </table>
         <hr>
         <div class="postform" align="center" id="torrentadd">
