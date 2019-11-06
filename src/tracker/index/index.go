@@ -425,7 +425,7 @@ func (s *Server) handleCategoryPage(w http.ResponseWriter, r *http.Request) {
 				"Site":        s.cfg.SiteName,
 				"NextPage":    nextPage,
 				"PrevPage":    prevPage,
-				"HasNextPage": !isEmpty && torrentsSize > perpage && (perpage/page) > torrentsSize,
+				"HasNextPage": !isEmpty && torrentsSize > perpage && torrentSize/(perpage*page) != 0 ,
 				"HasPrevPage": page > 0,
 			}
 
