@@ -3,6 +3,12 @@
 
 <head>
   <title> {{ .Site }} - {{ .Category.Name }} </title>
+  <style type="text/css">
+    body, html {min-height: 100%;}
+    body {background: #111;}
+    body {background: repeating-linear-gradient(45deg, #444, #333 2px, #222 3px), repeating-linear-gradient(135deg, #444, #333 2px, #222 3px); background-blend-mode: multiply, normal;}
+    .inner, #footer {opacity: 0;}
+  </style>
   <link rel="stylesheet" href="/static/style.css" />
   <link href="http://{{ .Domain }}/c/{{ .Category.ID }}/?t=atom" type="application/atom+xml" rel="alternate" title="{{ .Category.Name}} torrents on {{ .Site }}" />
 </head>

@@ -5,6 +5,12 @@
   <title> {{ .Site }} - Tag Search </title> {{ if .Search }} {{ if .SelectedTag }}
   <link href="{{ .FeedURL }}" type="application/atom+xml" rel="alternate" title="{{ .SelectedTag.Name}} torrents on {{ .Site }}" /> {{ else }}
   <link href="{{ .FeedURL }}" type="application/atom+xml" rel="alternate" title="{{ .SearchTag }} torrents on {{ .Site }}" /> {{ end }} {{ end }}
+  <style type="text/css">
+    body, html {min-height: 100%;}
+    body {background: #111;}
+    body {background: repeating-linear-gradient(45deg, #444, #333 2px, #222 3px), repeating-linear-gradient(135deg, #444, #333 2px, #222 3px); background-blend-mode: multiply, normal;}
+    .inner, #footer {opacity: 0;}
+  </style>
   <link rel="stylesheet" href="/static/style.css" />
 </head>
 
