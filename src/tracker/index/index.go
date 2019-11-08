@@ -569,14 +569,7 @@ func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 					t.Domain = r.Host
 
 					_, sm := scrape.GetScrapeByInfoHash(s.Cfg_scrape.File_path, s.Cfg_scrape.URL, string(hex.EncodeToString(t.IH[:])))
-					if len(sm) == 0 {
-						item := scrape.Files{
-							Downloaded: 0,
-							Complete:   0,
-							Incomplete: 0,
-						}
-						sm = append(sm, item)
-					}
+
 					p := map[string]interface{}{
 						"Tags":       tags,
 						"Torrent":    t,
@@ -584,9 +577,9 @@ func (s *Server) serveTorrentInfo(w http.ResponseWriter, r *http.Request) {
 						"Site":       s.cfg.SiteName,
 						"Comments":   comments,
 						"Domain":     r.Host,
-						"Downloaded": sm[0].Downloaded,
-						"Complete":   sm[0].Complete,
-						"Incomplete": sm[0].Incomplete,
+						"Downloaded": sm.Downloaded,
+						"Complete":   sm.Complete,
+						"Incomplete": sm.Incomplete,
 					}
 
 					var ok bool
