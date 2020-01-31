@@ -19,7 +19,7 @@ make sure to edit `config.ini` to have your settings
 
 ## Running
 
-    $ ./indextracker
+    $ ./indextracker config.ini
 
 ## Management
 
