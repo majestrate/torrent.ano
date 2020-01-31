@@ -1,14 +1,21 @@
 PREFIX=GOPATH=$(PWD)
 COMPILER=go
-INDEXTRACKER_OUTNAME=indextracker
-TRACKERMANAGER_OUTNAME=./cmd/trackermanager
+INDEXTRACKER=indextracker
+TRACKERMANAGER=trackermanager
+SUBMODULE=.submodule_built
 
-all: submodules indextracker trackermanager
-	$(info Its succefuly compiled. Check the README.md)	
-indextracker:
-	$(PREFIX) $(COMPILER) build -o $(INDEXTRACKER_OUTNAME)
-trackermanager:
-	$(PREFIX) $(COMPILER) build $(TRACKERMANAGER_OUTNAME)
-submodules:
+all: $(SUBMODULE) $(INDEXTRACKER) $(TRACKERMANAGER)
+
+$(INDEXTRACKER):
+	$(PREFIX) $(COMPILER) build -o $(INDEXTRACKER)
+$(TRACKERMANAGER):
+	$(PREFIX) $(COMPILER) build ./cmd/trackermanager
+
+$(SUBMODULE):
 	git submodule init
 	git submodule update
+	touch $(SUBMODULE)
+
+clean:
+	$(PREFIX) go clean -a
+	rm -f $(INDEXTRACKER) $(TRACKERMANAGER)
