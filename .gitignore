@@ -4,3 +4,4 @@ indextracker
 trackermanager
 *.torrent
 *.swp
+.submodule_built
