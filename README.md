@@ -11,6 +11,12 @@ Anonymous Torrent Index (with captcha)
 
     $ make
 
+## Setup
+
+    $ cp default.ini config.ini
+
+make sure to edit `config.ini` to have your settings
+
 ## Running
 
     $ ./indextracker
