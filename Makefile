@@ -19,3 +19,6 @@ $(SUBMODULE):
 clean:
 	$(PREFIX) go clean -a
 	rm -f $(INDEXTRACKER) $(TRACKERMANAGER)
+
+distclean: clean
+	rm -f $(SUBMODULE)
