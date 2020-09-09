@@ -33,6 +33,7 @@ type Server struct {
 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.mux.ServeHTTP(w, r)
+	w.Header().Set("charset", "utf-8") // maybe need to another place
 }
 func (s *Server) Error(w http.ResponseWriter, msg string, j bool) {
 	var err error
