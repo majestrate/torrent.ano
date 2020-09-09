@@ -12,9 +12,7 @@ $(TRACKERMANAGER):
 	$(PREFIX) $(COMPILER) build ./cmd/trackermanager
 
 $(SUBMODULE):
-	git submodule init
-	git submodule update
-	touch $(SUBMODULE)
+	git submodule update --init --recursive
 
 clean:
 	$(PREFIX) go clean -a
