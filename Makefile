@@ -1,22 +1,15 @@
-PREFIX=GOPATH=$(PWD)
+
 COMPILER=go
 INDEXTRACKER=indextracker
 TRACKERMANAGER=trackermanager
-SUBMODULE=.submodule_built
 
-all: $(SUBMODULE) $(INDEXTRACKER) $(TRACKERMANAGER)
+all: $(INDEXTRACKER) $(TRACKERMANAGER)
 
 $(INDEXTRACKER):
-	$(PREFIX) $(COMPILER) build -o $(INDEXTRACKER)
+	$(COMPILER) build -o $(INDEXTRACKER)
 $(TRACKERMANAGER):
-	$(PREFIX) $(COMPILER) build ./cmd/trackermanager
-
-$(SUBMODULE):
-	git submodule update --init --recursive
+	$(COMPILER) build ./cmd/trackermanager
 
 clean:
-	$(PREFIX) go clean -a
+	go clean -a
 	rm -f $(INDEXTRACKER) $(TRACKERMANAGER)
-
-distclean: clean
-	rm -f $(SUBMODULE)

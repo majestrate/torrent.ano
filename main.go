@@ -1,6 +1,6 @@
 package main
 
-import "tracker"
+import "github.com/majestrate/torrent.ano/lib/tracker"
 
 func main() {
 	tracker.Run()

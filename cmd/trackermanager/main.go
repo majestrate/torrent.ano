@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
+	"github.com/majestrate/torrent.ano/lib/tracker/config"
+	"github.com/majestrate/torrent.ano/lib/tracker/db"
+	"github.com/majestrate/torrent.ano/lib/tracker/log"
 	"os"
 	"strings"
-	"tracker/config"
-	"tracker/db"
-	"tracker/log"
 )
 
 const AddUser = "add-user"
