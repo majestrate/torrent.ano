@@ -1,13 +1,10 @@
-
 COMPILER=go
 INDEXTRACKER=indextracker
 TRACKERMANAGER=trackermanager
 
-all: $(INDEXTRACKER) $(TRACKERMANAGER)
-
-$(INDEXTRACKER):
+all:
+	$(COMPILER) get -u -v .
 	$(COMPILER) build -o $(INDEXTRACKER)
-$(TRACKERMANAGER):
 	$(COMPILER) build ./cmd/trackermanager
 
 clean:
