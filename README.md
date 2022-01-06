@@ -45,6 +45,6 @@ deleting an existing user
 
 ## Info
 
-* uploaded torrents are modified by adding an i2p torrent tracker as the default but keeps the rest, for clearnet torrents
+* uploaded torrents are modified by adding a torrent tracker as the default but keeps the rest
 * every page has atom feeds, just add `?t=atom` to the url
 * http basic auth used to bypass captchas
