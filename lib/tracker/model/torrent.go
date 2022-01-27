@@ -6,6 +6,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"github.com/majestrate/torrent.ano/lib/tracker/util"
+	"net/url"
 	"time"
 )
 
@@ -70,7 +71,13 @@ func (t *Torrent) DownloadLink() string {
 }
 
 func (t *Torrent) Magnet() string {
-	return fmt.Sprintf("magnet:?xt=urn:btih:%s", t.InfoHash())
+	mag := fmt.Sprintf("magnet:?xt=urn:btih:%s", t.InfoHash())
+	if t.AnnounceURLS != nil {
+		for _, val := range t.AnnounceURLS {
+			mag += "&tr=" + url.QueryEscape(val)
+		}
+	}
+	return mag
 }
 
 type torrentFeed struct {
